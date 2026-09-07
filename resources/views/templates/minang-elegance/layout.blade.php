@@ -290,7 +290,7 @@
     @include($templateService->sectionView($templateKey, 'gift'))
     @endif
     @if($sections->where('section_key', 'closing')->first()?->is_enabled)
-    <div id="closing-trigger" style="height:1px;width:100%;"></div>
+    @include($templateService->sectionView($templateKey, 'closing'))
     @endif
 </div>
 
@@ -317,17 +317,17 @@
         stage.classList.add('is-visible');
         requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.add('is-closed'); }); });
     }
-    // Trigger saat closing section sudah di-scroll ke bawah viewport
     if ('IntersectionObserver' in window) {
         var obs = new IntersectionObserver(function (e) {
             if (e[0].isIntersecting) { run(); obs.disconnect(); }
-        }, { threshold: 0, rootMargin: '0px 0px -80% 0px' });
+        }, { threshold: 0 });
         obs.observe(trigger);
     }
     window.addEventListener('scroll', function check() {
         var rect = trigger.getBoundingClientRect();
-        var vh = window.innerHeight || document.documentElement.clientHeight;
-        if (rect.top <= vh * 0.2) { run(); window.removeEventListener('scroll', check); }
+        if (rect.top <= (window.innerHeight || document.documentElement.clientHeight)) {
+            run(); window.removeEventListener('scroll', check);
+        }
     }, { passive: true });
 })();
 function musicPlayer(playlist) {

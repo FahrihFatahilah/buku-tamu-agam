@@ -102,18 +102,53 @@
 
         {{-- Template --}}
         <div class="bg-white border border-stone-200 p-5 space-y-4">
-            <h2 class="text-sm font-medium text-stone-700 pb-3 border-b border-stone-100">Template</h2>
+            <div class="flex items-center justify-between pb-3 border-b border-stone-100">
+                <h2 class="text-sm font-medium text-stone-700">Template</h2>
+                <a href="{{ route('admin.weddings.preview', $wedding) }}" target="_blank"
+                    class="text-xs text-stone-400 hover:text-stone-600 transition-colors">
+                    Preview undangan ↗
+                </a>
+            </div>
+            @php
+            $templatePalettes = [
+                'minang-elegance'     => ['bg' => '#2C1810', 'accent' => '#B8960C', 'text' => '#F5F0E8', 'label' => 'Maroon · Cream · Gold'],
+                'modern-luxury'       => ['bg' => '#0a0a0a', 'accent' => '#c9a84c', 'text' => '#ffffff', 'label' => 'Black · White · Gold'],
+                'floral-romantic'     => ['bg' => '#f9e8e8', 'accent' => '#c97b84', 'text' => '#4a2030', 'label' => 'Rose · Blush · Sage'],
+                'islamic-elegant'     => ['bg' => '#1a3a2a', 'accent' => '#c9a84c', 'text' => '#f5f0e8', 'label' => 'Green · Cream · Gold'],
+                'traditional-nusantara' => ['bg' => '#3d2010', 'accent' => '#c9a84c', 'text' => '#f5ede0', 'label' => 'Brown · Cream · Gold'],
+                'minimalist'          => ['bg' => '#ffffff', 'accent' => '#1a1a1a', 'text' => '#1a1a1a', 'label' => 'Black · White · Grey'],
+            ];
+            @endphp
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 @foreach($templates as $tpl)
-                <label class="relative cursor-pointer">
+                @php $palette = $templatePalettes[$tpl->key] ?? ['bg'=>'#f5f5f5','accent'=>'#333','text'=>'#333','label'=>'']; @endphp
+                <label class="relative cursor-pointer group">
                     <input type="radio" name="template_id" value="{{ $tpl->id }}"
                         {{ $wedding->template_id == $tpl->id ? 'checked' : '' }}
                         class="sr-only peer">
-                    <div class="border-2 border-stone-200 peer-checked:border-stone-800 p-3 transition-colors">
-                        <p class="text-sm font-medium text-stone-700">{{ $tpl->name }}</p>
-                        @if($tpl->description)
-                        <p class="text-xs text-stone-400 mt-0.5 line-clamp-2">{{ $tpl->description }}</p>
-                        @endif
+                    <div class="border-2 border-stone-200 peer-checked:border-stone-800 transition-colors overflow-hidden">
+                        {{-- Mini preview --}}
+                        <div class="h-24 relative flex flex-col items-center justify-center px-2"
+                            style="background:{{ $palette['bg'] }};">
+                            {{-- Ornamen garis --}}
+                            <div class="absolute top-2 left-2 w-4 h-4 border-t border-l opacity-40" style="border-color:{{ $palette['accent'] }}"></div>
+                            <div class="absolute top-2 right-2 w-4 h-4 border-t border-r opacity-40" style="border-color:{{ $palette['accent'] }}"></div>
+                            <div class="absolute bottom-2 left-2 w-4 h-4 border-b border-l opacity-40" style="border-color:{{ $palette['accent'] }}"></div>
+                            <div class="absolute bottom-2 right-2 w-4 h-4 border-b border-r opacity-40" style="border-color:{{ $palette['accent'] }}"></div>
+                            {{-- Nama pengantin mini --}}
+                            <p class="text-center leading-tight text-xs opacity-80" style="color:{{ $palette['text'] }};font-family:Georgia,serif;">{{ $wedding->bride_name }}</p>
+                            <p class="text-xs my-0.5" style="color:{{ $palette['accent'] }}">&</p>
+                            <p class="text-center leading-tight text-xs opacity-80" style="color:{{ $palette['text'] }};font-family:Georgia,serif;">{{ $wedding->groom_name }}</p>
+                            {{-- Checked indicator --}}
+                            <div class="absolute top-1.5 right-1.5 w-4 h-4 bg-stone-800 rounded-full hidden peer-checked:flex items-center justify-center">
+                                <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                            </div>
+                        </div>
+                        {{-- Info --}}
+                        <div class="p-2 bg-white">
+                            <p class="text-xs font-medium text-stone-700">{{ $tpl->name }}</p>
+                            <p class="text-xs text-stone-400 mt-0.5">{{ $palette['label'] }}</p>
+                        </div>
                     </div>
                 </label>
                 @endforeach
