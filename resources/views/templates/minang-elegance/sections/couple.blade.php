@@ -27,6 +27,12 @@
                 @if($wedding->bride_nickname && $wedding->bride_nickname !== $wedding->bride_name)
                 <p class="text-[#7C3238] text-sm mt-1 italic">"{{ $wedding->bride_nickname }}"</p>
                 @endif
+                  @if($wedding->bride_father || $wedding->bride_mother)
+                <p class="text-[#2C1810]/50 text-xs mt-3 leading-relaxed">
+                    Putri dari<br>
+                    {{ collect([$wedding->bride_father, $wedding->bride_mother])->filter()->join(' & ') }}
+                </p>
+                @endif
             </div>
              <div>
                 @php $groomPhoto = $media->where('collection', 'groom')->first() ?? $media->where('collection', 'couple')->first(); @endphp
@@ -38,6 +44,12 @@
                 <p class="font-serif text-2xl text-[#2C1810]">{{ $wedding->groom_name }}</p>
                 @if($wedding->groom_nickname && $wedding->groom_nickname !== $wedding->groom_name)
                 <p class="text-[#7C3238] text-sm mt-1 italic">"{{ $wedding->groom_nickname }}"</p>
+                @endif
+                 @if($wedding->groom_father || $wedding->groom_mother)
+                <p class="text-[#2C1810]/50 text-xs mt-3 leading-relaxed">
+                    Putra dari<br>
+                    {{ collect([$wedding->groom_father, $wedding->groom_mother])->filter()->join(' & ') }}
+                </p>
                 @endif
             </div>
         </div>
