@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@theme {
+    /* Fonts */
+    --font-sans: 'Lato', ui-sans-serif, system-ui, sans-serif;
+    --font-serif: 'Playfair Display', ui-serif, Georgia, serif;
+    --font-mono: ui-monospace, 'Courier New', monospace;
+
+    /* Ngundang Admin — neutral stone palette */
+    --color-admin-bg: #fafaf9;
+    --color-admin-border: #e7e5e4;
+    --color-admin-text: #1c1917;
+    --color-admin-muted: #78716c;
+
+    /* Minang Elegance palette */
+    --color-minang-maroon: #7c3238;
+    --color-minang-maroon-dark: #5a2329;
+    --color-minang-cream: #f5ede0;
+    --color-minang-gold: #c9a84c;
+    --color-minang-gold-muted: #b8960c;
+    --color-minang-brown: #3d1a1a;
+    --color-minang-dark: #1a0a0a;
+
+    /* Spacing scale (consistent with Tailwind defaults, documented) */
+    /* Radius — restrained */
+    --radius-sm: 0px;
+    --radius-md: 2px;
+    --radius-lg: 4px;
+
+    /* Transitions */
+    --transition-base: 150ms ease;
+    --transition-slow: 300ms ease;
+}

@@ -1,0 +1,271 @@
+/* ─── Minang Elegance — Animation System ─────────────────────────────────── */
+
+/* Base keyframes */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-down {
+    from { opacity: 0; transform: translateY(-24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-left {
+    from { opacity: 0; transform: translateX(32px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fade-right {
+    from { opacity: 0; transform: translateX(-32px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slow-zoom {
+    from { transform: scale(1.08); }
+    to   { transform: scale(1); }
+}
+
+@keyframes scale-in {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes blur-reveal {
+    from { opacity: 0; filter: blur(12px); transform: scale(1.02); }
+    to   { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+@keyframes ornament-reveal {
+    0%   { opacity: 0; transform: scaleX(0); }
+    60%  { opacity: 1; transform: scaleX(1.05); }
+    100% { opacity: 1; transform: scaleX(1); }
+}
+
+/* ─── Curtain ────────────────────────────────────────────────────────────── */
+
+/*
+  Opening curtain: left & right panels slide OUT (open)
+  Closing curtain: left & right panels slide IN (close)
+  Both are fixed overlays on top of the page content.
+*/
+
+/* Panel kiri */
+.curtain-left {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 50%;
+    background: #7C3238;
+    transform: translateX(0);
+    transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
+    z-index: 50;
+    will-change: transform;
+}
+
+/* Panel kanan */
+.curtain-right {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 50%;
+    background: #7C3238;
+    transform: translateX(0);
+    transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
+    z-index: 50;
+    will-change: transform;
+}
+
+/* State: terbuka — panel geser keluar */
+.curtain-opened .curtain-left  { transform: translateX(-100%); }
+.curtain-opened .curtain-right { transform: translateX(100%); }
+
+/* State: tertutup — panel geser masuk (untuk closing section) */
+.curtain-closed .curtain-left  { transform: translateX(0); }
+.curtain-closed .curtain-right { transform: translateX(0); }
+
+@keyframes cinematic {
+    0%   { opacity: 0; transform: translateY(16px) scale(0.98); filter: brightness(0.6); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: brightness(1); }
+}
+
+@keyframes float-gentle {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-6px); }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ─── Utility classes ─────────────────────────────────────────────────────── */
+
+.animate-fade-up    { animation: fade-up    0.9s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-down  { animation: fade-down  0.9s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-left  { animation: fade-left  0.9s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-fade-right { animation: fade-right 0.9s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-scale-in   { animation: scale-in   0.8s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-blur       { animation: blur-reveal 1s ease both; }
+.animate-cinematic  { animation: cinematic  1.2s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-curtain    { animation: curtain-up 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+.animate-float      { animation: float-gentle 4s ease-in-out infinite; }
+
+/* Hero slow zoom */
+#hero .hero-bg-img  { animation: slow-zoom 10s ease-out both; }
+
+/* Stagger delays */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
+.delay-500 { animation-delay: 500ms; }
+.delay-600 { animation-delay: 600ms; }
+.delay-700 { animation-delay: 700ms; }
+.delay-800 { animation-delay: 800ms; }
+
+/* ─── Intersection Observer reveal ───────────────────────────────────────── */
+
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+                transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+.reveal-left {
+    opacity: 0;
+    transform: translateX(32px);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+                transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-right {
+    opacity: 0;
+    transform: translateX(-32px);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+                transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.94);
+    transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1),
+                transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-scale.visible { opacity: 1; transform: scale(1); }
+
+.reveal-blur {
+    opacity: 0;
+    filter: blur(8px);
+    transition: opacity 0.9s ease, filter 0.9s ease;
+}
+.reveal-blur.visible { opacity: 1; filter: blur(0); }
+
+/* Stagger children */
+.stagger-children > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1),
+                transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.stagger-children.visible > *:nth-child(1) { opacity:1; transform:none; transition-delay: 0ms; }
+.stagger-children.visible > *:nth-child(2) { opacity:1; transform:none; transition-delay: 100ms; }
+.stagger-children.visible > *:nth-child(3) { opacity:1; transform:none; transition-delay: 200ms; }
+.stagger-children.visible > *:nth-child(4) { opacity:1; transform:none; transition-delay: 300ms; }
+.stagger-children.visible > *:nth-child(5) { opacity:1; transform:none; transition-delay: 400ms; }
+.stagger-children.visible > *:nth-child(6) { opacity:1; transform:none; transition-delay: 500ms; }
+
+/* Ornament line reveal */
+.ornament-line {
+    transform-origin: center;
+    transform: scaleX(0);
+    transition: transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.ornament-line.visible { transform: scaleX(1); }
+
+/* ─── Parallax ────────────────────────────────────────────────────────────── */
+/* parallax-bg: hero background moves slower than scroll (zoom-out feel) */
+.parallax-bg {
+    will-change: transform;
+}
+
+/* parallax-up: element drifts upward as user scrolls down */
+.parallax-up {
+    will-change: transform;
+}
+
+/* parallax-down: element drifts downward as user scrolls down */
+.parallax-down {
+    will-change: transform;
+}
+
+/* ─── Section background system ──────────────────────────────────────────── */
+.section-bg {
+    position: relative;
+    overflow: hidden;
+}
+.section-bg-layer {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 0;
+}
+.section-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+.section-overlay-img {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.15;
+}
+.section-content {
+    position: relative;
+    z-index: 3;
+}
+
+/* ─── Gold shimmer text ───────────────────────────────────────────────────── */
+.text-shimmer {
+    background: linear-gradient(90deg, #B8960C 0%, #e8c84a 40%, #B8960C 60%, #e8c84a 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite;
+}
+
+/* ─── Typography ──────────────────────────────────────────────────────────── */
+.font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-feature-settings: 'liga' 1, 'kern' 1;
+}
+
+html { scroll-behavior: smooth; }
+
+:focus-visible {
+    outline: 2px solid #B8960C;
+    outline-offset: 2px;
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .animate-fade-up, .animate-fade-down, .animate-fade-left, .animate-fade-right,
+    .animate-scale-in, .animate-blur, .animate-cinematic, .animate-curtain,
+    .animate-float, #hero .hero-bg-img,
+    .reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-blur,
+    .stagger-children > *, .ornament-line,
+    .parallax-bg, .parallax-up, .parallax-down {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        filter: none !important;
+    }
+}
