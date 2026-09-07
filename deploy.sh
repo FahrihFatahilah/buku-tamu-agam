@@ -6,6 +6,13 @@ FIRST_DEPLOY=false
 
 echo "🚀 Deploying Dammminvitation..."
 
+# Pastikan .env ada
+if [ ! -f .env ]; then
+    echo "❌ File .env tidak ditemukan! Buat dulu dari .env.example:"
+    echo "   cp .env.example .env && nano .env"
+    exit 1
+fi
+
 # Cek apakah ini first deploy (container belum ada)
 if ! docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
     FIRST_DEPLOY=true

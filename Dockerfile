@@ -19,11 +19,13 @@ RUN composer install \
     --no-dev \
     --no-interaction \
     --no-scripts \
+    --no-plugins \
     --prefer-dist \
-    --optimize-autoloader
+    --optimize-autoloader \
+    --ignore-platform-reqs
 
 COPY . .
-RUN composer dump-autoload --optimize
+RUN composer dump-autoload --optimize --no-scripts --ignore-platform-reqs
 
 # ─── Stage 3: Production image ───────────────────────────────────────────────
 FROM php:8.3-fpm-alpine

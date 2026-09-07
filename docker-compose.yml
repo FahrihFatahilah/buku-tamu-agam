@@ -1,77 +1,48 @@
-services:
+version: '3.8'
 
+services:
   app:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: dammminvitation-app
     restart: unless-stopped
-    environment:
-      APP_NAME: "Dammminvitation"
-      APP_ENV: production
-      APP_DEBUG: "false"
-      APP_URL: "https://dammminvitation.ffatahilah.my.id"
-      APP_KEY: "${APP_KEY}"
-
-      DB_CONNECTION: mysql
-      DB_HOST: host.docker.internal
-      DB_PORT: 3306
-      DB_DATABASE: "${DB_DATABASE:-invitation}"
-      DB_USERNAME: "${DB_USERNAME:-ffatahilah}"
-      DB_PASSWORD: "${DB_PASSWORD:-OmbaInam#121221}"
-
-      CACHE_STORE: database
-      SESSION_DRIVER: database
-      QUEUE_CONNECTION: database
-
-      FILESYSTEM_DISK: local
-      NGUNDANG_PLATFORM_DOMAIN: "dammminvitation.ffatahilah.my.id"
     volumes:
-      - storage_data:/var/www/html/storage/app
-      - logs_data:/var/www/html/storage/logs
-    networks:
-      - traefik_proxy
+      - ./.env:/var/www/html/.env
+      - dammm-storage:/var/www/html/storage/app
+      - dammm-logs:/var/www/html/storage/logs
+    environment:
+      - APP_NAME=Dammminvitation
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_URL=https://dammminvitation.ffatahilah.my.id
+      - DB_CONNECTION=mysql
+      - DB_HOST=host.docker.internal
+      - DB_PORT=3306
+      - SESSION_DRIVER=database
+      - CACHE_STORE=database
+      - QUEUE_CONNECTION=database
+      - FILESYSTEM_DISK=local
+      - NGUNDANG_PLATFORM_DOMAIN=dammminvitation.ffatahilah.my.id
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik_proxy"
-      - "traefik.http.routers.dammm-http.rule=Host(`dammminvitation.ffatahilah.my.id`)"
-      - "traefik.http.routers.dammm-http.entrypoints=web"
-      - "traefik.http.routers.dammm-http.middlewares=redirect-to-https"
       - "traefik.http.routers.dammm.rule=Host(`dammminvitation.ffatahilah.my.id`)"
       - "traefik.http.routers.dammm.entrypoints=websecure"
       - "traefik.http.routers.dammm.tls=true"
       - "traefik.http.routers.dammm.tls.certresolver=letsencrypt"
       - "traefik.http.services.dammm.loadbalancer.server.port=80"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
-
-  setup:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: "no"
-    command: >
-      sh -c "php artisan migrate --force &&
-             php artisan db:seed --force &&
-             php artisan storage:link &&
-             php artisan config:cache &&
-             php artisan route:cache &&
-             php artisan view:cache"
-    environment:
-      APP_KEY: "${APP_KEY}"
-      APP_URL: "https://dammminvitation.ffatahilah.my.id"
-      DB_CONNECTION: mysql
-      DB_HOST: "${DB_HOST}"
-      DB_PORT: "${DB_PORT:-3306}"
-      DB_DATABASE: "${DB_DATABASE}"
-      DB_USERNAME: "${DB_USERNAME}"
-      DB_PASSWORD: "${DB_PASSWORD}"
+      - "traefik.docker.network=traefik_net"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
-      - traefik_proxy
-
-volumes:
-  storage_data:
-  logs_data:
+      - proxy
 
 networks:
-  traefik_proxy:
+  proxy:
     external: true
+
+volumes:
+  dammm-storage:
+    driver: local
+  dammm-logs:
+    driver: local
