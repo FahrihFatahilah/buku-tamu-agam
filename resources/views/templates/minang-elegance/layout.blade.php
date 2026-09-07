@@ -317,15 +317,18 @@
         stage.classList.add('is-visible');
         requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.add('is-closed'); }); });
     }
+    // Trigger saat closing section sudah di-scroll ke bawah viewport
     if ('IntersectionObserver' in window) {
-        var obs = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { run(); obs.disconnect(); } }, { threshold: 1.0 });
+        var obs = new IntersectionObserver(function (e) {
+            if (e[0].isIntersecting) { run(); obs.disconnect(); }
+        }, { threshold: 0, rootMargin: '0px 0px -80% 0px' });
         obs.observe(trigger);
-    } else {
-        window.addEventListener('scroll', function check() {
-            var rect = trigger.getBoundingClientRect();
-            if (rect.top <= (window.innerHeight || document.documentElement.clientHeight)) { run(); window.removeEventListener('scroll', check); }
-        }, { passive: true });
     }
+    window.addEventListener('scroll', function check() {
+        var rect = trigger.getBoundingClientRect();
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.top <= vh * 0.2) { run(); window.removeEventListener('scroll', check); }
+    }, { passive: true });
 })();
 function musicPlayer(playlist) {
     return {

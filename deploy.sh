@@ -6,45 +6,43 @@ FIRST_DEPLOY=false
 
 echo "🚀 Deploying Dammminvitation..."
 
-# Pastikan .env ada
 if [ ! -f .env ]; then
-    echo "❌ File .env tidak ditemukan! Buat dulu dari .env.example:"
-    echo "   cp .env.example .env && nano .env"
+    echo "❌ File .env tidak ditemukan!"
     exit 1
 fi
 
-# Cek apakah ini first deploy (container belum ada)
 if ! docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
     FIRST_DEPLOY=true
     echo "📦 First deploy detected"
 fi
 
-# Build & up
-echo "🔨 Building image..."
-docker compose build --no-cache
+# Build base image sekali jika belum ada
+if ! docker image inspect dammm-base:latest &>/dev/null; then
+    echo "🔨 Building base image (sekali saja)..."
+    docker build --target base -t dammm-base:latest .
+fi
+
+# Build app — pakai cache, jauh lebih cepat
+echo "🔨 Building app image..."
+docker compose build
 
 echo "▶️  Starting container..."
 docker compose up -d
 
-# Tunggu container ready
 echo "⏳ Waiting for container..."
-sleep 5
+sleep 3
 
-# Selalu jalankan migrate
 echo "🗄️  Running migrations..."
 docker exec $CONTAINER php artisan migrate --force
 
-# First deploy: seed + storage:link
 if [ "$FIRST_DEPLOY" = true ]; then
     echo "🌱 Seeding database..."
     docker exec $CONTAINER php artisan db:seed --force
-
     echo "🔗 Creating storage link..."
     docker exec $CONTAINER php artisan storage:link
 fi
 
-# Cache
-echo "⚡ Caching config, routes, views..."
+echo "⚡ Caching..."
 docker exec $CONTAINER php artisan config:cache
 docker exec $CONTAINER php artisan route:cache
 docker exec $CONTAINER php artisan view:cache
