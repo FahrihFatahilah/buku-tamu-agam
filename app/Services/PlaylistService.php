@@ -60,7 +60,7 @@ class PlaylistService
 
     public function deleteTrack(PlaylistItem $item): void
     {
-        Storage::delete($item->file_path);
+        Storage::disk('public')->delete($item->file_path);
         $this->audit->log('playlist.track_deleted', 'playlist_item', $item->id, [
             'title' => $item->title,
         ], $item->playlist->wedding_id);
