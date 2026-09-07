@@ -14,11 +14,15 @@ services:
     environment:
       - APP_NAME=Dammminvitation
       - APP_ENV=production
+      - APP_KEY=base64:Q0KP94HeBsqK1YXQLjyVXxxun8U00Gw50jrTduiBo84=
       - APP_DEBUG=false
       - APP_URL=https://dammminvitation.ffatahilah.my.id
       - DB_CONNECTION=mysql
       - DB_HOST=host.docker.internal
       - DB_PORT=3306
+      - DB_DATABASE=invitaion
+      - DB_USERNAME=ffatahilah
+      - DB_PASSWORD=OmbaInam#121221
       - SESSION_DRIVER=database
       - CACHE_STORE=database
       - QUEUE_CONNECTION=database
