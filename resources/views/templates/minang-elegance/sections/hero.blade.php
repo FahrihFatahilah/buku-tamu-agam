@@ -32,9 +32,9 @@
 
     {{-- Content --}}
     <div class="section-content text-center px-6 max-w-lg mx-auto">
-        <p class="text-[#B8960C] text-xs tracking-[0.4em] uppercase mb-8 animate-fade-down delay-200">
+        <!-- <p class="text-[#B8960C] text-xs tracking-[0.4em] uppercase mb-8 animate-fade-down delay-200">
             {{ $wedding->appearance['terminology']['wedding_of'] ?? $wedding->template?->default_settings['terminology']['wedding_of'] ?? 'The Wedding of' }}
-        </p>
+        </p> -->
 
         <h1 class="font-serif text-[#F5F0E8] leading-tight animate-cinematic delay-300">
             <span class="block text-2xl sm:text-2xl lg:text-2xl">{{ $wedding->bride_name }}</span>
