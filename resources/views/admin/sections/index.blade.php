@@ -47,6 +47,13 @@
                     class="text-xs text-stone-400 hover:text-stone-600 transition-colors px-2 py-1 border border-stone-200 hover:border-stone-300">
                     <span x-text="open ? 'Tutup' : 'Atur'"></span>
                 </button>
+
+                @if($section->section_key === 'love_story')
+                <a href="{{ route('admin.weddings.sections.love-story.index', [$wedding, $section]) }}"
+                    class="text-xs text-stone-400 hover:text-stone-600 transition-colors px-2 py-1 border border-stone-200 hover:border-stone-300">
+                    Edit Kisah
+                </a>
+                @endif
             </div>
 
             {{-- Expanded settings --}}

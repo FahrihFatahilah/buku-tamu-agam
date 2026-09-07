@@ -16,6 +16,8 @@ class GuestBookController extends Controller
         $entries = GuestBookEntry::where('wedding_id', $wedding->id)
             ->when($request->status, fn($q) => $q->where('status', $request->status))
             ->when($request->search, fn($q) => $q->where('name', 'like', "%{$request->search}%"))
+            ->when($request->guest_type, fn($q) => $q->whereHas('guest', fn($g) => $g->where('guest_type', $request->guest_type)))
+            ->with('guest')
             ->latest()
             ->paginate(30);
 

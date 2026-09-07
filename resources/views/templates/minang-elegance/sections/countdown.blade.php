@@ -24,9 +24,7 @@
             </template>
         </div>
 
-        <div class="mt-8 text-[#2C1810]/50 text-sm reveal delay-300">
-            {{ $wedding->date->translatedFormat('l, d F Y') }}
-        </div>
+        
     </div>
 </section>
 

@@ -93,7 +93,15 @@ class WeddingController extends Controller
             'template_id'     => 'nullable|exists:templates,id',
             'og_image'        => 'nullable|file|mimes:jpg,jpeg,png,webp|max:2048',
             'favicon'         => 'nullable|file|mimes:ico,png|max:512',
+            'settings'        => 'nullable|array',
+            'settings.quote_arabic' => 'nullable|string|max:1000',
+            'settings.quote_source' => 'nullable|string|max:100',
         ]);
+
+        // Merge settings
+        if ($request->has('settings')) {
+            $validated['settings'] = array_merge($wedding->settings ?? [], $request->input('settings', []));
+        }
 
         if ($request->hasFile('og_image')) {
             $validated['og_image'] = $request->file('og_image')

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\GiftMethod;
+use App\Models\VisibilityRule;
 use App\Models\Wedding;
 use App\Services\MediaService;
 use Illuminate\Http\Request;
@@ -16,7 +17,37 @@ class GiftController extends Controller
     {
         $this->authorize('update', $wedding);
         $gifts = $wedding->giftMethods()->orderBy('sort_order')->get();
-        return view('admin.gift.index', compact('wedding', 'gifts'));
+        $categories = $wedding->guestCategories;
+        $rules = VisibilityRule::where('wedding_id', $wedding->id)
+            ->where('entity_type', 'gift_method')
+            ->get()
+            ->groupBy('entity_id');
+        return view('admin.gift.index', compact('wedding', 'gifts', 'categories', 'rules'));
+    }
+
+    public function updateVisibility(Request $request, Wedding $wedding, GiftMethod $gift)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($gift->wedding_id !== $wedding->id, 403);
+
+        $request->validate([
+            'scope'      => 'required|in:wedding_default,category',
+            'scope_id'   => 'nullable|integer',
+            'is_visible' => 'required|boolean',
+        ]);
+
+        VisibilityRule::updateOrCreate(
+            [
+                'wedding_id'  => $wedding->id,
+                'entity_type' => 'gift_method',
+                'entity_id'   => $gift->id,
+                'scope'       => $request->scope,
+                'scope_id'    => $request->scope_id,
+            ],
+            ['is_visible' => $request->boolean('is_visible')]
+        );
+
+        return response()->json(['ok' => true]);
     }
 
     public function store(Request $request, Wedding $wedding)

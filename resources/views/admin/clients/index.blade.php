@@ -53,6 +53,8 @@
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex items-center justify-end gap-2">
+                            <a href="{{ route('admin.clients.users.index', $client) }}"
+                                class="text-xs text-stone-400 hover:text-stone-600 transition-colors">Users</a>
                             <button onclick="openEdit({{ $client->id }}, {{ json_encode($client->only(['name','email','phone','company','status'])) }})"
                                 class="text-xs text-stone-400 hover:text-stone-600 transition-colors">Edit</button>
                             <form method="POST" action="{{ route('admin.clients.destroy', $client) }}">

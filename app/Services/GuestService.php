@@ -49,6 +49,7 @@ class GuestService
         $imported = 0;
         $failed = 0;
         $duplicate = 0;
+        $categoriesBefore = $wedding->guestCategories()->count();
 
         foreach ($rows as $row) {
             if (empty($row['name'])) {
@@ -69,11 +70,14 @@ class GuestService
 
             try {
                 Guest::create([
-                    'wedding_id' => $wedding->id,
-                    'name' => $row['name'],
-                    'phone' => $row['phone'] ?? null,
-                    'email' => $row['email'] ?? null,
-                    'max_pax' => (int) ($row['max_pax'] ?? 1),
+                    'wedding_id'  => $wedding->id,
+                    'name'        => trim($row['name']),
+                    'phone'       => $row['phone'] ?? null,
+                    'email'       => $row['email'] ?? null,
+                    'max_pax'     => max(1, (int) ($row['max_pax'] ?? 1)),
+                    'notes'       => $row['notes'] ?? null,
+                    'category_id' => $this->resolveCategoryId($wedding, $row['category_id'] ?? null),
+                    'guest_type'  => in_array($row['guest_type'] ?? '', ['vip', 'regular']) ? $row['guest_type'] : 'regular',
                 ]);
                 $imported++;
             } catch (\Exception) {
@@ -87,6 +91,24 @@ class GuestService
             'duplicate' => $duplicate,
         ], $wedding->id);
 
-        return compact('imported', 'failed', 'duplicate');
+        $categoriesCreated = $wedding->guestCategories()->count() - $categoriesBefore;
+
+        return compact('imported', 'failed', 'duplicate', 'categoriesCreated');
+    }
+
+    private function resolveCategoryId(Wedding $wedding, mixed $value): ?int
+    {
+        if (empty($value)) return null;
+
+        // Numeric ID — harus sudah ada
+        if (is_numeric($value)) {
+            return $wedding->guestCategories()->where('id', (int) $value)->value('id');
+        }
+
+        // Category name — buat otomatis jika belum ada
+        return $wedding->guestCategories()->firstOrCreate(
+            ['name' => trim($value)],
+            ['sort_order' => $wedding->guestCategories()->max('sort_order') + 1]
+        )->id;
     }
 }

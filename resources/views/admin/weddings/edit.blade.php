@@ -173,10 +173,32 @@
                 <textarea name="description" rows="3"
                     class="w-full px-3 py-2 border border-stone-300 text-sm focus:outline-none focus:border-stone-500 transition-colors resize-none">{{ old('description', $wedding->description) }}</textarea>
             </div>
-            <div>
-                <label class="block text-sm text-stone-600 mb-1.5">Quote / Ayat</label>
-                <textarea name="quote" rows="2"
-                    class="w-full px-3 py-2 border border-stone-300 text-sm focus:outline-none focus:border-stone-500 transition-colors resize-none">{{ old('quote', $wedding->quote) }}</textarea>
+
+            {{-- Ayat Al-Quran --}}
+            <div class="border-t border-stone-100 pt-4 space-y-3">
+                <p class="text-xs font-medium text-stone-500 uppercase tracking-wide">Ayat Al-Quran (Section Quote)</p>
+                <div>
+                    <label class="block text-sm text-stone-600 mb-1.5">Teks Arab</label>
+                    <textarea name="settings[quote_arabic]" rows="3" dir="rtl"
+                        placeholder="وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم ..."
+                        style="font-family: 'Scheherazade New', 'Amiri', serif; font-size: 1.3rem; line-height: 2;"
+                        class="w-full px-3 py-2 border border-stone-300 text-right focus:outline-none focus:border-stone-500 transition-colors resize-none">{{ old('settings.quote_arabic', $wedding->settings['quote_arabic'] ?? '') }}</textarea>
+                    <p class="text-xs text-stone-400 mt-1">Tulis atau paste teks Arab. Font akan otomatis disesuaikan di undangan.</p>
+                </div>
+                <div>
+                    <label class="block text-sm text-stone-600 mb-1.5">Terjemahan</label>
+                    <textarea name="quote" rows="3"
+                        placeholder="Dan di antara tanda-tanda kekuasaan-Nya ..."
+                        class="w-full px-3 py-2 border border-stone-300 text-sm focus:outline-none focus:border-stone-500 transition-colors resize-none">{{ old('quote', (!$wedding->quote || preg_match('/^(Q\.?S\.?|Surah|QS)/i', trim($wedding->quote ?? ''))) ? '' : $wedding->quote) }}</textarea>
+                    <p class="text-xs text-stone-400 mt-1">Isi dengan terjemahan ayat, bukan nama surah.</p>
+                </div>
+                <div>
+                    <label class="block text-sm text-stone-600 mb-1.5">Sumber Ayat</label>
+                    <input type="text" name="settings[quote_source]"
+                        value="{{ old('settings.quote_source', $wedding->settings['quote_source'] ?? 'QS. Ar-Rum: 21') }}"
+                        placeholder="QS. Ar-Rum: 21"
+                        class="w-full px-3 py-2 border border-stone-300 text-sm focus:outline-none focus:border-stone-500 transition-colors">
+                </div>
             </div>
         </div>
 

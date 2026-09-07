@@ -1,0 +1,7 @@
+name,phone,email,max_pax,notes,category_id,guest_type
+Thari,08123456789,thari@email.com,2,Temen SMP,,regular
+Hasna,08234567890,,2,Temen SMP,,regular
+Clarissa,08345678901,,2,Temen SMP Kls 7,,regular
+Bu Sri Astuti,08456789012,,2,Direktur,,vip
+Pak Hilman,08567890123,,2,TU,,vip
+Kel. Pak Ei,,,,Keluarga,,regular

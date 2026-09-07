@@ -48,6 +48,13 @@
         <input type="url" name="maps_url" id="{{ $prefix }}maps_url"
             class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
     </div>
+    <div class="col-span-2">
+        <label class="block text-xs text-stone-500 mb-1">Google Maps Embed</label>
+        <textarea name="maps_embed" id="{{ $prefix }}maps_embed" rows="3"
+            placeholder="Paste kode iframe dari Google Maps (Share → Embed a map → Copy HTML)"
+            class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400 resize-none font-mono text-xs"></textarea>
+        <p class="text-xs text-stone-400 mt-1">Google Maps → Share → Embed a map → salin kode &lt;iframe ...&gt;</p>
+    </div>
     <div>
         <label class="block text-xs text-stone-500 mb-1">Dress Code</label>
         <input type="text" name="dress_code" id="{{ $prefix }}dress_code"

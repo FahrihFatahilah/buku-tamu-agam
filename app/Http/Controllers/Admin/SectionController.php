@@ -106,4 +106,118 @@ class SectionController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function timelineIndex(Wedding $wedding, WeddingSection $section)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id || $section->section_key !== 'timeline', 403);
+        $items = $section->settings['items'] ?? [];
+        return view('admin.sections.timeline', compact('wedding', 'section', 'items'));
+    }
+
+    public function timelineStore(Request $request, Wedding $wedding, WeddingSection $section)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id, 403);
+
+        $validated = $request->validate([
+            'time'        => 'required|string|max:50',
+            'title'       => 'required|string|max:100',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        $items = $section->settings['items'] ?? [];
+        $items[] = $validated;
+        $section->update(['settings' => array_merge($section->settings ?? [], ['items' => $items])]);
+
+        return back()->with('success', 'Item timeline berhasil ditambahkan.');
+    }
+
+    public function timelineUpdate(Request $request, Wedding $wedding, WeddingSection $section, int $index)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id, 403);
+
+        $validated = $request->validate([
+            'time'        => 'required|string|max:50',
+            'title'       => 'required|string|max:100',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        $items = $section->settings['items'] ?? [];
+        abort_if(!isset($items[$index]), 404);
+        $items[$index] = $validated;
+        $section->update(['settings' => array_merge($section->settings ?? [], ['items' => array_values($items)])]);
+
+        return back()->with('success', 'Item timeline berhasil diperbarui.');
+    }
+
+    public function timelineDestroy(Wedding $wedding, WeddingSection $section, int $index)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id, 403);
+
+        $items = $section->settings['items'] ?? [];
+        array_splice($items, $index, 1);
+        $section->update(['settings' => array_merge($section->settings ?? [], ['items' => array_values($items)])]);
+
+        return back()->with('success', 'Item timeline berhasil dihapus.');
+    }
+
+    public function loveStoryIndex(Wedding $wedding, WeddingSection $section)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id || $section->section_key !== 'love_story', 403);
+        $stories = $section->settings['stories'] ?? [];
+        return view('admin.sections.love-story', compact('wedding', 'section', 'stories'));
+    }
+
+    public function loveStoryStore(Request $request, Wedding $wedding, WeddingSection $section)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id, 403);
+
+        $validated = $request->validate([
+            'year'        => 'required|string|max:50',
+            'title'       => 'required|string|max:100',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $stories = $section->settings['stories'] ?? [];
+        $stories[] = $validated;
+        $section->update(['settings' => array_merge($section->settings ?? [], ['stories' => $stories])]);
+
+        return back()->with('success', 'Kisah berhasil ditambahkan.');
+    }
+
+    public function loveStoryUpdate(Request $request, Wedding $wedding, WeddingSection $section, int $index)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id, 403);
+
+        $validated = $request->validate([
+            'year'        => 'required|string|max:50',
+            'title'       => 'required|string|max:100',
+            'description' => 'nullable|string|max:1000',
+        ]);
+
+        $stories = $section->settings['stories'] ?? [];
+        abort_if(!isset($stories[$index]), 404);
+        $stories[$index] = $validated;
+        $section->update(['settings' => array_merge($section->settings ?? [], ['stories' => array_values($stories)])]);
+
+        return back()->with('success', 'Kisah berhasil diperbarui.');
+    }
+
+    public function loveStoryDestroy(Wedding $wedding, WeddingSection $section, int $index)
+    {
+        $this->authorize('update', $wedding);
+        abort_if($section->wedding_id !== $wedding->id, 403);
+
+        $stories = $section->settings['stories'] ?? [];
+        array_splice($stories, $index, 1);
+        $section->update(['settings' => array_merge($section->settings ?? [], ['stories' => array_values($stories)])]);
+
+        return back()->with('success', 'Kisah berhasil dihapus.');
+    }
 }

@@ -8,7 +8,7 @@ class WeddingEvent extends Model
 {
     protected $fillable = [
         'wedding_id', 'name', 'type', 'starts_at', 'ends_at',
-        'venue', 'address', 'latitude', 'longitude', 'maps_url',
+        'venue', 'address', 'latitude', 'longitude', 'maps_url', 'maps_embed',
         'dress_code', 'notes', 'is_public', 'sort_order',
     ];
 

@@ -70,8 +70,8 @@
     {{-- Import result --}}
     @if(session('import_result'))
     @php $result = session('import_result'); @endphp
-    <div class="mb-4 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 text-sm">
-        Import selesai: {{ $result['imported'] ?? 0 }} berhasil, {{ $result['skipped'] ?? 0 }} dilewati.
+    <div class="mb-4 px-4 py-3 border text-sm {{ ($result['failed'] ?? 0) > 0 ? 'bg-amber-50 border-amber-200 text-amber-700' : 'bg-green-50 border-green-200 text-green-700' }}">
+        Import selesai: <strong>{{ $result['imported'] ?? 0 }} berhasil</strong>{{ ($result['duplicate'] ?? 0) > 0 ? ', ' . $result['duplicate'] . ' duplikat dilewati' : '' }}{{ ($result['failed'] ?? 0) > 0 ? ', ' . $result['failed'] . ' gagal' : '' }}.{{ ($result['categoriesCreated'] ?? 0) > 0 ? ' ' . $result['categoriesCreated'] . ' kategori baru dibuat otomatis.' : '' }}
     </div>
     @endif
 
@@ -89,6 +89,7 @@
             <thead>
                 <tr class="border-b border-stone-200 bg-stone-50">
                     <th class="text-left px-4 py-3 font-medium text-stone-500 text-xs uppercase tracking-wide">Nama</th>
+                    <th class="text-left px-4 py-3 font-medium text-stone-500 text-xs uppercase tracking-wide hidden sm:table-cell">Tipe</th>
                     <th class="text-left px-4 py-3 font-medium text-stone-500 text-xs uppercase tracking-wide hidden sm:table-cell">Kategori</th>
                     <th class="text-left px-4 py-3 font-medium text-stone-500 text-xs uppercase tracking-wide hidden md:table-cell">Kontak</th>
                     <th class="text-center px-4 py-3 font-medium text-stone-500 text-xs uppercase tracking-wide">Pax</th>
@@ -101,9 +102,21 @@
                 @foreach($guests as $guest)
                 <tr class="hover:bg-stone-50 transition-colors" x-data="{ open: false }">
                     <td class="px-4 py-3">
-                        <p class="font-medium text-stone-800">{{ $guest->name }}</p>
+                        <div class="flex items-center gap-1.5">
+                            <p class="font-medium text-stone-800">{{ $guest->name }}</p>
+                            @if($guest->guest_type === 'vip')
+                            <span class="text-xs font-semibold text-amber-600 border border-amber-300 px-1 leading-4">VIP</span>
+                            @endif
+                        </div>
                         @if($guest->notes)
                         <p class="text-xs text-stone-400 mt-0.5 truncate max-w-[180px]">{{ $guest->notes }}</p>
+                        @endif
+                    </td>
+                    <td class="px-4 py-3 hidden sm:table-cell">
+                        @if($guest->guest_type === 'vip')
+                        <span class="inline-block px-2 py-0.5 text-xs bg-amber-50 text-amber-600 border border-amber-200">VIP</span>
+                        @else
+                        <span class="inline-block px-2 py-0.5 text-xs bg-stone-100 text-stone-500">Regular</span>
                         @endif
                     </td>
                     <td class="px-4 py-3 hidden sm:table-cell">
@@ -155,7 +168,7 @@
                                 ↓
                             </a>
                             {{-- Edit --}}
-                            <button onclick="openEdit({{ $guest->id }}, {{ json_encode($guest->only(['name','phone','email','max_pax','notes','category_id'])) }})"
+                            <button onclick="openEdit({{ $guest->id }}, {{ json_encode($guest->only(['name','phone','email','max_pax','notes','category_id','guest_type'])) }})"
                                 class="text-xs text-stone-400 hover:text-stone-600 transition-colors">
                                 Edit
                             </button>
@@ -216,7 +229,12 @@
                     Upload
                 </button>
             </form>
-            <p class="mt-1 text-xs text-stone-400">Format: name, phone, email, max_pax, notes, category_id</p>
+            <p class="mt-1 text-xs text-stone-400">
+                Kolom wajib: <code class="bg-stone-100 px-1">name</code>, <code class="bg-stone-100 px-1">max_pax</code> &nbsp;|&nbsp;
+                Opsional: <code class="bg-stone-100 px-1">phone</code>, <code class="bg-stone-100 px-1">email</code>, <code class="bg-stone-100 px-1">notes</code>, <code class="bg-stone-100 px-1">category_id</code>, <code class="bg-stone-100 px-1">guest_type</code> (regular/vip)
+                &nbsp;|&nbsp;
+                <a href="/template-import-tamu.csv" download class="underline hover:text-stone-600">Download Template</a>
+            </p>
         </details>
     </div>
 </div>
@@ -258,6 +276,15 @@
                     <label class="block text-xs text-stone-500 mb-1">Maks. Pax <span class="text-red-400">*</span></label>
                     <input type="number" name="max_pax" value="1" min="1" max="20" required
                         class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-stone-500 mb-1">Tipe Tamu</label>
+                    <select name="guest_type" class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
+                        <option value="regular">Regular</option>
+                        <option value="vip">VIP</option>
+                    </select>
                 </div>
             </div>
             <div>
@@ -312,6 +339,15 @@
                         class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
                 </div>
             </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-stone-500 mb-1">Tipe Tamu</label>
+                    <select name="guest_type" id="edit-guest-type" class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
+                        <option value="regular">Regular</option>
+                        <option value="vip">VIP</option>
+                    </select>
+                </div>
+            </div>
             <div>
                 <label class="block text-xs text-stone-500 mb-1">Catatan</label>
                 <textarea name="notes" id="edit-notes" rows="2" class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400 resize-none"></textarea>
@@ -335,6 +371,7 @@ function openEdit(id, data) {
     document.getElementById('edit-max-pax').value = data.max_pax || 1;
     document.getElementById('edit-notes').value = data.notes || '';
     document.getElementById('edit-category').value = data.category_id || '';
+    document.getElementById('edit-guest-type').value = data.guest_type || 'regular';
     document.getElementById('modal-edit').classList.remove('hidden');
 }
 </script>

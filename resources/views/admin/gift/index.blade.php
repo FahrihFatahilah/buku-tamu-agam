@@ -58,6 +58,61 @@
         @endforeach
     </div>
     @endif
+
+    {{-- Visibility Matrix --}}
+    @if($gifts->isNotEmpty() && $categories->isNotEmpty())
+    <div class="mt-8">
+        <h2 class="text-sm font-medium text-stone-700 mb-1">Visibilitas per Kategori Tamu</h2>
+        <p class="text-xs text-stone-400 mb-4">Centang = tampil untuk kategori tersebut. Kolom <strong>Default</strong> berlaku untuk tamu tanpa kategori atau yang tidak punya aturan khusus.</p>
+        <div class="bg-white border border-stone-200 overflow-x-auto">
+            <table class="text-sm w-full">
+                <thead>
+                    <tr class="border-b border-stone-200 bg-stone-50">
+                        <th class="text-left px-4 py-3 text-xs font-medium text-stone-500 uppercase tracking-wide min-w-[160px]">Metode Hadiah</th>
+                        <th class="px-4 py-3 text-xs font-medium text-stone-500 uppercase tracking-wide text-center">Default</th>
+                        @foreach($categories as $cat)
+                        <th class="px-4 py-3 text-xs font-medium text-stone-500 uppercase tracking-wide text-center whitespace-nowrap">{{ $cat->name }}</th>
+                        @endforeach
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-stone-100">
+                    @foreach($gifts as $gift)
+                    @php
+                        $giftRules = $rules->get($gift->id, collect())->keyBy(fn($r) => $r->scope . '_' . $r->scope_id);
+                        $defaultRule = $giftRules->get('wedding_default_');
+                        $defaultVisible = $defaultRule ? $defaultRule->is_visible : true;
+                    @endphp
+                    <tr class="hover:bg-stone-50">
+                        <td class="px-4 py-3 font-medium text-stone-700">
+                            {{ $gift->label }}
+                            <span class="text-xs text-stone-400 ml-1">{{ $gift->type }}</span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <input type="checkbox" {{ $defaultVisible ? 'checked' : '' }}
+                                onchange="saveVisibility({{ $gift->id }}, 'wedding_default', null, this.checked)"
+                                class="w-4 h-4 border-stone-300 cursor-pointer">
+                        </td>
+                        @foreach($categories as $cat)
+                        @php
+                            $catRule = $giftRules->get('category_' . $cat->id);
+                            $catVisible = $catRule ? $catRule->is_visible : $defaultVisible;
+                        @endphp
+                        <td class="px-4 py-3 text-center">
+                            <input type="checkbox" {{ $catVisible ? 'checked' : '' }}
+                                onchange="saveVisibility({{ $gift->id }}, 'category', {{ $cat->id }}, this.checked)"
+                                class="w-4 h-4 cursor-pointer {{ $catRule ? 'accent-blue-600' : '' }}">
+                        </td>
+                        @endforeach
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <p class="text-xs text-stone-400 mt-2">Checkbox biru = ada aturan khusus untuk kategori tersebut.</p>
+    </div>
+    @elseif($gifts->isNotEmpty() && $categories->isEmpty())
+    <p class="mt-6 text-xs text-stone-400">Buat <a href="{{ route('admin.weddings.categories.index', $wedding) }}" class="underline">kategori tamu</a> terlebih dahulu untuk mengatur visibilitas per kategori.</p>
+    @endif
 </div>
 
 {{-- Modal Add --}}
@@ -110,6 +165,17 @@ function openEdit(id, data) {
     const active = document.getElementById('edit-is_active');
     if (active) active.checked = !!data.is_active;
     document.getElementById('modal-edit').classList.remove('hidden');
+}
+
+function saveVisibility(giftId, scope, scopeId, isVisible) {
+    fetch(`/admin/weddings/{{ $wedding->id }}/gift/${giftId}/visibility`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        },
+        body: JSON.stringify({ scope, scope_id: scopeId, is_visible: isVisible ? 1 : 0 }),
+    });
 }
 </script>
 @endsection

@@ -13,7 +13,7 @@
     </div>
 
     {{-- Filter --}}
-    <form method="GET" class="flex gap-2 mb-4">
+    <form method="GET" class="flex flex-wrap gap-2 mb-4">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama..."
             class="border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400 w-48">
         <select name="status" class="border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
@@ -23,8 +23,13 @@
             <option value="rejected" @selected(request('status')==='rejected')>Rejected</option>
             <option value="hidden" @selected(request('status')==='hidden')>Hidden</option>
         </select>
+        <select name="guest_type" class="border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
+            <option value="">Semua Tipe</option>
+            <option value="vip" @selected(request('guest_type')==='vip')>VIP</option>
+            <option value="regular" @selected(request('guest_type')==='regular')>Regular</option>
+        </select>
         <button type="submit" class="px-4 py-2 bg-stone-100 text-stone-700 text-sm hover:bg-stone-200 transition-colors">Filter</button>
-        @if(request('search') || request('status'))
+        @if(request('search') || request('status') || request('guest_type'))
         <a href="{{ route('admin.weddings.guestbook.index', $wedding) }}" class="px-4 py-2 text-stone-400 text-sm hover:text-stone-600">Reset</a>
         @endif
     </form>
@@ -68,7 +73,12 @@
                             <input type="checkbox" name="ids[]" value="{{ $entry->id }}" class="w-4 h-4 border-stone-300">
                         </td>
                         <td class="px-4 py-3">
-                            <p class="font-medium text-stone-800">{{ $entry->name }}</p>
+                            <div class="flex items-center gap-1.5">
+                                <p class="font-medium text-stone-800">{{ $entry->name }}</p>
+                                @if($entry->guest?->guest_type === 'vip')
+                                <span class="text-xs font-semibold text-amber-600 border border-amber-300 px-1 leading-4">VIP</span>
+                                @endif
+                            </div>
                             <p class="text-xs text-stone-400">{{ $entry->created_at->diffForHumans() }}</p>
                         </td>
                         <td class="px-4 py-3 hidden md:table-cell">

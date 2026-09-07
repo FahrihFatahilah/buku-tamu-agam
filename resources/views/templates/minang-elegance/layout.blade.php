@@ -15,7 +15,7 @@
     @if($wedding->favicon)<link rel="icon" href="{{ Storage::url($wedding->favicon) }}">@endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Lato:wght@300;400;700&family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/css/templates/minang-elegance.css', 'resources/js/app.js'])
     <style>
         #curtain-stage {
@@ -32,7 +32,7 @@
             top: 0; bottom: 0;
             width: 52%;
             overflow: hidden;
-            transition: transform 1.4s cubic-bezier(0.77,0,0.18,1);
+            transition: transform 0.98s cubic-bezier(0.77,0,0.18,1);
         }
         #curtain-left  { left: 0; }
         #curtain-right { right: 0; }
@@ -63,7 +63,7 @@
                 rgba(0,0,0,0.28)      72%,
                 rgba(0,0,0,0)        100%
             );
-            animation: curtain-swing 4s ease-in-out infinite;
+            animation: curtain-swing 2.8s ease-in-out infinite;
         }
         .un-curtain:nth-child(1) { animation-delay:  0.00s; }
         .un-curtain:nth-child(2) { animation-delay: -0.50s; }
@@ -121,7 +121,7 @@
             background: transparent;
         }
         #closing-stage.is-visible { display: block; }
-        #closing-stage .curtain-container { transition: transform 1.4s cubic-bezier(0.77,0,0.18,1); }
+        #closing-stage .curtain-container { transition: transform 0.98s cubic-bezier(0.77,0,0.18,1); }
         #closing-stage #curtain-left  { transform: translateX(-100%); }
         #closing-stage #curtain-right { transform: translateX(100%);  }
         #closing-stage.is-closed #curtain-left  { transform: translateX(0); }
@@ -218,10 +218,7 @@
     </div>
     <div id="closing-overlay"></div>
     <div id="closing-ui">
-        <svg viewBox="0 0 200 80" style="width:6rem;fill:#B8960C;opacity:0.3;margin-bottom:1.5rem;">
-            <path d="M10,70 L10,40 L30,20 L50,35 L50,20 L70,5 L90,20 L100,15 L110,20 L130,5 L150,20 L150,35 L170,20 L190,40 L190,70 Z"/>
-            <rect x="85" y="45" width="30" height="25"/>
-        </svg>
+      
         <p style="font-family:'Playfair Display',serif;color:#F5F0E8;font-size:1.5rem;margin-bottom:0.1rem;">{{ $wedding->bride_name }}</p>
         @if($wedding->bride_nickname)
         <p style="color:rgba(245,240,232,0.5);font-size:0.85rem;margin-bottom:0.5rem;letter-spacing:0.05em;">{{ $wedding->bride_nickname }}</p>
@@ -255,12 +252,13 @@
 
 <div id="invitation-content">
     @include($templateService->sectionView($templateKey, 'hero'))
+    @if($sections->where('section_key', 'quote')->first()?->is_enabled)
+    @include($templateService->sectionView($templateKey, 'quote'))
+    @endif
     @if($sections->where('section_key', 'couple')->first()?->is_enabled)
     @include($templateService->sectionView($templateKey, 'couple'))
     @endif
-    @if($sections->where('section_key', 'quote')->first()?->is_enabled && $wedding->quote)
-    @include($templateService->sectionView($templateKey, 'quote'))
-    @endif
+    
     @if($sections->where('section_key', 'love_story')->first()?->is_enabled)
     @include($templateService->sectionView($templateKey, 'love_story'))
     @endif
@@ -272,9 +270,6 @@
     @endif
     @if($sections->where('section_key', 'venue')->first()?->is_enabled && $events->isNotEmpty())
     @include($templateService->sectionView($templateKey, 'venue'))
-    @endif
-    @if($sections->where('section_key', 'maps')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'maps'))
     @endif
     @if($sections->where('section_key', 'gallery')->first()?->is_enabled)
     @include($templateService->sectionView($templateKey, 'gallery'))
@@ -307,7 +302,7 @@
     document.body.style.overflow = 'hidden';
     btn.addEventListener('click', function () {
         stage.classList.add('is-open');
-        setTimeout(function () { stage.remove(); document.body.style.overflow = ''; }, 1600);
+        setTimeout(function () { stage.remove(); document.body.style.overflow = ''; }, 1100);
     });
     btn.addEventListener('mouseenter', function () { btn.style.background = 'rgba(184,150,12,0.1)'; });
     btn.addEventListener('mouseleave', function () { btn.style.background = 'transparent'; });
@@ -323,12 +318,14 @@
         requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.add('is-closed'); }); });
     }
     if ('IntersectionObserver' in window) {
-        var obs = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { run(); obs.disconnect(); } }, { threshold: 0, rootMargin: '200px 0px 0px 0px' });
+        var obs = new IntersectionObserver(function (e) { if (e[0].isIntersecting) { run(); obs.disconnect(); } }, { threshold: 1.0 });
         obs.observe(trigger);
+    } else {
+        window.addEventListener('scroll', function check() {
+            var rect = trigger.getBoundingClientRect();
+            if (rect.top <= (window.innerHeight || document.documentElement.clientHeight)) { run(); window.removeEventListener('scroll', check); }
+        }, { passive: true });
     }
-    window.addEventListener('scroll', function check() {
-        if (trigger.getBoundingClientRect().top <= (window.innerHeight || document.documentElement.clientHeight) + 200) { run(); window.removeEventListener('scroll', check); }
-    }, { passive: true });
 })();
 function musicPlayer(playlist) {
     return {

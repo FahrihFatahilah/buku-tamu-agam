@@ -11,12 +11,7 @@
                 [
                     'year' => '2024 December',
                     'title' => 'Awal Pertemuan',
-                    'description' => 'Berawal dari pertemuan sederhana di dating app Bumble. Awalnya kami hanya saling mengenal dan bertukar cerita, tanpa pernah menyangka bahwa perkenalan ini akan menjadi awal dari perjalanan panjang bersama.'
-                ],
-                [
-                    'year' => '2025 January',
-                    'title' => 'Mulai Dekat',
-                    'description' => 'Seiring berjalannya waktu, komunikasi kami semakin sering. Dari yang awalnya hanya sekadar bertukar cerita, perlahan tumbuh rasa nyaman dan keinginan untuk mengenal satu sama lain lebih jauh.'
+                    'description' => 'Berawal dari pertemuan sederhana yang mempertemukan dua hati. Awalnya kami hanya saling mengenal dan bertukar cerita, tanpa pernah menyangka bahwa perkenalan ini akan menjadi awal dari perjalanan panjang bersama.'
                 ],
                 [
                     'year' => '2025 February 2',
@@ -35,6 +30,7 @@
                 ],
             ];
         @endphp
+
         <div class="relative">
             <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#c9a84c]/20 -translate-x-1/2"></div>
 

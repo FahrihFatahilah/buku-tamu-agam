@@ -103,7 +103,7 @@
 function openEdit(id, data) {
     const base = '{{ url("admin/weddings/" . $wedding->id . "/events") }}';
     document.getElementById('form-edit').action = base + '/' + id;
-    ['name','type','venue','address','maps_url','dress_code','notes'].forEach(f => {
+    ['name','type','venue','address','maps_url','maps_embed','dress_code','notes'].forEach(f => {
         const el = document.getElementById('edit-' + f);
         if (el) el.value = data[f] || '';
     });

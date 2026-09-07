@@ -8,7 +8,7 @@
 
     @include('templates._section-bg', ['section' => $heroSection, 'defaultBg' => $defaultBg])
 
-    {{-- Hero photo with parallax + slow zoom --}}
+    {{-- Hero photo --}}
     @if($heroMedia)
     <div class="absolute inset-0 z-0 overflow-hidden">
         <img src="{{ $heroMedia->url() }}"
@@ -17,7 +17,7 @@
             data-parallax-speed="0.2">
         <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
     </div>
-    @elseif(!($heroSection?->settings['bg_image'] ?? null))
+    @else
     <div class="absolute inset-0 z-0 bg-[#2C1810]">
         <div class="absolute inset-0 opacity-5"
             style="background-image: repeating-linear-gradient(45deg,#B8960C 0,#B8960C 1px,transparent 0,transparent 50%);background-size:20px 20px;"></div>
@@ -38,25 +38,10 @@
 
         <h1 class="font-serif text-[#F5F0E8] leading-tight animate-cinematic delay-300">
             <span class="block text-2xl sm:text-2xl lg:text-2xl">{{ $wedding->bride_name }}</span>
-
             <span class="block text-[#B8960C] text-2xl my-3 font-light italic animate-fade-up delay-400">&</span>
             <span class="block text-2xl sm:text-2xl lg:text-2xl">{{ $wedding->groom_name }}</span>
-
         </h1>
 
-        @if($wedding->date)
-        <div class="mt-8 flex items-center justify-center gap-4 text-[#F5F0E8]/60 text-sm animate-fade-up delay-500">
-            <span class="ornament-line w-8 h-px bg-[#B8960C]/40 block"></span>
-            <time datetime="{{ $wedding->date->format('Y-m-d') }}" class="tracking-widest">
-                {{ $wedding->date->translatedFormat('d F Y') }}
-            </time>
-            <span class="ornament-line w-8 h-px bg-[#B8960C]/40 block"></span>
-        </div>
-        @endif
-
-        @if($wedding->venue)
-        <p class="mt-3 text-[#F5F0E8]/50 text-sm animate-fade-up delay-600">{{ $wedding->venue }}</p>
-        @endif
 
        
     </div>

@@ -45,6 +45,7 @@ class GuestController extends Controller
             'category_id' => 'nullable|exists:guest_categories,id',
             'max_pax' => 'required|integer|min:1|max:20',
             'notes' => 'nullable|string|max:500',
+            'guest_type' => 'nullable|in:regular,vip',
         ]);
 
         // Ensure category belongs to this wedding
@@ -69,6 +70,7 @@ class GuestController extends Controller
             'category_id' => 'nullable|exists:guest_categories,id',
             'max_pax' => 'required|integer|min:1|max:20',
             'notes' => 'nullable|string|max:500',
+            'guest_type' => 'nullable|in:regular,vip',
         ]);
 
         $this->guestService->update($guest, $validated);
@@ -106,16 +108,19 @@ class GuestController extends Controller
 
         $file = $request->file('file');
         $rows = array_map('str_getcsv', file($file->getRealPath()));
-        $headers = array_map('strtolower', array_map('trim', array_shift($rows)));
-        $data = array_map(fn($row) => array_combine($headers, array_pad($row, count($headers), null)), $rows);
+        $headers = array_map(fn($h) => strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h))), array_shift($rows));
+        $data = array_filter(
+            array_map(fn($row) => array_combine($headers, array_pad(array_map('trim', $row), count($headers), null)), $rows),
+            fn($row) => !empty($row['name'])
+        );
 
         // Large files go to queue; small files process sync
-        if (count($data) > 100) {
-            \App\Jobs\ImportGuestsCsv::dispatch($wedding, $data, $request->user()->id);
+        if (count($data) > 500) {
+            \App\Jobs\ImportGuestsCsv::dispatch($wedding, array_values($data), $request->user()->id);
             return back()->with('success', 'Import sedang diproses di background. Refresh halaman beberapa saat lagi.');
         }
 
-        $result = $this->guestService->importCsv($wedding, $data);
+        $result = $this->guestService->importCsv($wedding, array_values($data));
 
         return back()->with('import_result', $result);
     }

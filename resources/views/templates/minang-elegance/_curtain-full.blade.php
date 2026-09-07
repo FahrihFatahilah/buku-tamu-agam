@@ -73,19 +73,10 @@
     <rect x="0" y="897" width="800" height="3" fill="#B8960C" opacity="0.5"/>
     <rect x="0" y="893" width="800" height="1" fill="#B8960C" opacity="0.2"/>
 
-    {{-- Ornamen Rumah Gadang kiri --}}
+    {{-- Ornamen Rumah Gadang — satu, di bawah, penuh --}}
     <image href="{{ asset('images/rumah-gadang.svg') }}"
         x="0" y="500" width="800" height="400" opacity="0.88"
         preserveAspectRatio="xMidYMax meet"/>
-
-
-    {{-- Ornamen Rumah Gadang kanan --}}
-    <g transform="translate(600, 90)" opacity="0.18">
-        <path d="M-70,35 L-52,8 L-35,22 L-35,8 L-18,0 L0,8 L18,0 L35,8 L35,22 L52,8 L70,35 Z" fill="#B8960C"/>
-        <rect x="-13" y="22" width="26" height="13" fill="#B8960C"/>
-        <rect x="-32" y="25" width="13" height="10" fill="#B8960C"/>
-        <rect x="19"  y="25" width="13" height="10" fill="#B8960C"/>
-    </g>
 
     {{-- Ornamen diamond kiri --}}
     <g transform="translate(200, 450)" opacity="0.14">

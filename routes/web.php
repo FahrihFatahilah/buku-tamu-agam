@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\PlaylistController;
 use App\Http\Controllers\Admin\QrController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\VisibilityController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\WeddingController;
 use App\Http\Controllers\CheckIn\CheckInController;
 use App\Http\Controllers\Public\GuestBookController;
@@ -76,6 +77,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
         Route::post('clients', [ClientController::class, 'store'])->name('clients.store');
         Route::put('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
         Route::delete('clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
+        // User management per client
+        Route::get('clients/{client}/users', [UserController::class, 'index'])->name('clients.users.index');
+        Route::post('clients/{client}/users', [UserController::class, 'store'])->name('clients.users.store');
+        Route::put('clients/{client}/users/{user}', [UserController::class, 'update'])->name('clients.users.update');
+        Route::delete('clients/{client}/users/{user}', [UserController::class, 'destroy'])->name('clients.users.destroy');
         Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
     });
 
@@ -118,6 +124,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
         Route::get('sections', [SectionController::class, 'index'])->name('sections.index');
         Route::put('sections/{section}', [SectionController::class, 'update'])->name('sections.update');
         Route::post('sections/reorder', [SectionController::class, 'reorder'])->name('sections.reorder');
+        Route::get('sections/{section}/timeline', [SectionController::class, 'timelineIndex'])->name('sections.timeline.index');
+        Route::post('sections/{section}/timeline', [SectionController::class, 'timelineStore'])->name('sections.timeline.store');
+        Route::put('sections/{section}/timeline/{index}', [SectionController::class, 'timelineUpdate'])->name('sections.timeline.update');
+        Route::delete('sections/{section}/timeline/{index}', [SectionController::class, 'timelineDestroy'])->name('sections.timeline.destroy');
+        Route::post('sections/{section}/timeline/reorder', [SectionController::class, 'timelineReorder'])->name('sections.timeline.reorder');
+        Route::get('sections/{section}/love-story', [SectionController::class, 'loveStoryIndex'])->name('sections.love-story.index');
+        Route::post('sections/{section}/love-story', [SectionController::class, 'loveStoryStore'])->name('sections.love-story.store');
+        Route::put('sections/{section}/love-story/{index}', [SectionController::class, 'loveStoryUpdate'])->name('sections.love-story.update');
+        Route::delete('sections/{section}/love-story/{index}', [SectionController::class, 'loveStoryDestroy'])->name('sections.love-story.destroy');
 
         // Media
         Route::get('media', [MediaController::class, 'index'])->name('media.index');
@@ -131,6 +146,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
         Route::post('gift', [GiftController::class, 'store'])->name('gift.store');
         Route::put('gift/{gift}', [GiftController::class, 'update'])->name('gift.update');
         Route::delete('gift/{gift}', [GiftController::class, 'destroy'])->name('gift.destroy');
+        Route::post('gift/{gift}/visibility', [GiftController::class, 'updateVisibility'])->name('gift.visibility');
 
         // Playlist / Music
         Route::get('playlist', [PlaylistController::class, 'index'])->name('playlist.index');

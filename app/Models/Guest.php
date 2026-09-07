@@ -12,7 +12,7 @@ class Guest extends Model
 
     protected $fillable = [
         'wedding_id', 'category_id', 'name', 'phone', 'email',
-        'invitation_token', 'short_token', 'max_pax', 'notes', 'status', 'token_generated_at',
+        'invitation_token', 'short_token', 'max_pax', 'notes', 'status', 'guest_type', 'token_generated_at',
     ];
 
     protected $casts = [
