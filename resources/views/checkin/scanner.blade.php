@@ -16,8 +16,11 @@
 
     {{-- QR Scanner --}}
     <div class="bg-stone-800 border border-stone-700 p-5 mb-5">
-        <p class="text-xs text-stone-400 mb-3 tracking-wider uppercase">Scan QR Code</p>
-        <div id="qr-reader" class="w-full aspect-square bg-stone-900"></div>
+        <div class="flex items-center justify-between mb-3">
+            <p class="text-xs text-stone-400 tracking-wider uppercase">Scan QR Code</p>
+            <button @click="switchCamera()" class="text-xs text-stone-400 hover:text-stone-200 px-2 py-1 border border-stone-600 hover:border-stone-400 transition-colors">Ganti Kamera</button>
+        </div>
+        <div id="qr-reader" class="w-full aspect-square bg-stone-900" :style="mirrored ? 'transform:scaleX(-1)' : ''"></div>
         <p class="text-xs text-stone-500 mt-2 text-center">Arahkan kamera ke QR code tamu</p>
     </div>
 
@@ -99,24 +102,45 @@ function checkin() {
         success: false,
         successMessage: '',
         scanner: null,
+        facingMode: 'environment',
+        mirrored: false,
 
         init() {
             this.initScanner();
         },
 
         initScanner() {
+            if (this.scanner) {
+                this.scanner.stop().catch(() => {});
+            }
             this.scanner = new Html5Qrcode('qr-reader');
             this.scanner.start(
-                { facingMode: 'environment' },
+                { facingMode: this.facingMode },
                 { fps: 10, qrbox: { width: 250, height: 250 } },
                 (decodedText) => this.onScan(decodedText),
                 () => {}
-            ).catch(() => {});
+            ).catch(() => {
+                // fallback ke kamera manapun
+                this.scanner.start(
+                    { facingMode: 'user' },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => this.onScan(decodedText),
+                    () => {}
+                ).catch(() => {});
+            });
+        },
+
+        switchCamera() {
+            this.scanner.stop().then(() => {
+                this.facingMode = this.facingMode === 'environment' ? 'user' : 'environment';
+                this.mirrored  = this.facingMode === 'user';
+                this.initScanner();
+            }).catch(() => {});
         },
 
         async onScan(text) {
-            // Extract token from URL
-            const match = text.match(/\/u\/([a-f0-9]{64})/);
+            // Match both short token (12 alphanumeric) and full token (64 hex)
+            const match = text.match(/\/u\/([a-zA-Z0-9]{12,64})/);
             if (!match) return;
 
             const token = match[1];
