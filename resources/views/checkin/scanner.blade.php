@@ -52,10 +52,18 @@
     </div>
 
     {{-- Guest Card --}}
-    <div x-show="guest" class="bg-stone-800 border border-stone-600 p-5">
+    <div x-show="guest" class="border p-5" :class="guest?.is_vip ? 'bg-yellow-950/40 border-yellow-600/50' : 'bg-stone-800 border-stone-600'">
+
+        {{-- VIP Banner --}}
+        <div x-show="guest?.is_vip" class="flex items-center gap-2 mb-4 px-3 py-2 bg-yellow-500/20 border border-yellow-500/40">
+            <span class="text-yellow-400 text-base">★</span>
+            <span class="text-yellow-400 text-sm font-medium tracking-wider uppercase">Tamu VIP</span>
+            <span class="text-yellow-400 text-base">★</span>
+        </div>
+
         <div class="mb-4">
             <p class="text-xs text-stone-400 tracking-wider uppercase mb-1">Tamu</p>
-            <p class="font-serif text-xl text-stone-100" x-text="guest?.name"></p>
+            <p class="font-serif text-xl" :class="guest?.is_vip ? 'text-yellow-300' : 'text-stone-100'" x-text="guest?.name"></p>
             <p class="text-sm text-stone-400 mt-0.5" x-text="guest?.category"></p>
         </div>
 
@@ -86,8 +94,9 @@
     </div>
 
     {{-- Success --}}
-    <div x-show="success" class="bg-green-900/20 border border-green-700/30 p-5 text-center">
-        <p class="text-green-400 font-medium" x-text="successMessage"></p>
+    <div x-show="success" class="border p-5 text-center" :class="successVip ? 'bg-yellow-950/30 border-yellow-600/40' : 'bg-green-900/20 border-green-700/30'">
+        <div x-show="successVip" class="text-yellow-400 text-lg mb-2">★ VIP ★</div>
+        <p class="font-medium" :class="successVip ? 'text-yellow-400' : 'text-green-400'" x-text="successMessage"></p>
     </div>
 </div>
 
@@ -102,6 +111,7 @@ function checkin() {
         loading: false,
         success: false,
         successMessage: '',
+        successVip: false,
         scanner: null,
         facingMode: 'environment',
         mirrored: false,
@@ -214,10 +224,11 @@ function checkin() {
 
             if (res.ok) {
                 const data = await res.json();
+                this.successVip = this.guest?.is_vip ?? false;
                 this.successMessage = `${data.guest_name} — ${data.pax} orang — ${data.checked_in_at}`;
                 this.success = true;
                 this.guest = null;
-                setTimeout(() => { this.success = false; }, 4000);
+                setTimeout(() => { this.success = false; this.successVip = false; }, 4000);
             }
         },
     };

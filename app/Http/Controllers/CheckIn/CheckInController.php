@@ -46,13 +46,15 @@ class CheckInController extends Controller
 
         return response()->json([
             'guest' => [
-                'id' => $guest->id,
-                'name' => $guest->name,
-                'category' => $guest->category?->name,
-                'max_pax' => $guest->max_pax,
+                'id'            => $guest->id,
+                'name'          => $guest->name,
+                'category'      => $guest->category?->name,
+                'max_pax'       => $guest->max_pax,
+                'token'         => $token,
+                'is_vip'        => strtolower($guest->category?->name ?? '') === 'vip' || $guest->guest_type === 'vip',
                 'is_checked_in' => $guest->isCheckedIn(),
-                'checkin' => $guest->checkin ? [
-                    'pax' => $guest->checkin->pax,
+                'checkin'       => $guest->checkin ? [
+                    'pax'           => $guest->checkin->pax,
                     'checked_in_at' => $guest->checkin->checked_in_at->format('H:i'),
                 ] : null,
             ],
@@ -72,7 +74,7 @@ class CheckInController extends Controller
         $guest = $this->tokenService->resolveGuest($validated['token'], $wedding);
 
         if (!$guest) {
-            return back()->withErrors(['token' => 'Token tidak valid.']);
+            return response()->json(['error' => 'Token tidak valid.'], 404);
         }
 
         $checkin = $this->checkInService->checkIn(
@@ -103,13 +105,13 @@ class CheckInController extends Controller
         $guests = $this->checkInService->searchGuests($wedding, $query);
 
         return response()->json(['guests' => $guests->map(fn($g) => [
-            'id' => $g->id,
-            'name' => $g->name,
-            'phone' => $g->phone,
-            'category' => $g->category?->name,
-            'max_pax' => $g->max_pax,
+            'id'            => $g->id,
+            'name'          => $g->name,
+            'phone'         => $g->phone,
+            'category'      => $g->category?->name,
+            'max_pax'       => $g->max_pax,
             'is_checked_in' => $g->isCheckedIn(),
-            'token' => $g->invitation_token,
+            'token'         => $g->short_token ?? $g->invitation_token,
         ])]);
     }
 }
