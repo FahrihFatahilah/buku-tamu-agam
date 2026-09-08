@@ -13,7 +13,7 @@ services:
       - dammm-logs:/var/www/html/storage/logs
     environment:
       - APP_NAME=Dammminvitation
-      - APP_ENV=production
+      - APP_ENV=local
       - APP_KEY=base64:Q0KP94HeBsqK1YXQLjyVXxxun8U00Gw50jrTduiBo84=
       - APP_DEBUG=false
       - APP_URL=https://dammminvitation.ffatahilah.my.id
