@@ -22,6 +22,7 @@
         </div>
         <div id="qr-reader" class="w-full aspect-square bg-stone-900" :style="mirrored ? 'transform:scaleX(-1)' : ''"></div>
         <p class="text-xs text-stone-500 mt-2 text-center">Arahkan kamera ke QR code tamu</p>
+        <p x-show="scanError" x-text="scanError" class="mt-2 text-xs text-red-400 text-center"></p>
     </div>
 
     {{-- Manual Search --}}
@@ -104,6 +105,8 @@ function checkin() {
         scanner: null,
         facingMode: 'environment',
         mirrored: false,
+        scanError: '',
+        _lastToken: null,
 
         init() {
             this.initScanner();
@@ -144,6 +147,8 @@ function checkin() {
             if (!match) return;
 
             const token = match[1];
+            if (this._lastToken === token) return; // debounce scan sama
+            this._lastToken = token;
             await this.resolveToken(token);
         },
 
@@ -156,6 +161,14 @@ function checkin() {
                 const data = await res.json();
                 this.guest = data.guest;
                 this.pax = this.guest.max_pax;
+                this.scanError = '';
+            } else if (res.status === 404) {
+                this.scanError = 'QR tidak dikenali. Tamu tidak ditemukan.';
+                this.guest = null;
+                setTimeout(() => { this.scanError = ''; this._lastToken = null; }, 3000);
+            } else {
+                this.scanError = 'Gagal membaca QR. Coba lagi.';
+                setTimeout(() => { this.scanError = ''; this._lastToken = null; }, 3000);
             }
         },
 
