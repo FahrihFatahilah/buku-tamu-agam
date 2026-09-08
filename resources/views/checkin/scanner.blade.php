@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check-in — {{ $wedding->coupleName() }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-stone-900 text-stone-100 min-h-screen font-sans antialiased" x-data="checkin()">
@@ -214,10 +215,10 @@ function checkin() {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     'X-Requested-With': 'XMLHttpRequest',
                 },
-                body: JSON.stringify({ token: this.guest.token, pax: this.pax }),
+                body: JSON.stringify({ token: this.guest.token, pax: parseInt(this.pax) }),
             });
 
             this.loading = false;
@@ -228,7 +229,11 @@ function checkin() {
                 this.successMessage = `${data.guest_name} — ${data.pax} orang — ${data.checked_in_at}`;
                 this.success = true;
                 this.guest = null;
+                this._lastToken = null;
                 setTimeout(() => { this.success = false; this.successVip = false; }, 4000);
+            } else {
+                const data = await res.json().catch(() => ({}));
+                alert(data.error ?? data.message ?? 'Gagal check-in. Coba lagi.');
             }
         },
     };
