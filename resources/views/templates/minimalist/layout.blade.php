@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $wedding->seo_title ?? $wedding->coupleName() . ' — Undangan Pernikahan' }}</title>
+    <title>{{ $wedding->bride_name }} & {{ $wedding->groom_name }} — Undangan Pernikahan</title>
     <meta name="description" content="{{ $wedding->seo_description ?? $wedding->description }}">
     <meta property="og:title" content="{{ $wedding->seo_title ?? $wedding->coupleName() }}">
     @if($wedding->og_image)<meta property="og:image" content="{{ Storage::url($wedding->og_image) }}">@endif
