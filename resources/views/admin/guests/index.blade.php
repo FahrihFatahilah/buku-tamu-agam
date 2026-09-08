@@ -154,7 +154,10 @@
                         <div class="flex items-center justify-end gap-2">
                             {{-- Copy link --}}
                             <button type="button"
-                                onclick="navigator.clipboard.writeText('{{ $guest->personalUrl() }}').then(() => this.textContent = 'Copied!')"
+                                data-url="{{ $guest->personalUrl() }}"
+                                data-couple="{{ $wedding->bride_name }} & {{ $wedding->groom_name }}"
+                                data-guest="{{ $guest->name }}"
+                                onclick="copyGuestLink(this)"
                                 class="text-xs text-stone-400 hover:text-stone-600 transition-colors whitespace-nowrap">
                                 Copy Link
                             </button>
@@ -362,6 +365,34 @@
 </div>
 
 <script>
+function copyGuestLink(btn) {
+    const url    = btn.dataset.url;
+    const couple = btn.dataset.couple;
+    const guest  = btn.dataset.guest;
+    const text =
+`Assalamu'alaikum Warahmatullahi Wabarakatuh.
+
+Kepada Yth. Bapak/Ibu/Saudara/i ${guest},
+
+Tanpa mengurangi rasa hormat, perkenankan kami mengundang Bapak/Ibu/Saudara/i untuk hadir serta memberikan doa restu pada acara pernikahan kami:
+
+${couple}
+
+Berikut tautan undangan kami untuk info lengkap acara:
+${url}
+
+Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir di momen bahagia ini.
+
+Wassalamu'alaikum Warahmatullahi Wabarakatuh.
+Hormat kami,
+${couple}`;
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = orig, 2000);
+    });
+}
+
 function openEdit(id, data) {
     const base = '{{ url("admin/weddings/" . $wedding->id . "/guests") }}';
     document.getElementById('form-edit').action = base + '/' + id;
