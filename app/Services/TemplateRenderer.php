@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Guest;
 use App\Models\Wedding;
+use App\Services\QrCodeService;
 use Illuminate\Support\Collection;
 
 class TemplateRenderer
@@ -39,6 +40,7 @@ class TemplateRenderer
             'media'           => $wedding->media()->orderBy('sort_order')->get(),
             'templateKey'     => $templateKey,
             'templateService' => $this->templateService,
+            'qrCode'          => $guest ? app(QrCodeService::class)->generate($guest, 200) : null,
         ];
     }
 

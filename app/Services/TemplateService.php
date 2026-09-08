@@ -39,7 +39,7 @@ class TemplateService
         return [
             'opening', 'hero', 'couple', 'quote', 'countdown',
             'event', 'venue', 'love_story', 'gallery',
-            'video', 'rsvp', 'guest_book', 'gift', 'timeline', 'closing',
+            'video', 'rsvp', 'qr_code', 'guest_book', 'gift', 'timeline', 'closing',
         ];
     }
 

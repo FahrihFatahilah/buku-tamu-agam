@@ -224,6 +224,11 @@ Route::middleware('throttle:30,1')->group(function () {
         ->where('shortId', '[a-z0-9]{6}')
         ->where('token', '[a-zA-Z0-9]{12,64}');
 
+    // QR code (public, per token)
+    Route::get('/{anyId}/{slug}/u/{token}/qr', [RsvpController::class, 'qr'])
+        ->name('rsvp.qr')
+        ->where('token', '[a-zA-Z0-9]{12,64}');
+
     // Guest Book (both URL formats use same route via publicId OR shortId)
     Route::post('/{id}/{slug}/guestbook', [GuestBookController::class, 'store'])
         ->name('guestbook.store');
