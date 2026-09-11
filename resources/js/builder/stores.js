@@ -25,10 +25,6 @@ export function registerStores(config) {
         lastSavedAt: null,
         saveErrors: [],
 
-        init() {
-            Alpine.store('history').reset(this.document);
-        },
-
         /** Replace the whole document and checkpoint history. */
         replace(document, { checkpoint = true, markDirty = true } = {}) {
             this.document = document;
@@ -589,4 +585,9 @@ export function registerStores(config) {
             });
         },
     });
+
+    // Every store now exists, so seed the history stack from the starting
+    // document. This must NOT live in a store's `init()`: Alpine calls `init()`
+    // the moment the store is registered, which is before `history` exists.
+    Alpine.store('history').reset(Alpine.store('builder').document);
 }

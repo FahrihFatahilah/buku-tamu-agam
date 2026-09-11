@@ -154,6 +154,53 @@ class BuilderDocumentTest extends TestCase
         $this->assertSame('Playfair Display', $document['theme']['typography']['headingFont']);
     }
 
+    // ── Template bridge ─────────────────────────────────────────────────────
+
+    public function test_template_synthesises_a_document_from_its_stored_layout(): void
+    {
+        $this->template->update(['default_sections' => [
+            ['key' => 'opening', 'enabled' => true, 'title' => null, 'settings' => []],
+            ['key' => 'gift', 'enabled' => false, 'title' => 'Hadiah Kami', 'settings' => ['text' => ['heading' => 'Tanda Kasih']]],
+        ]]);
+
+        $document = app(DocumentMigrator::class)->migrate(null, $this->template->fresh());
+
+        $types = array_map(fn ($node) => $node['children'][0]['type'] ?? null, $document['nodes']);
+
+        $this->assertSame(['opening', 'gift'], $types);
+
+        $gift = $document['nodes'][1];
+
+        $this->assertTrue($gift['disabled']);
+        $this->assertSame('Hadiah Kami', $gift['props']['label']);
+        $this->assertSame('Tanda Kasih', $gift['children'][0]['props']['heading']);
+    }
+
+    public function test_template_theme_comes_from_its_own_palette(): void
+    {
+        $this->template->update(['default_settings' => [
+            'palette' => ['primary' => '#111111', 'secondary' => '#FAFAFA', 'accent' => '#C9A96E', 'dark' => '#000000'],
+            'fonts' => ['display' => 'Lora', 'body' => 'Inter'],
+        ]]);
+
+        $document = app(DocumentMigrator::class)->migrate(null, $this->template->fresh());
+
+        $this->assertSame('#111111', $document['theme']['colors']['primary']);
+        $this->assertSame('#000000', $document['theme']['colors']['text']);
+        $this->assertSame('Lora', $document['theme']['typography']['headingFont']);
+        $this->assertSame('Inter', $document['theme']['typography']['bodyFont']);
+    }
+
+    public function test_template_without_a_layout_yields_an_empty_document(): void
+    {
+        $this->template->update(['default_sections' => null]);
+
+        $document = app(DocumentMigrator::class)->migrate(null, $this->template->fresh());
+
+        $this->assertSame([], $document['nodes']);
+        $this->assertSame(DocumentMigrator::VERSION, $document['version']);
+    }
+
     public function test_migration_is_idempotent(): void
     {
         $migrator = app(DocumentMigrator::class);

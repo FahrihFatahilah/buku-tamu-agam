@@ -6,6 +6,7 @@ use App\Builder\Registry\AnimationRegistry;
 use App\Builder\Registry\EffectRegistry;
 use App\Builder\Registry\OverlayRegistry;
 use App\Builder\Registry\WidgetRegistry;
+use App\Models\Template;
 use App\Models\Wedding;
 use Illuminate\Support\Str;
 
@@ -536,6 +537,31 @@ class DocumentMigrator
             'typography' => [
                 'headingFont' => $appearance['font_display'] ?? $fonts['display'] ?? 'Playfair Display',
                 'bodyFont' => $appearance['font_body'] ?? $fonts['body'] ?? 'Lato',
+            ],
+        ];
+    }
+
+    /**
+     * The template's own palette and fonts. A template has no appearance
+     * overrides, so this is themeFromWedding() minus that layer.
+     */
+    private function themeFromTemplate(Template $template): array
+    {
+        $settings = is_array($template->default_settings) ? $template->default_settings : [];
+        $palette = is_array($settings['palette'] ?? null) ? $settings['palette'] : [];
+        $fonts = is_array($settings['fonts'] ?? null) ? $settings['fonts'] : [];
+
+        return [
+            'colors' => [
+                'primary' => $palette['primary'] ?? '#7C3238',
+                'secondary' => $palette['secondary'] ?? '#F5F0E8',
+                'accent' => $palette['accent'] ?? '#B8960C',
+                'background' => $palette['secondary'] ?? '#FFFFFF',
+                'text' => $palette['dark'] ?? '#2C1810',
+            ],
+            'typography' => [
+                'headingFont' => $fonts['display'] ?? 'Playfair Display',
+                'bodyFont' => $fonts['body'] ?? 'Lato',
             ],
         ];
     }
