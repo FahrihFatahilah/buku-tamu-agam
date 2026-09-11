@@ -25,7 +25,14 @@ class TemplateService
     public function sectionView(string $templateKey, string $sectionKey): string
     {
         $view = "templates.{$templateKey}.sections.{$sectionKey}";
-        return view()->exists($view) ? $view : "templates.default.sections.{$sectionKey}";
+
+        if (view()->exists($view)) {
+            return $view;
+        }
+
+        $default = "templates.default.sections.{$sectionKey}";
+
+        return view()->exists($default) ? $default : 'templates.default.sections._fallback';
     }
 
     public function layoutView(string $templateKey): string
@@ -34,12 +41,15 @@ class TemplateService
         return view()->exists($view) ? $view : 'templates.default.layout';
     }
 
+    /**
+     * Section keys from the product spec (prompt.md §18).
+     */
     public function defaultSections(): array
     {
         return [
             'opening', 'hero', 'couple', 'quote', 'countdown',
-            'event', 'venue', 'love_story', 'gallery',
-            'video', 'rsvp', 'qr_code', 'guest_book', 'gift', 'timeline', 'closing',
+            'event', 'venue', 'maps', 'love_story', 'gallery',
+            'video', 'rsvp', 'guest_book', 'gift', 'timeline', 'closing',
         ];
     }
 

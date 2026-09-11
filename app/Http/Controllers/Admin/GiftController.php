@@ -73,6 +73,8 @@ class GiftController extends Controller
             );
         }
 
+        $validated['is_active'] = $request->boolean('is_active');
+
         $wedding->giftMethods()->create($validated);
 
         return back()->with('success', 'Metode hadiah berhasil ditambahkan.');
@@ -101,6 +103,8 @@ class GiftController extends Controller
                 $request->file('image'), "weddings/{$wedding->id}/gift"
             );
         }
+
+        $validated['is_active'] = $request->boolean('is_active');
 
         $gift->update($validated);
 

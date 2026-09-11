@@ -55,13 +55,10 @@ class InvitationService
             $guest->update(['status' => 'opened']);
         }
 
-        $visibleEvents = $this->visibility->getVisibleEntities('event', $wedding, $guest);
-        $visibleGifts  = $this->visibility->getVisibleEntities('gift_method', $wedding, $guest);
-
         return array_merge($result, [
-            'guest'          => $guest,
-            'visible_gifts'  => $visibleGifts->isNotEmpty() ? $visibleGifts : null,
-            'visible_events' => $visibleEvents->isNotEmpty() ? $visibleEvents : null,
+            'guest'         => $guest,
+            'hidden_gifts'  => $this->visibility->getHiddenEntityIds('gift_method', $wedding, $guest),
+            'hidden_events' => $this->visibility->getHiddenEntityIds('event', $wedding, $guest),
         ]);
     }
 }

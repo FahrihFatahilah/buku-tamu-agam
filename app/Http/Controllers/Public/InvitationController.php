@@ -68,8 +68,8 @@ class InvitationController extends Controller
             $this->renderer->buildViewData(
                 $wedding,
                 $result['guest'],
-                $result['visible_gifts'],
-                $result['visible_events'],
+                $result['hidden_gifts'],
+                $result['hidden_events'],
             ));
     }
 }

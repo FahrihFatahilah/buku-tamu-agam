@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Guest;
 use App\Models\Template;
 use App\Models\Wedding;
+use App\Models\WeddingSection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -33,6 +34,16 @@ class GuestTokenTest extends TestCase
             'bride_name' => 'Rani',
             'status' => 'published',
             'published_at' => now(),
+        ]);
+
+        // WeddingService::bootstrapSections() always provisions sections on create.
+        // The personalized greeting lives in the "opening" section, so seed it here
+        // to mirror a real wedding and let the identity assertions render.
+        WeddingSection::create([
+            'wedding_id' => $this->wedding->id,
+            'section_key' => 'opening',
+            'is_enabled' => true,
+            'sort_order' => 0,
         ]);
 
         $this->guest = Guest::create([

@@ -35,15 +35,23 @@ class DomainResolver
         return $domainWedding->public_id === $publicId;
     }
 
+    /**
+     * Only the apex platform domain and local dev hosts bypass the
+     * domain -> wedding ownership check.
+     *
+     * Tenant subdomains (bagas.ngundang.com) are mapped in wedding_domains and
+     * MUST be validated, otherwise any wedding could be served on another
+     * wedding's subdomain.
+     */
     public function isPlatformDomain(string $host): bool
     {
-        $platformDomain = config('ngundang.platform_domain', 'ngundang.com');
-
-        if (in_array($host, ['localhost', '127.0.0.1'])) {
+        if (in_array($host, ['localhost', '127.0.0.1', '::1'], true)) {
             return true;
         }
 
-        return $host === $platformDomain || str_ends_with($host, '.' . $platformDomain);
+        $platformDomain = config('ngundang.platform_domain', 'ngundang.com');
+
+        return $host === $platformDomain;
     }
 
     public function forgetCache(string $domain): void

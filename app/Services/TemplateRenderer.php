@@ -17,18 +17,20 @@ class TemplateRenderer
     public function buildViewData(
         Wedding $wedding,
         ?Guest $guest,
-        ?Collection $visibleGiftIds = null,
-        ?Collection $visibleEventIds = null,
+        ?Collection $hiddenGiftIds = null,
+        ?Collection $hiddenEventIds = null,
     ): array {
         $templateKey = $wedding->template?->key ?? 'minang-elegance';
 
-        $events = ($visibleEventIds !== null)
-            ? $wedding->events()->whereIn('id', $visibleEventIds)->get()
-            : $wedding->events()->where('is_public', true)->get();
+        $events = $wedding->events()
+            ->where('is_public', true)
+            ->when($hiddenEventIds?->isNotEmpty(), fn($q) => $q->whereNotIn('id', $hiddenEventIds))
+            ->get();
 
-        $giftMethods = ($visibleGiftIds !== null)
-            ? $wedding->giftMethods()->active()->whereIn('id', $visibleGiftIds)->get()
-            : $wedding->giftMethods()->active()->get();
+        $giftMethods = $wedding->giftMethods()
+            ->active()
+            ->when($hiddenGiftIds?->isNotEmpty(), fn($q) => $q->whereNotIn('id', $hiddenGiftIds))
+            ->get();
 
         return [
             'wedding'         => $wedding,

@@ -59,6 +59,13 @@ class VisibilityEngineTest extends TestCase
             'is_active' => true,
             'sort_order' => 1,
         ]);
+
+        \App\Models\WeddingSection::create([
+            'wedding_id' => $this->wedding->id,
+            'section_key' => 'gift',
+            'is_enabled' => true,
+            'sort_order' => 0,
+        ]);
     }
 
     public function test_no_rules_means_visible_to_all(): void

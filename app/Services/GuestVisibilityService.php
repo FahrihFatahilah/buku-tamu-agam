@@ -10,29 +10,28 @@ use Illuminate\Support\Collection;
 class GuestVisibilityService
 {
     /**
-     * Determine visible entities for a guest.
+     * Determine which entities are hidden from a guest.
      * Priority: Individual Guest Override > Category Rule > Wedding Default
+     *
+     * Only entities carrying an explicit rule can ever be hidden — an entity
+     * without any rule is visible by default and is never returned here.
      *
      * Data is NEVER sent to browser and hidden with CSS.
      * Server determines what to include in the response.
      */
-    public function getVisibleEntities(string $entityType, Wedding $wedding, ?Guest $guest): Collection
+    public function getHiddenEntityIds(string $entityType, Wedding $wedding, ?Guest $guest): Collection
     {
         $rules = VisibilityRule::where('wedding_id', $wedding->id)
             ->where('entity_type', $entityType)
             ->get();
 
-        // No rules at all = return empty collection, TemplateRenderer will fallback to is_public
         if ($rules->isEmpty()) {
             return collect();
         }
 
-        // Get all entity IDs that have rules
-        $entityIds = $rules->pluck('entity_id')->unique();
-
-        return $entityIds->filter(function ($entityId) use ($rules, $guest) {
-            return $this->isVisible($entityId, $rules, $guest);
-        })->values();
+        return $rules->pluck('entity_id')->unique()
+            ->reject(fn($entityId) => $this->isVisible($entityId, $rules, $guest))
+            ->values();
     }
 
     public function isEntityVisible(string $entityType, int $entityId, Wedding $wedding, ?Guest $guest): bool

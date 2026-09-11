@@ -12,10 +12,11 @@ class CheckInService
     public function checkIn(Guest $guest, int $pax, ?int $operatorId = null, ?string $notes = null): GuestCheckin
     {
         return DB::transaction(function () use ($guest, $pax, $operatorId, $notes) {
-            // Use updateOrCreate with a lock to prevent race conditions
-            $checkin = GuestCheckin::lockForUpdate()
-                ->where('guest_id', $guest->id)
-                ->first();
+            // Lock the guest row so two concurrent first scans serialize instead of
+            // both racing into create() and violating the unique(guest_id) constraint.
+            Guest::whereKey($guest->id)->lockForUpdate()->first();
+
+            $checkin = GuestCheckin::where('guest_id', $guest->id)->first();
 
             if ($checkin) {
                 $checkin->update([

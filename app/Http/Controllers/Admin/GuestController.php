@@ -13,6 +13,8 @@ use League\Csv\Reader;
 
 class GuestController extends Controller
 {
+    private const ASYNC_IMPORT_THRESHOLD = 100;
+
     public function __construct(
         private GuestService $guestService,
         private GuestTokenService $tokenService,
@@ -108,14 +110,33 @@ class GuestController extends Controller
 
         $file = $request->file('file');
         $rows = array_map('str_getcsv', file($file->getRealPath()));
-        $headers = array_map(fn($h) => strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h))), array_shift($rows));
-        $data = array_filter(
-            array_map(fn($row) => array_combine($headers, array_pad(array_map('trim', $row), count($headers), null)), $rows),
-            fn($row) => !empty($row['name'])
-        );
+
+        if (empty($rows)) {
+            return back()->withErrors(['file' => 'File CSV kosong.']);
+        }
+
+        $headers = array_values(array_filter(
+            array_map(fn($h) => strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h))), array_shift($rows)),
+            fn($h) => $h !== ''
+        ));
+
+        if (empty($headers)) {
+            return back()->withErrors(['file' => 'Header CSV tidak valid.']);
+        }
+
+        // Row length may differ from the header row (trailing commas, unquoted commas).
+        // Slice first so array_combine never receives mismatched lengths.
+        $data = [];
+        foreach ($rows as $row) {
+            $row = array_slice(array_map('trim', $row), 0, count($headers));
+            $row = array_pad($row, count($headers), null);
+            $data[] = array_combine($headers, $row);
+        }
+
+        $data = array_filter($data, fn($row) => !empty($row['name']));
 
         // Large files go to queue; small files process sync
-        if (count($data) > 500) {
+        if (count($data) > self::ASYNC_IMPORT_THRESHOLD) {
             \App\Jobs\ImportGuestsCsv::dispatch($wedding, array_values($data), $request->user()->id);
             return back()->with('success', 'Import sedang diproses di background. Refresh halaman beberapa saat lagi.');
         }

@@ -49,7 +49,12 @@ class InvitationResolver
         // Domain validation same as long URL
         if (!$this->domainResolver->isPlatformDomain($host)) {
             $domainWedding = $this->domainResolver->resolveFromHost($host);
-            if (!$domainWedding || $domainWedding->id !== $wedding->id) {
+
+            if (!$domainWedding) {
+                return ['wedding' => null, 'redirect' => null, 'error' => 'domain_not_found'];
+            }
+
+            if ($domainWedding->id !== $wedding->id) {
                 return ['wedding' => null, 'redirect' => null, 'error' => 'domain_mismatch'];
             }
         }
