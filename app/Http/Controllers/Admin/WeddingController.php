@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\Wedding;
 use App\Models\GuestCheckin;
 use App\Services\WeddingService;
@@ -24,10 +25,15 @@ class WeddingController extends Controller
         return view('admin.weddings.index', compact('weddings'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $this->authorize('create', Wedding::class);
-        return view('admin.weddings.create');
+
+        $clients = $request->user()->isSuperAdmin()
+            ? Client::active()->orderBy('name')->get()
+            : collect();
+
+        return view('admin.weddings.create', compact('clients'));
     }
 
     public function store(Request $request)
@@ -40,10 +46,11 @@ class WeddingController extends Controller
             'title' => 'nullable|string|max:200',
             'date' => 'nullable|date',
             'venue' => 'nullable|string|max:200',
+            'client_id' => $request->user()->isSuperAdmin() ? 'required|exists:clients,id' : 'nullable',
         ]);
 
         $clientId = $request->user()->isSuperAdmin()
-            ? $request->input('client_id', $request->user()->client_id)
+            ? (int) $validated['client_id']
             : $request->user()->client_id;
 
         $wedding = $this->weddingService->create($clientId, $validated);

@@ -70,7 +70,7 @@ Route::get('/health', function () {
 require __DIR__.'/auth.php';
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
 
     Route::get('/', fn () => redirect()->route('admin.weddings.index'));
 

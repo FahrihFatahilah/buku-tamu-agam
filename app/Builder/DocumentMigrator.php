@@ -55,12 +55,12 @@ class DocumentMigrator
      * Normalise any input into a valid current-version document.
      *
      * @param  array|null  $document  Raw stored document (may be legacy/null).
-     * @param  Wedding|null  $wedding  Used to synthesise a document when none exists.
+     * @param  Wedding|Template|null  $subject  Used to synthesise a document when none exists.
      */
-    public function migrate(?array $document, ?Wedding $wedding = null): array
+    public function migrate(?array $document, Wedding|Template|null $subject = null): array
     {
         if (! $this->looksLikeDocument($document)) {
-            return $this->fromWedding($wedding);
+            return $this->fromSubject($subject);
         }
 
         $version = (int) ($document['version'] ?? 1);
@@ -70,13 +70,26 @@ class DocumentMigrator
             $document['version'] = self::VERSION;
         }
 
-        return $this->normalize($document, $wedding);
+        return $this->normalize($document, $subject);
+    }
+
+    /**
+     * Synthesise a document from whatever the subject already has:
+     * a Wedding from its section rows, a Template from its stored layout.
+     */
+    private function fromSubject(Wedding|Template|null $subject): array
+    {
+        return match (true) {
+            $subject instanceof Wedding => $this->fromWedding($subject),
+            $subject instanceof Template => $this->fromTemplate($subject),
+            default => $this->empty(),
+        };
     }
 
     /**
      * A document is anything carrying a node list. Everything else (null, empty
      * array, `default_sections` rows, stray settings blobs) is treated as
-     * legacy and synthesised from the wedding.
+     * legacy and synthesised from the subject.
      */
     public function looksLikeDocument(?array $document): bool
     {
@@ -133,16 +146,69 @@ class DocumentMigrator
     }
 
     /**
+     * Build a v2 document from a template's stored section layout + theme.
+     *
+     * Parallels fromWedding(): opening the builder on an existing template
+     * shows its current sections as document nodes rather than a blank page.
+     */
+    public function fromTemplate(Template $template): array
+    {
+        $nodes = [];
+
+        $layout = is_array($template->default_sections) ? $template->default_sections : [];
+
+        foreach ($layout as $entry) {
+            $key = is_array($entry) ? ($entry['key'] ?? null) : $entry;
+
+            if (! is_string($key)) {
+                continue;
+            }
+
+            $type = self::SECTION_WIDGET_MAP[$key] ?? null;
+
+            if (! $type || ! $this->widgets->has($type)) {
+                continue;
+            }
+
+            $settings = (is_array($entry) && is_array($entry['settings'] ?? null)) ? $entry['settings'] : [];
+            $title = is_array($entry) ? ($entry['title'] ?? null) : null;
+
+            $nodes[] = [
+                'id' => $this->id('sec'),
+                'type' => 'section',
+                'props' => ['label' => $title ?: $key],
+                'styles' => $this->stylesFromSectionSettings($settings),
+                'children' => [[
+                    'id' => $this->id('w'),
+                    'type' => $type,
+                    'props' => $this->propsFromSection($type, $title, $settings),
+                    'styles' => $this->defaultStylesFor($type),
+                    'children' => [],
+                ]],
+                'disabled' => is_array($entry) ? (($entry['enabled'] ?? true) === false) : false,
+            ];
+        }
+
+        return $this->normalize([
+            'version' => self::VERSION,
+            'theme' => $this->themeFromTemplate($template),
+            'nodes' => $nodes,
+            'overlays' => [],
+            'effects' => [],
+        ], $template);
+    }
+
+    /**
      * Fill in anything missing and drop anything unusable. Deliberately total:
      * the renderer must never receive a document it cannot iterate.
      */
-    public function normalize(array $document, ?Wedding $wedding = null): array
+    public function normalize(array $document, Wedding|Template|null $subject = null): array
     {
         $theme = is_array($document['theme'] ?? null) ? $document['theme'] : [];
 
         return [
             'version' => self::VERSION,
-            'theme' => $this->normalizeTheme($theme, $wedding),
+            'theme' => $this->normalizeTheme($theme, $subject),
             'nodes' => $this->normalizeNodes($document['nodes'] ?? []),
             'overlays' => $this->normalizeOverlays($document['overlays'] ?? []),
             'effects' => $this->normalizeEffects($document['effects'] ?? []),
@@ -162,7 +228,7 @@ class DocumentMigrator
 
     // ── Internals ──────────────────────────────────────────────────────────
 
-    private function normalizeTheme(array $theme, ?Wedding $wedding): array
+    private function normalizeTheme(array $theme, Wedding|Template|null $subject): array
     {
         $defaults = [
             'colors' => [
@@ -184,6 +250,8 @@ class DocumentMigrator
         $typography = array_merge($defaults['typography'], is_array($theme['typography'] ?? null) ? $theme['typography'] : []);
 
         // Fall back to the wedding's appearance overrides when the document has none.
+        $wedding = $subject instanceof Wedding ? $subject : null;
+
         if ($wedding && is_array($wedding->appearance)) {
             $a = $wedding->appearance;
             $colors['primary'] = $colors['primary'] ?: ($a['primary_color'] ?? $defaults['colors']['primary']);

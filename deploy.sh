@@ -38,13 +38,20 @@ docker exec $CONTAINER php artisan migrate --force
 if [ "$FIRST_DEPLOY" = true ]; then
     echo "🌱 Seeding database..."
     docker exec $CONTAINER php artisan db:seed --force
-    echo "🔗 Creating storage link..."
-    docker exec $CONTAINER php artisan storage:link
 fi
+
+# Every deploy, not just the first: the symlink lives in the container layer,
+# so a rebuilt image loses it and all uploaded media would 404.
+echo "🔗 Creating storage link..."
+docker exec $CONTAINER php artisan storage:link || true
 
 echo "⚡ Caching..."
 docker exec $CONTAINER php artisan config:cache
 docker exec $CONTAINER php artisan route:cache
 docker exec $CONTAINER php artisan view:cache
+
+# Long-running workers hold old code; recycle them after a code change.
+echo "🔄 Restarting queue workers..."
+docker exec $CONTAINER php artisan queue:restart || true
 
 echo "✅ Deploy selesai! https://dammminvitation.ffatahilah.my.id"

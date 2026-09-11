@@ -12,6 +12,24 @@
     <form method="POST" action="{{ route('admin.weddings.store') }}" class="space-y-5">
         @csrf
 
+        @if($clients->isNotEmpty())
+        <div class="bg-white border border-stone-200 p-5 space-y-4">
+            <h2 class="text-sm font-medium text-stone-700 pb-3 border-b border-stone-100">Client</h2>
+
+            <div>
+                <label class="block text-sm text-stone-600 mb-1.5">Client <span class="text-red-400">*</span></label>
+                <select name="client_id" required
+                    class="w-full px-3 py-2 border border-stone-300 text-sm text-stone-800 focus:outline-none focus:border-stone-500 transition-colors @error('client_id') border-red-400 @enderror">
+                    <option value="">— Pilih Client —</option>
+                    @foreach($clients as $client)
+                    <option value="{{ $client->id }}" @selected(old('client_id') == $client->id)>{{ $client->name }}</option>
+                    @endforeach
+                </select>
+                @error('client_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+            </div>
+        </div>
+        @endif
+
         <div class="bg-white border border-stone-200 p-5 space-y-4">
             <h2 class="text-sm font-medium text-stone-700 pb-3 border-b border-stone-100">Informasi Pengantin</h2>
 

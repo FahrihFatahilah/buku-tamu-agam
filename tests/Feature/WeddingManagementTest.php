@@ -171,4 +171,51 @@ class WeddingManagementTest extends TestCase
 
         Queue::assertPushed(ImportGuestsCsv::class);
     }
+
+    // ── Wedding creation ───────────────────────────────────────────────────────
+
+    private function superAdmin(): User
+    {
+        return User::create([
+            'name'      => 'Root',
+            'email'     => 'root@test.com',
+            'password'  => bcrypt('pass'),
+            'client_id' => null,
+            'role'      => 'super_admin',
+            'is_active' => true,
+        ]);
+    }
+
+    public function test_super_admin_must_choose_a_client_when_creating_a_wedding(): void
+    {
+        $this->actingAs($this->superAdmin())
+            ->post('/admin/weddings', ['groom_name' => 'Tanpa', 'bride_name' => 'Client'])
+            ->assertSessionHasErrors('client_id');
+
+        $this->assertDatabaseMissing('weddings', ['groom_name' => 'Tanpa']);
+    }
+
+    public function test_super_admin_can_create_a_wedding_for_a_client(): void
+    {
+        $admin = $this->superAdmin();
+        $client = Client::first();
+
+        $this->actingAs($admin)
+            ->get('/admin/weddings/create')
+            ->assertOk()
+            ->assertSee('name="client_id"', false);
+
+        $this->actingAs($admin)
+            ->post('/admin/weddings', [
+                'groom_name' => 'Dengan',
+                'bride_name' => 'Client',
+                'client_id'  => $client->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('weddings', [
+            'groom_name' => 'Dengan',
+            'client_id'  => $client->id,
+        ]);
+    }
 }
