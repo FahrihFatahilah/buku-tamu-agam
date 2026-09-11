@@ -17,7 +17,7 @@ class WeddingService
     {
         $data['client_id'] = $clientId;
         $data['slug'] = $this->generateSlug($data);
-        $data['title'] ??= trim(($data['groom_name'] ?? '') . ' & ' . ($data['bride_name'] ?? ''));
+        $data['title'] ??= trim(($data['groom_name'] ?? '').' & '.($data['bride_name'] ?? ''));
 
         $wedding = Wedding::create($data);
 
@@ -35,7 +35,7 @@ class WeddingService
     {
         if (isset($data['groom_name']) || isset($data['bride_name'])) {
             // Regenerate slug suggestion only if explicitly requested
-            if (!empty($data['regenerate_slug'])) {
+            if (! empty($data['regenerate_slug'])) {
                 $data['slug'] = $this->generateSlug(array_merge($wedding->toArray(), $data));
             }
         }
@@ -50,6 +50,7 @@ class WeddingService
     {
         $wedding->update(['status' => 'published', 'published_at' => now()]);
         $this->audit->log('wedding.published', 'wedding', $wedding->id, [], $wedding->id);
+
         return $wedding;
     }
 
@@ -57,6 +58,7 @@ class WeddingService
     {
         $wedding->update(['status' => 'draft']);
         $this->audit->log('wedding.unpublished', 'wedding', $wedding->id, [], $wedding->id);
+
         return $wedding;
     }
 
@@ -64,13 +66,14 @@ class WeddingService
     {
         $wedding->update(['status' => 'archived']);
         $this->audit->log('wedding.archived', 'wedding', $wedding->id, [], $wedding->id);
+
         return $wedding;
     }
 
     private function generateSlug(array $data): string
     {
         $base = Str::slug(
-            trim(($data['groom_name'] ?? '') . ' ' . ($data['bride_name'] ?? ''))
+            trim(($data['groom_name'] ?? '').' '.($data['bride_name'] ?? ''))
         );
 
         if (empty($base)) {
@@ -80,7 +83,7 @@ class WeddingService
         $slug = $base;
         $i = 1;
 
-        while (Wedding::where('slug', $slug)->when(isset($data['id']), fn($q) => $q->where('id', '!=', $data['id']))->exists()) {
+        while (Wedding::where('slug', $slug)->when(isset($data['id']), fn ($q) => $q->where('id', '!=', $data['id']))->exists()) {
             $slug = "{$base}-{$i}";
             $i++;
         }
@@ -90,13 +93,14 @@ class WeddingService
 
     private function bootstrapSections(Wedding $wedding): void
     {
-        $sections = $this->templateService->defaultSections();
+        $layout = $this->templateService->layoutForTemplate($wedding->template);
 
-        foreach ($sections as $index => $key) {
+        foreach ($layout as $index => $row) {
             WeddingSection::create([
                 'wedding_id' => $wedding->id,
-                'section_key' => $key,
-                'is_enabled' => true,
+                'section_key' => $row['key'],
+                'title' => $row['title'] ?? null,
+                'is_enabled' => $row['enabled'] ?? true,
                 'sort_order' => $index,
             ]);
         }

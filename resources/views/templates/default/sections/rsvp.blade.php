@@ -1,23 +1,23 @@
 @if($guest)
-<section class="py-20 px-6 bg-white">
+<section class="py-20 px-6 tpl-surface">
     <div class="max-w-md mx-auto">
         <div class="text-center mb-10">
-            <p class="text-xs tracking-[0.3em] uppercase text-stone-400 mb-3">Konfirmasi Kehadiran</p>
-            <h2 class="font-display text-3xl text-stone-800">RSVP</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Konfirmasi Kehadiran</p>
+            <h2 class="tpl-display text-3xl tpl-ink">RSVP</h2>
         </div>
 
         <div id="rsvp-form-wrap">
             <form id="rsvp-form" class="space-y-5">
                 @csrf
                 <div>
-                    <label class="block text-sm text-stone-600 mb-2">Kehadiran</label>
+                    <label class="block text-sm tpl-muted mb-2">Kehadiran</label>
                     <div class="space-y-2">
                         @foreach(['attending' => 'Hadir', 'not_attending' => 'Tidak Hadir', 'maybe' => 'Mungkin Hadir'] as $value => $label)
                         <label class="flex items-center gap-3 cursor-pointer">
                             <input type="radio" name="attendance_status" value="{{ $value }}"
                                 {{ $guest->rsvp?->attendance_status === $value ? 'checked' : '' }}
-                                class="border-stone-300 text-stone-800 focus:ring-stone-500">
-                            <span class="text-sm text-stone-700">{{ $label }}</span>
+                                class="tpl-hairline">
+                            <span class="text-sm tpl-ink">{{ $label }}</span>
                         </label>
                         @endforeach
                     </div>
@@ -25,39 +25,39 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm text-stone-600 mb-1.5">Jumlah Tamu (maks. {{ $guest->max_pax }})</label>
+                    <label class="block text-sm tpl-muted mb-1.5">Jumlah Tamu (maks. {{ $guest->max_pax }})</label>
                     <input type="number" name="pax" min="1" max="{{ $guest->max_pax }}"
                         value="{{ $guest->rsvp?->pax ?? 1 }}"
-                        class="w-full px-3 py-2 border border-stone-200 text-sm focus:outline-none focus:border-stone-400">
+                        class="tpl-field w-full px-3 py-2 border text-sm focus:outline-none">
                     <p id="err-pax" class="mt-1 text-xs text-red-500 hidden"></p>
                 </div>
 
                 <div>
-                    <label class="block text-sm text-stone-600 mb-1.5">Pesan (opsional)</label>
+                    <label class="block text-sm tpl-muted mb-1.5">Pesan (opsional)</label>
                     <textarea name="note" rows="2"
-                        class="w-full px-3 py-2 border border-stone-200 text-sm focus:outline-none focus:border-stone-400 resize-none">{{ $guest->rsvp?->note }}</textarea>
+                        class="tpl-field w-full px-3 py-2 border text-sm focus:outline-none resize-none">{{ $guest->rsvp?->note }}</textarea>
                 </div>
 
                 <button type="submit" id="rsvp-btn"
-                    class="w-full py-3 bg-stone-800 text-white text-sm tracking-wider hover:bg-stone-700 transition-colors">
+                    class="tpl-btn-solid w-full py-3 text-sm tracking-wider transition-opacity hover:opacity-90">
                     Kirim Konfirmasi
                 </button>
             </form>
         </div>
 
         <div id="rsvp-success" class="hidden text-center">
-            <p class="font-display text-xl text-stone-800 mb-1">Terima kasih, {{ $guest->name }}!</p>
-            <p class="text-stone-500 text-sm" id="rsvp-msg"></p>
+            <p class="tpl-display text-xl tpl-ink mb-1">Terima kasih, {{ $guest->name }}!</p>
+            <p class="text-sm tpl-muted" id="rsvp-msg"></p>
 
             <div id="qr-wrap" class="hidden mt-8">
-                <p class="text-stone-400 text-xs tracking-widest uppercase mb-4">QR Code Kehadiran</p>
-                <div class="inline-block p-3 bg-white border border-stone-200">
+                <p class="text-xs tracking-widest uppercase tpl-faint mb-4">QR Code Kehadiran</p>
+                <div class="tpl-panel inline-block p-3 border tpl-hairline">
                     <img id="qr-img" src="" alt="QR Code kehadiran" class="w-48 h-48">
                 </div>
-                <p class="text-stone-400 text-xs mt-3">Tunjukkan kepada panitia saat tiba di lokasi</p>
+                <p class="text-xs tpl-faint mt-3">Tunjukkan kepada panitia saat tiba di lokasi</p>
             </div>
 
-            <button id="rsvp-edit" class="mt-6 text-xs text-stone-500 underline underline-offset-2">Ubah konfirmasi</button>
+            <button id="rsvp-edit" class="mt-6 text-xs tpl-muted underline underline-offset-2">Ubah konfirmasi</button>
         </div>
     </div>
 </section>

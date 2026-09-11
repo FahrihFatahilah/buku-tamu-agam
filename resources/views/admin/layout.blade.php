@@ -20,6 +20,9 @@
             <x-nav-item href="{{ route('admin.clients.index') }}" :active="request()->routeIs('admin.clients.*')">
                 Clients
             </x-nav-item>
+            <x-nav-item href="{{ route('admin.templates.index') }}" :active="request()->routeIs('admin.templates.*')">
+                Template
+            </x-nav-item>
             <x-nav-item href="{{ route('admin.weddings.index') }}" :active="request()->routeIs('admin.weddings.index')">
                 Semua Undangan
             </x-nav-item>

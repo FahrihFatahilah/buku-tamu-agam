@@ -13,8 +13,9 @@ use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PlaylistController;
 use App\Http\Controllers\Admin\QrController;
 use App\Http\Controllers\Admin\SectionController;
-use App\Http\Controllers\Admin\VisibilityController;
+use App\Http\Controllers\Admin\TemplateController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VisibilityController;
 use App\Http\Controllers\Admin\WeddingController;
 use App\Http\Controllers\CheckIn\CheckInController;
 use App\Http\Controllers\Public\GuestBookController;
@@ -23,7 +24,7 @@ use App\Http\Controllers\Public\RsvpController;
 use Illuminate\Support\Facades\Route;
 
 // Root redirect
-Route::get('/', fn() => redirect()->route('admin.weddings.index'));
+Route::get('/', fn () => redirect()->route('admin.weddings.index'));
 
 // Health check — no sensitive data exposed
 Route::get('/health', function () {
@@ -31,45 +32,46 @@ Route::get('/health', function () {
 
     // DB check
     try {
-        \DB::connection()->getPdo();
+        DB::connection()->getPdo();
         $checks['database'] = 'ok';
-    } catch (\Exception) {
+    } catch (Exception) {
         $checks['database'] = 'error';
         $checks['status'] = 'degraded';
     }
 
     // Storage check
     try {
-        \Storage::disk('public')->exists('.gitignore');
+        Storage::disk('public')->exists('.gitignore');
         $checks['storage'] = 'ok';
-    } catch (\Exception) {
+    } catch (Exception) {
         $checks['storage'] = 'error';
         $checks['status'] = 'degraded';
     }
 
     // Queue backlog check (database driver only — no Redis required)
     try {
-        $pending = \DB::table('jobs')->count();
-        $failed  = \DB::table('failed_jobs')->count();
+        $pending = DB::table('jobs')->count();
+        $failed = DB::table('failed_jobs')->count();
         $checks['queue'] = ['pending' => $pending, 'failed' => $failed];
         if ($failed > 10) {
             $checks['status'] = 'degraded';
         }
-    } catch (\Exception) {
+    } catch (Exception) {
         $checks['queue'] = 'unavailable';
     }
 
     $httpStatus = $checks['status'] === 'ok' ? 200 : 503;
+
     return response()->json($checks, $httpStatus);
 });
 
 // Auth routes
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(function () {
 
-    Route::get('/', fn() => redirect()->route('admin.weddings.index'));
+    Route::get('/', fn () => redirect()->route('admin.weddings.index'));
 
     // Super Admin only
     Route::middleware('can:viewAny,App\Models\Client')->group(function () {
@@ -83,6 +85,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
         Route::put('clients/{client}/users/{user}', [UserController::class, 'update'])->name('clients.users.update');
         Route::delete('clients/{client}/users/{user}', [UserController::class, 'destroy'])->name('clients.users.destroy');
         Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit.index');
+    });
+
+    // Templates — Super Admin only (spec §4)
+    Route::middleware('can:viewAny,App\Models\Template')->group(function () {
+        Route::resource('templates', TemplateController::class)->except(['show']);
     });
 
     // Weddings

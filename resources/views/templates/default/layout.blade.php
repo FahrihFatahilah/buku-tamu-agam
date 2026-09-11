@@ -1,8 +1,24 @@
 {{--
     Default template — the fallback used by TemplateService when a wedding's
     template key has no view directory, or a template is missing a section view.
-    Neutral, editorial, restrained. No ornament, no gradients.
+
+    Colours and fonts come from the template's default_settings, so templates
+    created in the builder (which have no Blade files) render distinctly.
 --}}
+@php
+    $tplSettings = $wedding->template->default_settings ?? [];
+    $palette     = $tplSettings['palette'] ?? [];
+    $fontCfg     = $tplSettings['fonts'] ?? [];
+
+    $tplPrimary   = $palette['primary']   ?? '#1A1A1A';
+    $tplSecondary = $palette['secondary'] ?? '#FFFFFF';
+    $tplAccent    = $palette['accent']    ?? '#888888';
+    $tplDark      = $palette['dark']      ?? '#1A1A1A';
+
+    $tplFontDisplay = $fontCfg['display'] ?? 'EB Garamond';
+    $tplFontBody    = $fontCfg['body']    ?? 'Inter';
+    $gfont = fn($f) => str_replace(' ', '+', trim($f));
+@endphp
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
@@ -20,11 +36,48 @@
     @if($wedding->favicon)<link rel="icon" href="{{ Storage::url($wedding->favicon) }}">@endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family={{ $gfont($tplFontDisplay) }}&family={{ $gfont($tplFontBody) }}&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
-        body { font-family: 'Inter', sans-serif; background: #ffffff; color: #1a1a1a; }
-        .font-display { font-family: 'EB Garamond', serif; }
+        :root {
+            --tpl-primary:   {{ $tplPrimary }};
+            --tpl-secondary: {{ $tplSecondary }};
+            --tpl-accent:    {{ $tplAccent }};
+            --tpl-dark:      {{ $tplDark }};
+        }
+
+        body {
+            font-family: '{{ $tplFontBody }}', sans-serif;
+            background: var(--tpl-secondary);
+            color: var(--tpl-dark);
+        }
+
+        .tpl-display  { font-family: '{{ $tplFontDisplay }}', serif; }
+        .tpl-ink      { color: var(--tpl-dark); }
+        .tpl-primary  { color: var(--tpl-primary); }
+        .tpl-accent   { color: var(--tpl-accent); }
+        .tpl-surface  { background: var(--tpl-secondary); }
+        .tpl-panel    { background: color-mix(in srgb, var(--tpl-secondary) 92%, var(--tpl-dark)); }
+        .tpl-muted    { color: color-mix(in srgb, var(--tpl-dark) 55%, transparent); }
+        .tpl-faint    { color: color-mix(in srgb, var(--tpl-dark) 35%, transparent); }
+        .tpl-hairline { border-color: color-mix(in srgb, var(--tpl-dark) 14%, transparent); }
+        .tpl-rule     { background: color-mix(in srgb, var(--tpl-dark) 18%, transparent); }
+        .tpl-btn {
+            border-color: color-mix(in srgb, var(--tpl-accent) 55%, transparent);
+            color: var(--tpl-accent);
+        }
+        .tpl-btn:hover { background: color-mix(in srgb, var(--tpl-accent) 10%, transparent); }
+        .tpl-btn-solid {
+            background: var(--tpl-primary);
+            color: var(--tpl-secondary);
+        }
+        .tpl-field {
+            background: color-mix(in srgb, var(--tpl-secondary) 96%, var(--tpl-dark));
+            border-color: color-mix(in srgb, var(--tpl-dark) 18%, transparent);
+            color: var(--tpl-dark);
+        }
+        .tpl-invert { background: var(--tpl-dark); color: var(--tpl-secondary); }
+
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
 </head>
@@ -33,7 +86,7 @@
 @if($activePlaylist && $activePlaylist->items->isNotEmpty())
 <div class="fixed bottom-5 right-5 z-50" x-data="{ playing: false }" x-init="audio = $refs.audio">
     <button @click="playing ? (audio.pause(), playing=false) : audio.play().then(()=>playing=true).catch(()=>{})"
-        class="w-10 h-10 bg-black text-white flex items-center justify-center hover:bg-stone-800 transition-colors"
+        class="tpl-btn-solid w-10 h-10 flex items-center justify-center transition-opacity hover:opacity-90"
         :aria-label="playing ? 'Jeda musik' : 'Putar musik'">
         <span x-show="!playing" class="text-xs">▶</span>
         <span x-show="playing" class="text-xs">⏸</span>
@@ -46,16 +99,17 @@
 
 {{-- Opening --}}
 @if($sections->where('section_key','opening')->first()?->is_enabled)
-<div class="fixed inset-0 z-40 bg-[#1a1a1a] flex flex-col items-center justify-center text-center px-8"
+<div class="fixed inset-0 z-40 tpl-invert flex flex-col items-center justify-center text-center px-8"
     x-data="{opened:false}" x-show="!opened"
     x-transition:leave="transition duration-700 ease-in" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <p class="text-white/40 text-xs tracking-[0.4em] uppercase mb-6">Undangan Pernikahan</p>
-    <h1 class="font-display text-4xl sm:text-5xl text-white font-normal mb-2">{{ $wedding->bride_name }}</h1>
-    <p class="text-white/50 text-xl font-display italic mb-2">&amp;</p>
-    <h1 class="font-display text-4xl sm:text-5xl text-white font-normal mb-8">{{ $wedding->groom_name }}</h1>
-    @if($guest)<p class="text-white/50 text-sm mb-6">Kepada: {{ $guest->name }}</p>@endif
+    <p class="text-xs tracking-[0.4em] uppercase mb-6 opacity-40">Undangan Pernikahan</p>
+    <h1 class="tpl-display text-4xl sm:text-5xl font-normal mb-2">{{ $wedding->bride_name }}</h1>
+    <p class="tpl-accent text-xl tpl-display italic mb-2">&amp;</p>
+    <h1 class="tpl-display text-4xl sm:text-5xl font-normal mb-8">{{ $wedding->groom_name }}</h1>
+    @if($guest)<p class="text-sm mb-6 opacity-50">Kepada: {{ $guest->name }}</p>@endif
     <button @click="opened=true"
-        class="px-8 py-3 border border-white/30 text-white/80 text-xs tracking-[0.2em] uppercase hover:border-white/60 transition-colors">
+        class="px-8 py-3 border text-xs tracking-[0.2em] uppercase transition-colors"
+        style="border-color: color-mix(in srgb, var(--tpl-secondary) 30%, transparent); color: var(--tpl-secondary);">
         Buka Undangan
     </button>
 </div>

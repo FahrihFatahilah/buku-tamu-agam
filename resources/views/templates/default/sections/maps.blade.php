@@ -5,10 +5,10 @@
             : null);
 @endphp
 @if($mapsUrl)
-<section class="py-16 px-6 bg-white">
+<section class="py-16 px-6 tpl-surface">
     <div class="max-w-2xl mx-auto text-center">
         <a href="{{ $mapsUrl }}" target="_blank" rel="noopener"
-            class="inline-block px-6 py-3 border border-stone-300 text-xs tracking-[0.2em] uppercase text-stone-600 hover:border-stone-500 transition-colors">
+            class="tpl-btn inline-block px-6 py-3 border text-xs tracking-[0.2em] uppercase transition-colors">
             Lihat Lokasi di Google Maps
         </a>
     </div>

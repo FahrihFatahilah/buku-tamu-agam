@@ -13,13 +13,23 @@
         <p class="text-sm text-stone-400 mt-1">Aktifkan, nonaktifkan, atur background, dan overlay setiap section.</p>
     </div>
 
-    <div class="space-y-2" id="sections-list">
+    <div class="space-y-2" id="sections-list" x-ref="list"
+        x-data="sectionReorder('{{ route('admin.weddings.sections.reorder', $wedding) }}', '{{ csrf_token() }}')">
         @foreach($sections as $section)
-        <div class="bg-white border border-stone-200" x-data="{ open: false }" data-id="{{ $section->id }}">
+        <div class="bg-white border border-stone-200" x-data="{ open: false, draggable: false }" data-id="{{ $section->id }}"
+            :draggable="draggable"
+            @dragstart="start($event)"
+            @dragover="over($event)"
+            @drop="drop($event)"
+            @dragend="end()">
 
             {{-- Header row --}}
             <div class="px-4 py-3 flex items-center gap-3">
-                <div class="text-stone-300 cursor-grab select-none text-lg leading-none">⠿</div>
+                <div class="text-stone-300 cursor-grab active:cursor-grabbing select-none text-lg leading-none"
+                    title="Geser untuk mengubah urutan"
+                    @mousedown="draggable = true"
+                    @mouseup="draggable = false"
+                    @mouseleave="draggable = false">⠿</div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-stone-700">
                         {{ $section->title ?: ucfirst(str_replace('_', ' ', $section->section_key)) }}
@@ -197,4 +207,57 @@
         @endforeach
     </div>
 </div>
+
+<script>
+function sectionReorder(url, token) {
+    return {
+        url: url,
+        token: token,
+        dragging: null,
+
+        start(e) {
+            this.dragging = e.currentTarget;
+            e.dataTransfer.effectAllowed = 'move';
+            try { e.dataTransfer.setData('text/plain', this.dragging.dataset.id); } catch (_) {}
+            this.dragging.classList.add('opacity-40');
+        },
+
+        over(e) {
+            e.preventDefault();
+            const target = e.currentTarget;
+            if (!this.dragging || target === this.dragging) return;
+            if (target.parentElement !== this.$refs.list) return;
+
+            const rect  = target.getBoundingClientRect();
+            const after = (e.clientY - rect.top) > rect.height / 2;
+            this.$refs.list.insertBefore(this.dragging, after ? target.nextSibling : target);
+        },
+
+        drop(e) {
+            e.preventDefault();
+            this.persist();
+        },
+
+        end() {
+            if (this.dragging) this.dragging.classList.remove('opacity-40');
+            this.dragging = null;
+            this.persist();
+        },
+
+        persist() {
+            const order = Array.from(this.$refs.list.children).map(el => el.dataset.id);
+
+            fetch(this.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': this.token,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ order: order }),
+            }).catch(() => {});
+        }
+    };
+}
+</script>
 @endsection
