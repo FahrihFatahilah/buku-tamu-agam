@@ -392,20 +392,35 @@ export function registerStores(config) {
             }
         },
 
+        /** Returns true only when the document was written server-side. */
         async enable() {
-            const response = await fetch(this.urls.enable, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-                    Accept: 'application/json',
-                },
-            });
+            this.saveErrors = [];
 
-            const data = await response.json();
+            try {
+                const response = await fetch(this.urls.enable, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+                        Accept: 'application/json',
+                    },
+                });
 
-            if (data.document) {
-                this.document = data.document;
-                Alpine.store('history').reset(data.document);
+                if (!response.ok) {
+                    this.saveErrors = [`Gagal mengaktifkan Page Builder (HTTP ${response.status}).`];
+                    return false;
+                }
+
+                const data = await response.json();
+
+                if (data.document) {
+                    this.document = data.document;
+                    Alpine.store('history').reset(data.document);
+                }
+
+                return true;
+            } catch (e) {
+                this.saveErrors = ['Gagal mengaktifkan Page Builder. Periksa koneksi Anda.'];
+                return false;
             }
         },
 

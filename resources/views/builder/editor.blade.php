@@ -83,7 +83,7 @@
         {{-- Actions --}}
         <div class="flex items-center gap-2 shrink-0">
             @unless($isActive)
-            <button type="button" @click="$store.builder.enable().then(() => location.reload())"
+            <button type="button" @click="$store.builder.enable().then((ok) => { if (ok) location.reload() })"
                 class="text-[11px] text-stone-300 hover:text-white px-2.5 py-1.5 border border-white/15 rounded transition-colors"
                 title="Aktifkan renderer dokumen untuk undangan ini">
                 Aktifkan
