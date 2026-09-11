@@ -87,7 +87,11 @@ class InvitationBuilderController extends Controller
     {
         $this->authorize('buildDocument', $wedding);
 
-        $decoded = json_decode((string) $request->input('document'), true);
+        // The editor posts a JSON body, so the document arrives already
+        // decoded as an array; a form post sends it as a JSON string.
+        $input = $request->input('document');
+
+        $decoded = is_array($input) ? $input : json_decode((string) $input, true);
 
         if (! is_array($decoded)) {
             return response()->json(['ok' => false, 'error' => 'Dokumen tidak valid.'], 422);

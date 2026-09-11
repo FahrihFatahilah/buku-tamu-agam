@@ -69,15 +69,18 @@
     </div>
 
     <script>
+        // These run from plain <script>, not an Alpine expression, so the
+        // `$store` magic is unavailable here — reach the store via the
+        // global Alpine instance instead.
         window.labelFor = function (node) {
             if (node.type === 'decoration') {
                 return 'Dekorasi';
             }
-            const item = ($store.builder.registry.widgets.items || []).find((w) => w.type === node.type);
+            const item = (window.Alpine?.store('builder')?.registry?.widgets?.items || []).find((w) => w.type === node.type);
             return item ? item.name : node.type;
         };
         window.overlayName = function (type) {
-            const item = ($store.builder.registry.overlays.items || []).find((o) => o.type === type);
+            const item = (window.Alpine?.store('builder')?.registry?.overlays?.items || []).find((o) => o.type === type);
             return item ? item.name : type;
         };
     </script>

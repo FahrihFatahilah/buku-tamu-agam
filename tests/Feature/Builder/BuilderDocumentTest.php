@@ -465,6 +465,38 @@ class BuilderDocumentTest extends TestCase
             ->assertSee('Pratinjau', false);
     }
 
+    public function test_preview_stages_a_document_sent_as_a_json_object(): void
+    {
+        // The editor sends the document as an object in the JSON body (not a
+        // pre-encoded string), so the controller must accept an array here.
+        $this->actingAs($this->superAdmin)
+            ->postJson("/admin/weddings/{$this->wedding->id}/builder/preview", [
+                'document' => [
+                    'version' => 2,
+                    'nodes' => [['id' => 'h', 'type' => 'heading', 'props' => ['text' => 'Objek']]],
+                ],
+            ])
+            ->assertOk()
+            ->assertJsonPath('ok', true);
+
+        $this->assertFalse($this->wedding->fresh()->hasBuilderDocument());
+
+        $this->actingAs($this->superAdmin)
+            ->get("/admin/weddings/{$this->wedding->id}/builder/preview")
+            ->assertOk()
+            ->assertSee('Objek', false);
+    }
+
+    public function test_preview_rejects_a_document_that_is_not_an_object(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->postJson("/admin/weddings/{$this->wedding->id}/builder/preview", [
+                'document' => 'not json',
+            ])
+            ->assertStatus(422)
+            ->assertJsonPath('ok', false);
+    }
+
     public function test_publish_materialises_the_document_and_publishes(): void
     {
         $this->actingAs($this->superAdmin)
