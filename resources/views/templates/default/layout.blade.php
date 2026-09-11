@@ -99,18 +99,18 @@
 
 {{-- Opening --}}
 @if($sections->where('section_key','opening')->first()?->is_enabled)
-<div class="fixed inset-0 z-40 tpl-invert flex flex-col items-center justify-center text-center px-8"
+<div id="opening" class="fixed inset-0 z-40 tpl-invert flex flex-col items-center justify-center text-center px-8"
     x-data="{opened:false}" x-show="!opened"
     x-transition:leave="transition duration-700 ease-in" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-    <p class="text-xs tracking-[0.4em] uppercase mb-6 opacity-40">Undangan Pernikahan</p>
+    <p class="text-xs tracking-[0.4em] uppercase mb-6 opacity-40" data-edit="eyebrow">{{ $openingText['eyebrow'] ?? 'Undangan Pernikahan' }}</p>
     <h1 class="tpl-display text-4xl sm:text-5xl font-normal mb-2">{{ $wedding->bride_name }}</h1>
     <p class="tpl-accent text-xl tpl-display italic mb-2">&amp;</p>
     <h1 class="tpl-display text-4xl sm:text-5xl font-normal mb-8">{{ $wedding->groom_name }}</h1>
     @if($guest)<p class="text-sm mb-6 opacity-50">Kepada: {{ $guest->name }}</p>@endif
-    <button @click="opened=true"
+    <button @click="opened=true" data-edit="cta"
         class="px-8 py-3 border text-xs tracking-[0.2em] uppercase transition-colors"
         style="border-color: color-mix(in srgb, var(--tpl-secondary) 30%, transparent); color: var(--tpl-secondary);">
-        Buka Undangan
+        {{ $openingText['cta'] ?? 'Buka Undangan' }}
     </button>
 </div>
 @endif
@@ -121,15 +121,25 @@
 
     // Sections that need a resolved guest.
     $needsGuest = ['rsvp', 'qr_code'];
+
+    // Sections that need a wedding date.
+    $needsDate = ['countdown'];
+
+    $openingSection = $sections->firstWhere('section_key', 'opening');
+    $openingText = $templateService->sectionText('opening', $openingSection?->settings ?? []);
 @endphp
 
 <div id="invitation-content">
     {{-- Rendered in the template's stored order, so the builder's drag order is authoritative. --}}
     @foreach($sections as $section)
-        @php $sectionKey = $section->section_key; @endphp
+        @php
+            $sectionKey = $section->section_key;
+            $text = $templateService->sectionText($sectionKey, $section->settings ?? []);
+        @endphp
 
         @continue(!$section->is_enabled || $sectionKey === 'opening')
         @continue(in_array($sectionKey, $needsEvents, true) && $events->isEmpty())
+        @continue(in_array($sectionKey, $needsDate, true) && !$wedding->date)
         @continue($sectionKey === 'gift' && $giftMethods->isEmpty())
         @continue(in_array($sectionKey, $needsGuest, true) && !$guest)
 

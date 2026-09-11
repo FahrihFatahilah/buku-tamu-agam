@@ -98,13 +98,16 @@ class TemplateController extends Controller
         $order = array_values(array_filter(explode(',', $request->string('order')->toString())));
         $disabled = array_values(array_filter(explode(',', $request->string('off')->toString())));
 
+        // Unsaved inline text edits, already whitelisted against the registry.
+        $text = $this->templateService->filterTextOverrides((array) $request->input('text', []));
+
         // Only preview an existing template's own design; a new template previews
         // the generic default layout.
         $template = $request->integer('template')
             ? Template::find($request->integer('template'))
             : null;
 
-        $data = $previewService->build($palette, $fontDisplay, $fontBody, $order, $disabled, $template);
+        $data = $previewService->build($palette, $fontDisplay, $fontBody, $order, $disabled, $template, $text);
 
         return response()
             ->view($this->templateService->layoutView($data['templateKey']), $data)
@@ -169,6 +172,7 @@ class TemplateController extends Controller
             'order' => 'nullable|string',
             'enabled' => 'nullable|array',
             'title' => 'nullable|array',
+            'text' => 'nullable|array',
         ]);
     }
 
@@ -234,11 +238,13 @@ class TemplateController extends Controller
 
         $enabled = (array) $request->input('enabled', []);
         $titles = (array) $request->input('title', []);
+        $text = $this->templateService->filterTextOverrides((array) $request->input('text', []));
 
         return array_map(fn ($key) => [
             'key' => $key,
             'enabled' => ! empty($enabled[$key]),
             'title' => ! empty($titles[$key]) ? trim((string) $titles[$key]) : null,
+            'settings' => ! empty($text[$key]) ? ['text' => $text[$key]] : [],
         ], $ordered);
     }
 

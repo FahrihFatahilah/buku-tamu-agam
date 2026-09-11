@@ -1,8 +1,9 @@
+@php $t = $text ?? []; @endphp
 <section id="event" class="py-20 px-6 tpl-surface">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Rangkaian Acara</p>
-            <h2 class="tpl-display text-3xl tpl-ink">Jadwal Acara</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Rangkaian Acara' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'Jadwal Acara' }}</h2>
         </div>
         <div class="space-y-4">
             @foreach($events as $event)

@@ -1,9 +1,13 @@
+@php
+    $t = $text ?? [];
+    $submitLabel = $t['submit'] ?? 'Kirim Konfirmasi';
+@endphp
 @if($guest)
 <section id="rsvp" class="py-20 px-6 tpl-surface">
     <div class="max-w-md mx-auto">
         <div class="text-center mb-10">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Konfirmasi Kehadiran</p>
-            <h2 class="tpl-display text-3xl tpl-ink">RSVP</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Konfirmasi Kehadiran' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'RSVP' }}</h2>
         </div>
 
         <div id="rsvp-form-wrap">
@@ -38,9 +42,9 @@
                         class="tpl-field w-full px-3 py-2 border text-sm focus:outline-none resize-none">{{ $guest->rsvp?->note }}</textarea>
                 </div>
 
-                <button type="submit" id="rsvp-btn"
+                <button type="submit" id="rsvp-btn" data-edit="submit"
                     class="tpl-btn-solid w-full py-3 text-sm tracking-wider transition-opacity hover:opacity-90">
-                    Kirim Konfirmasi
+                    {{ $submitLabel }}
                 </button>
             </form>
         </div>
@@ -74,9 +78,7 @@
     var editBtn  = document.getElementById('rsvp-edit');
 
     @php
-        $rsvpUrl = $guest->short_token
-            ? route('rsvp.store.short', [$wedding->short_id ?? $wedding->public_id, $wedding->slug, $guest->short_token])
-            : route('rsvp.store', [$wedding->public_id, $wedding->slug, $guest->invitation_token]);
+        $rsvpUrl = route('rsvp.store.short', [$wedding->short_id ?? $wedding->public_id, $wedding->slug, $guest->short_token ?? $guest->invitation_token]);
         $qrUrl = route('rsvp.qr', [
             'anyId' => $wedding->short_id ?? $wedding->public_id,
             'slug'  => $wedding->slug,
@@ -87,6 +89,7 @@
     var ACTION = @json($rsvpUrl);
     var QR_URL = @json($qrUrl);
     var CSRF   = form.querySelector('[name=_token]').value;
+    var SUBMIT_LABEL = @json($submitLabel);
 
     @if($guest->rsvp)
     showSuccess({{ $guest->rsvp->attendance_status === 'attending' ? 'true' : 'false' }}, false);
@@ -113,12 +116,12 @@
                     if (el) { el.textContent = res.errors[k][0]; el.classList.remove('hidden'); }
                 });
                 btn.disabled = false;
-                btn.textContent = 'Kirim Konfirmasi';
+                btn.textContent = SUBMIT_LABEL;
             }
         })
         .catch(function () {
             btn.disabled = false;
-            btn.textContent = 'Kirim Konfirmasi';
+            btn.textContent = SUBMIT_LABEL;
         });
     });
 
@@ -126,7 +129,7 @@
         success.classList.add('hidden');
         formWrap.classList.remove('hidden');
         btn.disabled = false;
-        btn.textContent = 'Kirim Konfirmasi';
+        btn.textContent = SUBMIT_LABEL;
     });
 
     function showSuccess(attending, loadQr) {

@@ -35,6 +35,16 @@
         }
     }
     $curPaletteKey = old('palette', $curPaletteKey ?? array_key_first($palettes));
+
+    // Inline-editable text: registry defaults overlaid with what's stored.
+    $textState = [];
+    $defaultText = $svc->defaultText();
+    foreach ($defaultText as $sectionKey => $fields) {
+        $stored = collect($layout)->firstWhere('key', $sectionKey)['settings']['text'] ?? [];
+        foreach ($fields as $field => $default) {
+            $textState[$sectionKey][$field] = old("text.{$sectionKey}.{$field}", $stored[$field] ?? $default);
+        }
+    }
 @endphp
 
 @section('content')
@@ -44,6 +54,8 @@
         'order'       => array_values($layoutKeys),
         'enabled'     => $enabledMap,
         'titles'      => $titleMap,
+        'text'        => $textState,
+        'defaults'    => $defaultText,
         'palette'     => $curPaletteKey,
         'fontDisplay' => $curFontD,
         'fontBody'    => $curFontB,
@@ -55,6 +67,11 @@
     @if(!$isNew) @method('PUT') @endif
 
     <input type="hidden" name="order" :value="JSON.stringify(order)">
+
+    {{-- Inline-edited text, mirrored so the form submits it --}}
+    <template x-for="pair in textPairs" :key="pair.name">
+        <input type="hidden" :name="pair.name" :value="pair.value">
+    </template>
 
     {{-- ── Top bar ──────────────────────────────────────────────────────── --}}
     <header class="h-14 shrink-0 flex items-center justify-between gap-4 px-4 bg-stone-900 border-b border-white/10 text-white">
@@ -139,7 +156,7 @@
             {{-- Structure tab --}}
             <div x-show="tab === 'structure'" class="flex-1 overflow-y-auto min-h-0">
                 <p class="px-3 py-2 text-[11px] text-stone-500 border-b border-white/5">
-                    Geser untuk mengubah urutan. Klik untuk melihat di kanvas.
+                    Geser untuk mengubah urutan. <span class="text-stone-400">Klik teks di kanvas untuk mengeditnya langsung.</span>
                 </p>
 
                 <div x-ref="list" class="py-1">
@@ -347,6 +364,8 @@ function templateBuilder(config) {
         order: config.order,
         enabled: config.enabled,
         titles: config.titles,
+        text: config.text,
+        defaults: config.defaults,
         palette: config.palette,
         fontDisplay: config.fontDisplay,
         fontBody: config.fontBody,
@@ -369,6 +388,20 @@ function templateBuilder(config) {
             return this.order.filter(k => this.enabled[k]).length;
         },
 
+        /** Flat list of text fields, mirrored into hidden inputs so the form submits them. */
+        get textPairs() {
+            const out = [];
+            for (const sec of Object.keys(this.text)) {
+                for (const field of Object.keys(this.text[sec])) {
+                    out.push({
+                        name: 'text[' + sec + '][' + field + ']',
+                        value: this.text[sec][field],
+                    });
+                }
+            }
+            return out;
+        },
+
         get frameStyle() {
             const widths = { desktop: '100%', tablet: '768px', mobile: '390px' };
             return { width: this.panels ? widths[this.device] : widths[this.device], maxWidth: '100%' };
@@ -386,6 +419,13 @@ function templateBuilder(config) {
             p.set('order', this.order.join(','));
             p.set('off', this.order.filter(k => !this.enabled[k]).join(','));
             if (this.templateId) p.set('template', this.templateId);
+
+            // Carry unsaved inline edits so a reload keeps them.
+            for (const sec of Object.keys(this.text)) {
+                for (const field of Object.keys(this.text[sec])) {
+                    p.set('text[' + sec + '][' + field + ']', this.text[sec][field]);
+                }
+            }
             return this.previewBase + '?' + p.toString();
         },
 
@@ -399,11 +439,91 @@ function templateBuilder(config) {
         },
 
         onFrameLoad() {
-            // Re-apply the selected section highlight after every reload.
-            if (this.selected) {
-                const el = this.$refs.frame?.contentDocument?.getElementById(this.selected);
-                if (el) el.scrollIntoView({ block: 'start' });
+            this.bindEditable();
+        },
+
+        /**
+         * Make the canvas editable in place. The preview is same-origin, so we
+         * talk to its document directly rather than over postMessage.
+         *
+         * Text edits deliberately do NOT reload the preview — the DOM already
+         * shows what was typed, and reloading would destroy the caret.
+         */
+        bindEditable() {
+            const doc = this.$refs.frame?.contentDocument;
+            if (!doc) return;
+
+            // Affordance styling, scoped to the canvas.
+            if (!doc.getElementById('builder-canvas-style')) {
+                const style = doc.createElement('style');
+                style.id = 'builder-canvas-style';
+                style.textContent = `
+                    [data-edit] { cursor: text; transition: box-shadow .12s ease; border-radius: 2px; }
+                    [data-edit]:hover { box-shadow: 0 0 0 2px rgba(59,130,246,.45); }
+                    [data-edit]:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 2px rgba(59,130,246,.9);
+                        background: rgba(59,130,246,.06);
+                    }
+                `;
+                doc.head.appendChild(style);
             }
+
+            doc.querySelectorAll('[data-edit]').forEach(el => {
+                // Match only real section containers — several sections nest
+                // divs that carry ids (e.g. #rsvp-form-wrap), which would
+                // otherwise win the `closest` race against the section.
+                const container = el.closest('section[id]') || el.closest('#opening');
+                const sectionKey = container?.id;
+
+                el.setAttribute('contenteditable', 'true');
+                el.setAttribute('spellcheck', 'false');
+
+                // Keep links inside the canvas from navigating away.
+                el.querySelectorAll('a').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+
+                el.addEventListener('focus', () => {
+                    if (sectionKey) this.selected = sectionKey;
+                });
+
+                el.addEventListener('click', e => {
+                    e.stopPropagation();
+                    if (sectionKey) this.selected = sectionKey;
+                });
+
+                el.addEventListener('input', () => {
+                    if (!sectionKey) return;
+                    const field = el.dataset.edit;
+                    // Replace the object so Alpine sees the change.
+                    this.text[sectionKey] = { ...this.text[sectionKey], [field]: el.textContent };
+                });
+
+                el.addEventListener('blur', () => {
+                    if (!sectionKey) return;
+                    const field = el.dataset.edit;
+                    const trimmed = el.textContent.replace(/\s+/g, ' ').trim();
+
+                    // Empty means "revert to the registry default" rather than
+                    // storing a blank label.
+                    const value = trimmed === ''
+                        ? (this.defaults[sectionKey]?.[field] ?? '')
+                        : trimmed;
+
+                    el.textContent = value;
+                    this.text[sectionKey] = { ...this.text[sectionKey], [field]: value };
+                });
+
+                el.addEventListener('keydown', e => {
+                    // Enter commits; the fields are single-line labels.
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        el.blur();
+                    }
+                    if (e.key === 'Escape') {
+                        el.blur();
+                    }
+                });
+            });
         },
 
         select(key) {

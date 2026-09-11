@@ -63,6 +63,87 @@ class TemplateService
     }
 
     /**
+     * Editable text fields, keyed by section then field.
+     */
+    public function sectionFields(): array
+    {
+        return config('ngundang.section_fields', []);
+    }
+
+    /**
+     * Resolve a section's text values against the registry defaults.
+     *
+     * @param  array<string, mixed>  $settings  Stored section settings.
+     * @return array<string, string>
+     */
+    public function sectionText(string $sectionKey, array $settings = []): array
+    {
+        $fields = $this->sectionFields()[$sectionKey] ?? [];
+        $stored = is_array($settings['text'] ?? null) ? $settings['text'] : [];
+
+        $text = [];
+        foreach ($fields as $field => $meta) {
+            $value = $stored[$field] ?? null;
+            $text[$field] = (is_string($value) && trim($value) !== '')
+                ? $value
+                : ($meta['default'] ?? '');
+        }
+
+        return $text;
+    }
+
+    /**
+     * Default text for every section — used by the builder to seed its state.
+     *
+     * @return array<string, array<string, string>>
+     */
+    public function defaultText(): array
+    {
+        $out = [];
+        foreach (array_keys($this->sectionFields()) as $sectionKey) {
+            $out[$sectionKey] = $this->sectionText($sectionKey);
+        }
+
+        return $out;
+    }
+
+    /**
+     * Keep only known sections/fields whose value is a non-empty string and
+     * differs from the registry default. Stored overrides therefore stay
+     * minimal and cannot carry injected keys.
+     *
+     * @param  array<string, mixed>  $input
+     * @return array<string, array<string, string>>
+     */
+    public function filterTextOverrides(array $input): array
+    {
+        $fields = $this->sectionFields();
+        $out = [];
+
+        foreach ($input as $sectionKey => $values) {
+            if (! isset($fields[$sectionKey]) || ! is_array($values)) {
+                continue;
+            }
+
+            foreach ($values as $field => $value) {
+                if (! isset($fields[$sectionKey][$field]) || ! is_string($value)) {
+                    continue;
+                }
+
+                $value = trim($value);
+
+                if ($value === '' || $value === ($fields[$sectionKey][$field]['default'] ?? '')) {
+                    continue;
+                }
+
+                $out[$sectionKey][$field] = $value;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
      * A fully-enabled layout using the canonical order.
      */
     public function defaultLayout(): array
@@ -94,6 +175,7 @@ class TemplateService
                 'key' => $key,
                 'enabled' => is_array($entry) ? (bool) ($entry['enabled'] ?? true) : true,
                 'title' => (is_array($entry) && ! empty($entry['title'])) ? (string) $entry['title'] : null,
+                'settings' => (is_array($entry) && is_array($entry['settings'] ?? null)) ? $entry['settings'] : [],
             ];
         }
 
@@ -101,7 +183,7 @@ class TemplateService
 
         foreach ($known as $key) {
             if (! isset($seen[$key])) {
-                $ordered[] = ['key' => $key, 'enabled' => true, 'title' => null];
+                $ordered[] = ['key' => $key, 'enabled' => true, 'title' => null, 'settings' => []];
             }
         }
 

@@ -102,6 +102,9 @@ class WeddingService
                 'title' => $row['title'] ?? null,
                 'is_enabled' => $row['enabled'] ?? true,
                 'sort_order' => $index,
+                // Carry the template's text defaults so the wedding starts from
+                // the template's copy, and can still override per wedding later.
+                'settings' => is_array($row['settings'] ?? null) ? $row['settings'] : [],
             ]);
         }
     }

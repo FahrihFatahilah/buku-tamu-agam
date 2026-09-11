@@ -20,6 +20,7 @@ class TemplatePreviewService
     /**
      * @param  array<int, string>  $order  Section keys in display order.
      * @param  array<int, string>  $disabled  Section keys to treat as disabled.
+     * @param  array<string, mixed>  $text  Unsaved text overrides, keyed by section then field.
      */
     public function build(
         string $paletteKey,
@@ -28,6 +29,7 @@ class TemplatePreviewService
         array $order,
         array $disabled,
         ?Template $template = null,
+        array $text = [],
     ): array {
         $palettes = config('ngundang.palettes', []);
         $palette = $palettes[$paletteKey] ?? (reset($palettes) ?: []);
@@ -46,7 +48,7 @@ class TemplatePreviewService
         return [
             'wedding' => $wedding,
             'guest' => null,
-            'sections' => $this->sections($order, $disabled),
+            'sections' => $this->sections($order, $disabled, $text),
             'events' => $this->events(),
             'giftMethods' => $this->giftMethods(),
             'activePlaylist' => null,
@@ -83,7 +85,7 @@ class TemplatePreviewService
         ]);
     }
 
-    private function sections(array $order, array $disabled): Collection
+    private function sections(array $order, array $disabled, array $text = []): Collection
     {
         $canonical = $this->templateService->defaultSections();
 
@@ -99,13 +101,22 @@ class TemplatePreviewService
             }
         }
 
-        return collect($ordered)->map(fn ($key, $i) => new WeddingSection([
-            'section_key' => $key,
-            'title' => null,
-            'is_enabled' => ! in_array($key, $disabled, true),
-            'sort_order' => $i,
-            'settings' => $this->sampleSettings($key),
-        ]));
+        return collect($ordered)->map(function ($key, $i) use ($disabled, $text) {
+            $settings = $this->sampleSettings($key);
+
+            // Unsaved builder edits take precedence over the sample/defaults.
+            if (! empty($text[$key]) && is_array($text[$key])) {
+                $settings['text'] = $text[$key];
+            }
+
+            return new WeddingSection([
+                'section_key' => $key,
+                'title' => null,
+                'is_enabled' => ! in_array($key, $disabled, true),
+                'sort_order' => $i,
+                'settings' => $settings,
+            ]);
+        });
     }
 
     /**

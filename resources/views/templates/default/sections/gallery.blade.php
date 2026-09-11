@@ -1,9 +1,12 @@
-@php $galleryMedia = $media->whereIn('collection', ['gallery', 'prewedding'])->values(); @endphp
+@php
+    $t = $text ?? [];
+    $galleryMedia = $media->whereIn('collection', ['gallery', 'prewedding'])->values();
+@endphp
 <section id="gallery" class="py-20 px-6 tpl-surface">
     <div class="max-w-4xl mx-auto">
         <div class="text-center mb-12">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Galeri</p>
-            <h2 class="tpl-display text-3xl tpl-ink">Momen Bersama</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Galeri' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'Momen Bersama' }}</h2>
         </div>
         @if($galleryMedia->isNotEmpty())
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">

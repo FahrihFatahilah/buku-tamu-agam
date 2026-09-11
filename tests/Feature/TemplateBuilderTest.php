@@ -152,6 +152,115 @@ class TemplateBuilderTest extends TestCase
         }
     }
 
+    // ── Inline text editing ─────────────────────────────────────────────────
+
+    public function test_canvas_marks_editable_text_fields(): void
+    {
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview')
+            ->assertOk();
+
+        $html = $response->getContent();
+
+        // The builder finds these by section id + field name.
+        $this->assertStringContainsString('data-edit="heading"', $html);
+        $this->assertStringContainsString('data-edit="eyebrow"', $html);
+        $this->assertMatchesRegularExpression('/id="gift".*?data-edit="heading"/s', $html);
+    }
+
+    public function test_inline_text_override_is_persisted(): void
+    {
+        $this->actingAs($this->superAdmin)->post('/admin/templates', $this->templatePayload([
+            'text' => [
+                'gift' => ['heading' => 'Tanda Kasih', 'eyebrow' => 'Terima Kasih'],
+                'couple' => ['heading' => 'Dua Hati Satu Tujuan'],
+            ],
+        ]))->assertRedirect();
+
+        $sections = collect(Template::firstOrFail()->default_sections)->keyBy('key');
+
+        $this->assertSame('Tanda Kasih', $sections['gift']['settings']['text']['heading']);
+        $this->assertSame('Terima Kasih', $sections['gift']['settings']['text']['eyebrow']);
+        $this->assertSame('Dua Hati Satu Tujuan', $sections['couple']['settings']['text']['heading']);
+    }
+
+    public function test_text_equal_to_default_is_not_stored(): void
+    {
+        $this->actingAs($this->superAdmin)->post('/admin/templates', $this->templatePayload([
+            'text' => ['gift' => ['heading' => 'Amplop Digital']],
+        ]))->assertRedirect();
+
+        $sections = collect(Template::firstOrFail()->default_sections)->keyBy('key');
+
+        $this->assertEmpty($sections['gift']['settings']['text'] ?? []);
+    }
+
+    public function test_unknown_text_section_and_field_are_rejected(): void
+    {
+        $this->actingAs($this->superAdmin)->post('/admin/templates', $this->templatePayload([
+            'text' => [
+                'evil_section' => ['heading' => 'x'],
+                'gift' => ['heading' => 'Sah', 'evil_field' => 'x'],
+            ],
+        ]))->assertRedirect();
+
+        $gift = collect(Template::firstOrFail()->default_sections)->firstWhere('key', 'gift');
+
+        $this->assertSame('Sah', $gift['settings']['text']['heading']);
+        $this->assertArrayNotHasKey('evil_field', $gift['settings']['text']);
+    }
+
+    public function test_preview_reflects_unsaved_text(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview?text[gift][heading]=Tanda+Kasih')
+            ->assertOk()
+            ->assertSee('Tanda Kasih', false)
+            ->assertDontSee('Amplop Digital', false);
+    }
+
+    public function test_saved_text_appears_in_wedding_sections(): void
+    {
+        $this->actingAs($this->superAdmin)->post('/admin/templates', $this->templatePayload([
+            'text' => ['gift' => ['heading' => 'Tanda Kasih']],
+        ]))->assertRedirect();
+
+        $wedding = app(WeddingService::class)->create($this->client->id, [
+            'template_id' => Template::firstOrFail()->id,
+            'groom_name' => 'Andi',
+            'bride_name' => 'Sari',
+        ]);
+
+        $this->assertSame(
+            'Tanda Kasih',
+            $wedding->sections()->where('section_key', 'gift')->first()->settings['text']['heading']
+        );
+    }
+
+    public function test_saved_text_renders_on_the_invitation(): void
+    {
+        $this->actingAs($this->superAdmin)->post('/admin/templates', $this->templatePayload([
+            'enabled' => ['hero' => '1', 'gift' => '1'],
+            'text' => ['gift' => ['heading' => 'Tanda Kasih']],
+        ]))->assertRedirect();
+
+        $template = Template::firstOrFail();
+
+        $wedding = app(WeddingService::class)->create($this->client->id, [
+            'template_id' => $template->id, 'groom_name' => 'Andi', 'bride_name' => 'Sari',
+        ]);
+        $wedding->update(['status' => 'published', 'published_at' => now()]);
+        $wedding->giftMethods()->create([
+            'type' => 'bank_transfer', 'label' => 'BCA', 'account_number' => '123', 'is_active' => true,
+        ]);
+
+        // The template has no Blade files, so it falls back to templates/default
+        // and must pick up the edited heading.
+        $this->get("/{$wedding->public_id}/{$wedding->slug}")
+            ->assertOk()
+            ->assertSee('Tanda Kasih', false);
+    }
+
     // ── Builder pages render ────────────────────────────────────────────────
 
     public function test_create_page_renders(): void

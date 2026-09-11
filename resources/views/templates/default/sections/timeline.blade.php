@@ -1,10 +1,11 @@
-@php $items = collect($sections->firstWhere('section_key', 'timeline')?->settings['items'] ?? []); @endphp
+@php $t = $text ?? []; @endphp
+@php $items = collect($section->settings['items'] ?? []); @endphp
 @if($items->isNotEmpty())
 <section id="timeline" class="py-20 px-6 tpl-surface">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Susunan Acara</p>
-            <h2 class="tpl-display text-3xl tpl-ink">Timeline</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Susunan Acara' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'Timeline' }}</h2>
         </div>
         <div class="space-y-8">
             @foreach($items as $item)

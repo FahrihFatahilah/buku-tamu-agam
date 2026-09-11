@@ -1,4 +1,5 @@
 @php
+    $t = $text ?? [];
     $mapsUrl = $wedding->maps_url
         ?: ($wedding->latitude && $wedding->longitude
             ? 'https://www.google.com/maps/search/?api=1&query=' . $wedding->latitude . ',' . $wedding->longitude
@@ -7,9 +8,9 @@
 @if($mapsUrl)
 <section id="maps" class="py-16 px-6 tpl-surface">
     <div class="max-w-2xl mx-auto text-center">
-        <a href="{{ $mapsUrl }}" target="_blank" rel="noopener"
+        <a href="{{ $mapsUrl }}" target="_blank" rel="noopener" data-edit="cta"
             class="tpl-btn inline-block px-6 py-3 border text-xs tracking-[0.2em] uppercase transition-colors">
-            Lihat Lokasi di Google Maps
+            {{ $t['cta'] ?? 'Lihat Lokasi di Google Maps' }}
         </a>
     </div>
 </section>

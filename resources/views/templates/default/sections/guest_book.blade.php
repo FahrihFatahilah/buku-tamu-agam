@@ -1,15 +1,16 @@
 @php
+    $t = $text ?? [];
     $entries = \App\Models\GuestBookEntry::where('wedding_id', $wedding->id)
         ->approved()->latest()->limit(20)->get();
     $invId = $wedding->short_id ?? $wedding->public_id;
-    $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook") . ($guest ? '?t=' . $guest->invitation_token : '');
+    $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook") . ($guest ? '?t=' . $guest->short_token : '');
 @endphp
 
 <section id="guest_book" class="py-20 px-6 tpl-panel" x-data="defaultGuestBook('{{ $gbUrl }}', '{{ csrf_token() }}')">
     <div class="max-w-xl mx-auto">
         <div class="text-center mb-10">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Ucapan &amp; Doa</p>
-            <h2 class="tpl-display text-3xl tpl-ink">Buku Tamu</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Ucapan & Doa' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'Buku Tamu' }}</h2>
         </div>
 
         <div x-show="sent" x-transition
@@ -36,9 +37,9 @@
                 <p x-show="errors.message" x-text="errors.message" class="mt-1 text-xs text-red-500"></p>
             </div>
 
-            <button type="submit" :disabled="loading"
+            <button type="submit" :disabled="loading" data-edit="submit"
                 class="tpl-btn w-full py-3 border text-sm tracking-wider transition-colors disabled:opacity-50">
-                <span x-show="!loading">Kirim Ucapan</span>
+                <span x-show="!loading">{{ $t['submit'] ?? 'Kirim Ucapan' }}</span>
                 <span x-show="loading">Mengirim...</span>
             </button>
         </form>

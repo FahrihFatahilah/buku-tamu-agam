@@ -38,6 +38,88 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Editable Section Text
+    |--------------------------------------------------------------------------
+    |
+    | The text fields the page builder lets you edit inline, per section.
+    | `label` is shown in the builder, `default` is what a template starts with.
+    | This doubles as the whitelist for persisted overrides — any field not
+    | listed here is rejected.
+    |
+    */
+
+    'section_fields' => [
+        'opening' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Undangan Pernikahan'],
+            'cta' => ['label' => 'Tombol', 'default' => 'Buka Undangan'],
+        ],
+        'hero' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'The Wedding Of'],
+        ],
+        'couple' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Mempelai'],
+            'heading' => ['label' => 'Judul', 'default' => 'Dengan Penuh Sukacita'],
+            'bride_from' => ['label' => 'Keterangan mempelai wanita', 'default' => 'Putri dari'],
+            'groom_from' => ['label' => 'Keterangan mempelai pria', 'default' => 'Putra dari'],
+        ],
+        'countdown' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Menuju Hari Bahagia'],
+        ],
+        'event' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Rangkaian Acara'],
+            'heading' => ['label' => 'Judul', 'default' => 'Jadwal Acara'],
+        ],
+        'venue' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Lokasi'],
+            'heading' => ['label' => 'Judul', 'default' => 'Tempat Acara'],
+            'cta' => ['label' => 'Tombol peta', 'default' => 'Buka Google Maps'],
+        ],
+        'maps' => [
+            'cta' => ['label' => 'Tombol peta', 'default' => 'Lihat Lokasi di Google Maps'],
+        ],
+        'love_story' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Perjalanan Kami'],
+            'heading' => ['label' => 'Judul', 'default' => 'Kisah Cinta'],
+        ],
+        'gallery' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Galeri'],
+            'heading' => ['label' => 'Judul', 'default' => 'Momen Bersama'],
+        ],
+        'video' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Video'],
+            'heading' => ['label' => 'Judul', 'default' => 'Momen Bergerak'],
+        ],
+        'timeline' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Susunan Acara'],
+            'heading' => ['label' => 'Judul', 'default' => 'Timeline'],
+        ],
+        'rsvp' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Konfirmasi Kehadiran'],
+            'heading' => ['label' => 'Judul', 'default' => 'RSVP'],
+            'submit' => ['label' => 'Tombol kirim', 'default' => 'Kirim Konfirmasi'],
+        ],
+        'guest_book' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Ucapan & Doa'],
+            'heading' => ['label' => 'Judul', 'default' => 'Buku Tamu'],
+            'submit' => ['label' => 'Tombol kirim', 'default' => 'Kirim Ucapan'],
+        ],
+        'gift' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Hadiah Pernikahan'],
+            'heading' => ['label' => 'Judul', 'default' => 'Amplop Digital'],
+            'note' => ['label' => 'Keterangan', 'default' => 'Doa dan kehadiran Anda adalah hadiah terbaik bagi kami.'],
+        ],
+        'qr_code' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'QR Code Kehadiran'],
+            'hint' => ['label' => 'Keterangan', 'default' => 'Tunjukkan QR ini kepada panitia saat tiba di lokasi'],
+        ],
+        'closing' => [
+            'eyebrow' => ['label' => 'Label atas', 'default' => 'Terima Kasih'],
+            'body' => ['label' => 'Isi', 'default' => 'Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.'],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Palettes
     |--------------------------------------------------------------------------
     |

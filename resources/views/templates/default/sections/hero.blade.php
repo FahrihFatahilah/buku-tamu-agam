@@ -1,3 +1,4 @@
+@php $t = $text ?? []; @endphp
 <section id="hero" class="relative min-h-[80vh] flex items-center justify-center px-6 py-24 tpl-panel">
     @php $heroMedia = $media->firstWhere('collection', 'hero'); @endphp
     @if($heroMedia)
@@ -8,7 +9,7 @@
     </div>
     @endif
     <div class="relative text-center {{ $heroMedia ? 'text-white' : 'tpl-ink' }}">
-        <p class="text-xs tracking-[0.4em] uppercase mb-6 {{ $heroMedia ? 'text-white/70' : 'tpl-faint' }}">The Wedding Of</p>
+        <p class="text-xs tracking-[0.4em] uppercase mb-6 {{ $heroMedia ? 'text-white/70' : 'tpl-faint' }}" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'The Wedding Of' }}</p>
         <h1 class="tpl-display text-4xl sm:text-6xl font-normal leading-tight">
             {{ $wedding->bride_nickname ?: $wedding->bride_name }}
             <span class="block text-2xl sm:text-3xl italic my-2 {{ $heroMedia ? 'text-white/60' : 'tpl-muted' }}">&amp;</span>

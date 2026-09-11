@@ -1,10 +1,11 @@
-@php $stories = collect($sections->firstWhere('section_key', 'love_story')?->settings['stories'] ?? []); @endphp
+@php $t = $text ?? []; @endphp
+@php $stories = collect($section->settings['stories'] ?? []); @endphp
 @if($stories->isNotEmpty())
 <section id="love_story" class="py-20 px-6 tpl-surface">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Perjalanan Kami</p>
-            <h2 class="tpl-display text-3xl tpl-ink">Kisah Cinta</h2>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Perjalanan Kami' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'Kisah Cinta' }}</h2>
         </div>
         <div class="space-y-10">
             @foreach($stories as $story)

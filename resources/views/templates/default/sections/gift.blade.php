@@ -1,9 +1,10 @@
+@php $t = $text ?? []; @endphp
 <section id="gift" class="py-20 px-6 tpl-panel">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
-            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Hadiah Pernikahan</p>
-            <h2 class="tpl-display text-3xl tpl-ink">Amplop Digital</h2>
-            <p class="text-sm tpl-muted mt-3">Doa dan kehadiran Anda adalah hadiah terbaik bagi kami.</p>
+            <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3" data-edit="eyebrow">{{ $t['eyebrow'] ?? 'Hadiah Pernikahan' }}</p>
+            <h2 class="tpl-display text-3xl tpl-ink" data-edit="heading">{{ $t['heading'] ?? 'Amplop Digital' }}</h2>
+            <p class="text-sm tpl-muted mt-3" data-edit="note">{{ $t['note'] ?? 'Doa dan kehadiran Anda adalah hadiah terbaik bagi kami.' }}</p>
         </div>
 
         <div class="space-y-3">
