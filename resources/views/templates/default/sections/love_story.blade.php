@@ -1,6 +1,6 @@
 @php $stories = collect($sections->firstWhere('section_key', 'love_story')?->settings['stories'] ?? []); @endphp
 @if($stories->isNotEmpty())
-<section class="py-20 px-6 tpl-surface">
+<section id="love_story" class="py-20 px-6 tpl-surface">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Perjalanan Kami</p>

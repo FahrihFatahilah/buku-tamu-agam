@@ -1,5 +1,5 @@
 @php $galleryMedia = $media->whereIn('collection', ['gallery', 'prewedding'])->values(); @endphp
-<section class="py-20 px-6 tpl-surface">
+<section id="gallery" class="py-20 px-6 tpl-surface">
     <div class="max-w-4xl mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Galeri</p>

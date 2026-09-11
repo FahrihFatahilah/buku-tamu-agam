@@ -1,6 +1,6 @@
 @php $items = collect($sections->firstWhere('section_key', 'timeline')?->settings['items'] ?? []); @endphp
 @if($items->isNotEmpty())
-<section class="py-20 px-6 tpl-surface">
+<section id="timeline" class="py-20 px-6 tpl-surface">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Susunan Acara</p>

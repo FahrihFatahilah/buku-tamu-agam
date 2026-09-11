@@ -115,64 +115,26 @@
 </div>
 @endif
 
+@php
+    // Sections that need data to be worth rendering.
+    $needsEvents = ['event', 'venue', 'timeline'];
+
+    // Sections that need a resolved guest.
+    $needsGuest = ['rsvp', 'qr_code'];
+@endphp
+
 <div id="invitation-content">
-    @include($templateService->sectionView($templateKey, 'hero'))
+    {{-- Rendered in the template's stored order, so the builder's drag order is authoritative. --}}
+    @foreach($sections as $section)
+        @php $sectionKey = $section->section_key; @endphp
 
-    @if($sections->where('section_key','couple')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'couple'))
-    @endif
+        @continue(!$section->is_enabled || $sectionKey === 'opening')
+        @continue(in_array($sectionKey, $needsEvents, true) && $events->isEmpty())
+        @continue($sectionKey === 'gift' && $giftMethods->isEmpty())
+        @continue(in_array($sectionKey, $needsGuest, true) && !$guest)
 
-    @if($sections->where('section_key','quote')->first()?->is_enabled && $wedding->quote)
-    @include($templateService->sectionView($templateKey, 'quote'))
-    @endif
-
-    @if($sections->where('section_key','love_story')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'love_story'))
-    @endif
-
-    @if($sections->where('section_key','countdown')->first()?->is_enabled && $wedding->date)
-    @include($templateService->sectionView($templateKey, 'countdown'))
-    @endif
-
-    @if($sections->where('section_key','event')->first()?->is_enabled && $events->isNotEmpty())
-    @include($templateService->sectionView($templateKey, 'event'))
-    @endif
-
-    @if($sections->where('section_key','venue')->first()?->is_enabled && $events->isNotEmpty())
-    @include($templateService->sectionView($templateKey, 'venue'))
-    @endif
-
-    @if($sections->where('section_key','maps')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'maps'))
-    @endif
-
-    @if($sections->where('section_key','gallery')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'gallery'))
-    @endif
-
-    @if($sections->where('section_key','video')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'video'))
-    @endif
-
-    @if($sections->where('section_key','timeline')->first()?->is_enabled && $events->isNotEmpty())
-    @include($templateService->sectionView($templateKey, 'timeline'))
-    @endif
-
-    @if($sections->where('section_key','rsvp')->first()?->is_enabled && $guest)
-    @include($templateService->sectionView($templateKey, 'rsvp'))
-    @endif
-
-    @if($sections->where('section_key','guest_book')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'guest_book'))
-    @endif
-
-    @if($sections->where('section_key','gift')->first()?->is_enabled && $giftMethods->isNotEmpty())
-    @include($templateService->sectionView($templateKey, 'gift'))
-    @endif
-
-    @if($sections->where('section_key','closing')->first()?->is_enabled)
-    @include($templateService->sectionView($templateKey, 'closing'))
-    @endif
+        @include($templateService->sectionView($templateKey, $sectionKey))
+    @endforeach
 </div>
 
 </body>

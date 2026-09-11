@@ -1,6 +1,6 @@
 @php $target = $wedding->date ? $wedding->date->copy()->setTime(8, 0) : null; @endphp
 @if($target)
-<section class="py-20 px-6 tpl-invert" x-data="{
+<section id="countdown" class="py-20 px-6 tpl-invert" x-data="{
     days:0, hours:0, minutes:0, seconds:0,
     init() {
         const target = new Date('{{ $target->toIso8601String() }}').getTime();

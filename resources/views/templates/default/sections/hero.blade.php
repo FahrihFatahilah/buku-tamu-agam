@@ -1,4 +1,4 @@
-<section class="relative min-h-[80vh] flex items-center justify-center px-6 py-24 tpl-panel">
+<section id="hero" class="relative min-h-[80vh] flex items-center justify-center px-6 py-24 tpl-panel">
     @php $heroMedia = $media->firstWhere('collection', 'hero'); @endphp
     @if($heroMedia)
     <div class="absolute inset-0">

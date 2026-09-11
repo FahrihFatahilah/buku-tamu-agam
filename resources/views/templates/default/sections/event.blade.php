@@ -1,4 +1,4 @@
-<section class="py-20 px-6 tpl-surface">
+<section id="event" class="py-20 px-6 tpl-surface">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Rangkaian Acara</p>
@@ -11,7 +11,7 @@
                 @if($event->starts_at)
                 <p class="text-sm tpl-muted mt-2">
                     {{ $event->starts_at->translatedFormat('l, d F Y') }}
-                    · {{ $event->starts_at->format('H:i') }}@if($event->ends_at)–{{ $event->ends_at->format('H:i') }} WIB@endif
+                    · {{ $event->starts_at->format('H:i') }}@if($event->ends_at)–{{ $event->ends_at->format('H:i') }} WIB @endif
                 </p>
                 @endif
                 @if($event->venue)

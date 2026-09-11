@@ -1,5 +1,5 @@
 @if($guest && $qrCode)
-<section class="py-16 px-6 tpl-surface">
+<section id="qr_code" class="py-16 px-6 tpl-surface">
     <div class="max-w-md mx-auto text-center">
         <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-4">QR Code Kehadiran</p>
         <p class="text-sm tpl-muted mb-6">{{ $guest->name }}</p>

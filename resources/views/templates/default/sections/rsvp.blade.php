@@ -1,5 +1,5 @@
 @if($guest)
-<section class="py-20 px-6 tpl-surface">
+<section id="rsvp" class="py-20 px-6 tpl-surface">
     <div class="max-w-md mx-auto">
         <div class="text-center mb-10">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Konfirmasi Kehadiran</p>

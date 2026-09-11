@@ -1,6 +1,6 @@
 @php $firstEvent = $events->first(); @endphp
 @if($firstEvent)
-<section class="py-20 px-6 tpl-panel">
+<section id="venue" class="py-20 px-6 tpl-panel">
     <div class="max-w-lg mx-auto text-center">
         <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Lokasi</p>
         <h2 class="tpl-display text-3xl tpl-ink mb-6">Tempat Acara</h2>

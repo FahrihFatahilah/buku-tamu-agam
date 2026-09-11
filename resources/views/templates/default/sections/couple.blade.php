@@ -1,4 +1,4 @@
-<section class="py-20 px-6 tpl-surface">
+<section id="couple" class="py-20 px-6 tpl-surface">
     <div class="max-w-2xl mx-auto text-center">
         <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Mempelai</p>
         <h2 class="tpl-display text-3xl tpl-ink mb-12">Dengan Penuh Sukacita</h2>

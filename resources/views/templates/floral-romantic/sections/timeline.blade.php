@@ -9,7 +9,7 @@
                     @if(!$loop->last)<div class="w-px flex-1 bg-[#b5606a]/20 my-1"></div>@endif
                 </div>
                 <div class="pb-8">
-                    @if($event->starts_at)<p class="text-[#b5606a] text-xs tracking-widest mb-1">{{ $event->starts_at->translatedFormat('d F Y') }} &bull; {{ $event->starts_at->format('H:i') }}@if($event->ends_at) &mdash; {{ $event->ends_at->format('H:i') }} WIB@endif</p>@endif
+                    @if($event->starts_at)<p class="text-[#b5606a] text-xs tracking-widest mb-1">{{ $event->starts_at->translatedFormat('d F Y') }} &bull; {{ $event->starts_at->format('H:i') }}@if($event->ends_at) &mdash; {{ $event->ends_at->format('H:i') }} WIB @endif</p>@endif
                     <h3 class="font-display text-lg text-[#2a1a1a] italic mb-1">{{ $event->name }}</h3>
                     @if($event->venue)<p class="text-[#2a1a1a]/50 text-sm">{{ $event->venue }}</p>@endif
                 </div>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Template;
 use App\Services\AuditLogService;
+use App\Services\TemplatePreviewService;
 use App\Services\TemplateService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -70,6 +71,44 @@ class TemplateController extends Controller
             'fonts' => config('ngundang.fonts'),
             'isNew' => false,
         ]);
+    }
+
+    /**
+     * Live preview for the builder canvas. Renders the template against sample
+     * content using the editor's *unsaved* settings, so the canvas updates
+     * without writing a draft to the database.
+     */
+    public function preview(Request $request, TemplatePreviewService $previewService)
+    {
+        $this->authorize('viewAny', Template::class);
+
+        $palettes = array_keys(config('ngundang.palettes', []));
+        $displayFonts = config('ngundang.fonts.display', []);
+        $bodyFonts = config('ngundang.fonts.body', []);
+
+        $palette = $request->string('palette')->toString();
+        $palette = in_array($palette, $palettes, true) ? $palette : ($palettes[0] ?? 'minimal');
+
+        $fontDisplay = $request->string('font_display')->toString();
+        $fontDisplay = in_array($fontDisplay, $displayFonts, true) ? $fontDisplay : ($displayFonts[0] ?? 'Playfair Display');
+
+        $fontBody = $request->string('font_body')->toString();
+        $fontBody = in_array($fontBody, $bodyFonts, true) ? $fontBody : ($bodyFonts[0] ?? 'Lato');
+
+        $order = array_values(array_filter(explode(',', $request->string('order')->toString())));
+        $disabled = array_values(array_filter(explode(',', $request->string('off')->toString())));
+
+        // Only preview an existing template's own design; a new template previews
+        // the generic default layout.
+        $template = $request->integer('template')
+            ? Template::find($request->integer('template'))
+            : null;
+
+        $data = $previewService->build($palette, $fontDisplay, $fontBody, $order, $disabled, $template);
+
+        return response()
+            ->view($this->templateService->layoutView($data['templateKey']), $data)
+            ->header('X-Robots-Tag', 'noindex');
     }
 
     public function update(Request $request, Template $template)

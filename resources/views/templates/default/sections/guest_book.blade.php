@@ -5,7 +5,7 @@
     $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook") . ($guest ? '?t=' . $guest->invitation_token : '');
 @endphp
 
-<section class="py-20 px-6 tpl-panel" x-data="defaultGuestBook('{{ $gbUrl }}', '{{ csrf_token() }}')">
+<section id="guest_book" class="py-20 px-6 tpl-panel" x-data="defaultGuestBook('{{ $gbUrl }}', '{{ csrf_token() }}')">
     <div class="max-w-xl mx-auto">
         <div class="text-center mb-10">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Ucapan &amp; Doa</p>

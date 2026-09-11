@@ -53,6 +53,105 @@ class TemplateBuilderTest extends TestCase
         ], $overrides);
     }
 
+    // ── Live preview ────────────────────────────────────────────────────────
+
+    public function test_preview_renders_sample_content(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview?palette=minang&font_display=Playfair+Display&font_body=Lato')
+            ->assertOk()
+            ->assertSee('Andi Pratama', false)
+            ->assertSee('Sari Dewi', false)
+            ->assertSee('Amplop Digital', false)
+            ->assertSee('Gedung Serbaguna Minang Permai', false);
+    }
+
+    public function test_preview_is_forbidden_for_client_admin(): void
+    {
+        $this->actingAs($this->clientAdmin)
+            ->get('/admin/templates/preview')
+            ->assertForbidden();
+    }
+
+    public function test_preview_respects_disabled_sections(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview?off=gift')
+            ->assertOk()
+            ->assertDontSee('Amplop Digital', false);
+    }
+
+    public function test_preview_respects_section_order(): void
+    {
+        $response = $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview?order=gift,hero,couple')
+            ->assertOk();
+
+        $html = $response->getContent();
+
+        // Gift dragged to the front must render before the hero.
+        $this->assertLessThan(
+            strpos($html, 'The Wedding Of'),
+            strpos($html, 'Amplop Digital'),
+            'Gift should render before the hero when ordered first.'
+        );
+    }
+
+    public function test_preview_falls_back_on_unknown_palette_and_fonts(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview?palette=__nope__&font_display=<script>&font_body=__nope__')
+            ->assertOk()
+            ->assertDontSee('<script>alert', false);
+    }
+
+    public function test_preview_ignores_unknown_section_keys(): void
+    {
+        $this->actingAs($this->superAdmin)
+            ->get('/admin/templates/preview?order=evil,hero&off=evil')
+            ->assertOk()
+            ->assertSee('The Wedding Of', false);
+    }
+
+    public function test_every_template_timeline_compiles(): void
+    {
+        // Blade silently drops a directive preceded by a word character, so
+        // "... WIB@endif" leaked "@endif" into the compiled PHP and 500'd.
+        $blade = app('blade.compiler');
+
+        foreach (glob(resource_path('views/templates/*/sections/*.blade.php')) as $file) {
+            $compiled = $blade->compileString(file_get_contents($file));
+
+            $this->assertStringNotContainsString(
+                '@endif',
+                $compiled,
+                "Uncompiled @endif in {$file} — a directive is preceded by a word character."
+            );
+            $this->assertStringNotContainsString('@endforeach', $compiled, "Uncompiled @endforeach in {$file}.");
+        }
+    }
+
+    public function test_alternate_templates_render_timeline(): void
+    {
+        foreach (['modern-luxury', 'minimalist', 'floral-romantic'] as $key) {
+            $template = Template::create([
+                'key' => $key, 'name' => $key, 'is_active' => true, 'sort_order' => 1,
+            ]);
+
+            $wedding = app(WeddingService::class)->create($this->client->id, [
+                'template_id' => $template->id, 'groom_name' => 'Andi', 'bride_name' => 'Sari',
+            ]);
+            $wedding->update(['status' => 'published', 'published_at' => now()]);
+            $wedding->events()->create([
+                'name' => 'Akad', 'starts_at' => now()->addMonth()->setTime(8, 0),
+                'ends_at' => now()->addMonth()->setTime(10, 0), 'is_public' => true, 'sort_order' => 0,
+            ]);
+
+            $this->get("/{$wedding->public_id}/{$wedding->slug}")
+                ->assertOk();
+        }
+    }
+
     // ── Builder pages render ────────────────────────────────────────────────
 
     public function test_create_page_renders(): void
@@ -60,7 +159,7 @@ class TemplateBuilderTest extends TestCase
         $this->actingAs($this->superAdmin)
             ->get('/admin/templates/create')
             ->assertOk()
-            ->assertSee('Urutan Section', false);
+            ->assertSee('Struktur', false);
     }
 
     public function test_edit_page_renders_with_stored_layout(): void

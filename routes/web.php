@@ -89,6 +89,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
 
     // Templates — Super Admin only (spec §4)
     Route::middleware('can:viewAny,App\Models\Template')->group(function () {
+        Route::get('templates/preview', [TemplateController::class, 'preview'])->name('templates.preview');
         Route::resource('templates', TemplateController::class)->except(['show']);
     });
 

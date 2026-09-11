@@ -1,4 +1,4 @@
-<section class="py-20 px-6 tpl-panel">
+<section id="gift" class="py-20 px-6 tpl-panel">
     <div class="max-w-lg mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Hadiah Pernikahan</p>

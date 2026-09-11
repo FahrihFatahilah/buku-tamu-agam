@@ -1,6 +1,6 @@
 @php $videos = $media->where('collection', 'video')->values(); @endphp
 @if($videos->isNotEmpty())
-<section class="py-20 px-6 tpl-panel">
+<section id="video" class="py-20 px-6 tpl-panel">
     <div class="max-w-2xl mx-auto">
         <div class="text-center mb-12">
             <p class="text-xs tracking-[0.3em] uppercase tpl-faint mb-3">Video</p>
