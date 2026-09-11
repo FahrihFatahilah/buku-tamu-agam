@@ -1,29 +1,30 @@
 # NGUNDANG — FINAL MASTER PROMPT
 
-Anda adalah **Senior Software Architect, Senior Laravel Engineer, Senior UI/UX Product Designer, dan DevOps Engineer**.
+You are a **Senior Software Architect, Senior Laravel Engineer, Senior UI/UX Product Designer, and DevOps Engineer**.
 
-Bangun aplikasi platform undangan pernikahan bernama **Ngundang** yang production-ready, reusable, scalable, secure, multi-tenant, dan dapat digunakan untuk banyak client/wedding dari **satu Laravel codebase**.
+Build a production-ready wedding invitation platform called **Ngundang** that is reusable, scalable, secure, multi-tenant, and capable of serving many clients and weddings from **one Laravel codebase**.
 
-Jangan membuat prototype/mainan/demo sederhana. Bangun fondasi aplikasi yang benar-benar dapat dikembangkan menjadi produk SaaS.
+Do not build a simple prototype, toy application, or superficial demo. Build a solid product foundation that can realistically evolve into a production SaaS platform.
 
 ---
 
 # 1. PRODUCT VISION
 
-Ngundang adalah platform undangan pernikahan digital multi-client.
+Ngundang is a digital wedding invitation platform designed to serve multiple clients and weddings.
 
-Satu aplikasi Laravel harus dapat melayani:
+A single Laravel application must support:
 
-* banyak client
-* banyak wedding/invitation
-* banyak guest
-* banyak template
-* banyak domain/subdomain
-* banyak konfigurasi invitation
-* shared deployment
-* optional dedicated deployment untuk client premium/enterprise
+* multiple clients
+* multiple weddings/invitations
+* multiple guests
+* multiple templates
+* multiple domains/subdomains
+* configurable invitation content
+* guest-specific content
+* shared deployments
+* optional dedicated deployments for premium/enterprise clients
 
-Arsitektur utama:
+Core hierarchy:
 
 ```text
 Super Admin
@@ -43,14 +44,14 @@ Content / Sections
 Visibility Rules
 ```
 
-Gunakan prinsip:
+Follow these principles:
 
 * SOLID
 * DRY
 * KISS
 * Separation of Concerns
 * Secure by Default
-* Multi-tenant by Default
+* Multi-Tenant by Default
 * Reusable Architecture
 * Configuration over Hardcoding
 * Service Layer
@@ -61,39 +62,39 @@ Gunakan prinsip:
 * Audit Logs
 * Testable Architecture
 
-Jangan membuat satu Laravel project terpisah untuk setiap wedding.
+Do not create a separate Laravel project for every wedding.
 
 ---
 
 # 2. TECHNOLOGY STACK
 
-Gunakan:
+Use:
 
-* Laravel latest stable
-* PHP versi yang kompatibel dengan Laravel terbaru
+* Latest stable Laravel
+* Compatible latest stable PHP version
 * MySQL
 * Blade
 * Tailwind CSS
 * shadcn/ui
-* Alpine.js atau vanilla JavaScript
+* Alpine.js or vanilla JavaScript
 * Vite
 * Laravel Authentication
 * Laravel Storage
-* QR Code package yang mature
+* A mature QR Code package
 * PHPUnit/Pest
-* Docker sebagai deployment option
-* Traefik sebagai reverse proxy untuk deployment platform
-* Cloudflare untuk DNS/CDN/domain management bila digunakan
+* Docker as an optional deployment method
+* Traefik as a reverse proxy for platform deployments
+* Cloudflare for DNS/CDN/domain management where appropriate
 
-Aplikasi **harus tetap dapat berjalan pada shared hosting PHP + MySQL** tanpa menjadikan Docker, Traefik, Redis, atau Kubernetes sebagai dependency wajib.
+The application **must remain capable of running on standard PHP + MySQL shared hosting** without requiring Docker, Traefik, Redis, or Kubernetes as mandatory dependencies.
 
-Docker dan Traefik adalah deployment option, bukan dependency inti aplikasi.
+Docker and Traefik are deployment options, not core application dependencies.
 
 ---
 
 # 3. MULTI-TENANCY
 
-Gunakan satu Laravel application untuk seluruh tenant.
+Use one Laravel application for all tenants.
 
 Hierarchy:
 
@@ -110,9 +111,9 @@ Super Admin
           └── Wedding C1
 ```
 
-Setiap request harus memiliki tenant/wedding context yang jelas.
+Every request must have a clearly resolved tenant/wedding context.
 
-Implementasikan resolver/service seperti:
+Implement dedicated resolvers/services such as:
 
 ```text
 TenantResolver
@@ -121,41 +122,41 @@ DomainResolver
 InvitationResolver
 ```
 
-Jangan mengandalkan developer discipline saja untuk tenant isolation.
+Do not rely solely on developer discipline for tenant isolation.
 
-Gunakan:
+Use:
 
 * Policies
 * Gates
 * Middleware
 * Query scopes
-* Explicit wedding/client ownership validation
-* Authorization pada setiap mutation
+* Explicit ownership validation
+* Authorization on every mutation
 
-Wedding A **tidak boleh** membaca atau memodifikasi data Wedding B.
+Wedding A **must never** be able to read or modify Wedding B data.
 
 ---
 
 # 4. USER ROLES
 
-Minimal:
+At minimum, implement:
 
 ## Super Admin
 
-Dapat:
+Can:
 
-* manage semua client
-* manage semua wedding
+* manage all clients
+* manage all weddings
 * manage templates
 * manage users
 * manage domains
-* manage deployment
-* melihat audit logs
-* system settings
+* manage deployments
+* view audit logs
+* manage system settings
 
 ## Client / Wedding Admin
 
-Hanya dapat mengelola wedding yang dimilikinya:
+Can only manage weddings they own:
 
 * invitation
 * couple
@@ -163,7 +164,7 @@ Hanya dapat mengelola wedding yang dimilikinya:
 * sections
 * template
 * appearance
-* animation
+* animations
 * media
 * music
 * guests
@@ -173,31 +174,31 @@ Hanya dapat mengelola wedding yang dimilikinya:
 * gift
 * visibility rules
 * SEO
-* domain
+* domains
 
 ## Check-in Operator
 
-Hanya dapat:
+Can only:
 
-* mencari guest
-* scan QR
-* melihat guest status
-* check-in
-* update actual pax sesuai permission
+* search guests
+* scan QR codes
+* view guest status
+* check guests in
+* update actual pax according to permissions
 
-Tidak boleh mengakses:
+Must not access:
 
 * financial/gift configuration
 * global settings
 * template management
-* deployment
 * client management
+* deployment management
 
 ---
 
 # 5. INVITATION DATA MODEL
 
-Wedding/invitation minimal memiliki:
+The wedding/invitation entity should contain at least:
 
 ```text
 id
@@ -228,40 +229,41 @@ created_at
 updated_at
 ```
 
-Tambahkan:
+Add:
 
 ```text
 public_id
 ```
 
-sebagai identifier publik.
+as the public-facing identifier.
 
 ---
 
 # 6. PUBLIC INVITATION ID
 
-Jangan pernah menggunakan auto-increment database ID sebagai public identifier.
+Never expose an auto-increment database ID as the public invitation identifier.
 
-Gunakan:
+Use:
 
 * ULID
 * UUID
-* atau random high-entropy public identifier
+* or another random, high-entropy public identifier
 
-Contoh:
+Example:
 
 ```text
 INV-8F3K2A
 ```
 
-`public_id` harus:
+The `public_id` must be:
 
 * unique
+* difficult to guess
 * stable
-* tidak mudah ditebak
-* tidak berubah ketika slug berubah
+* independent from the database primary key
+* unchanged when the invitation slug changes
 
-Database:
+Database constraint:
 
 ```text
 public_id UNIQUE
@@ -271,37 +273,37 @@ public_id UNIQUE
 
 # 7. PUBLIC INVITATION URL
 
-URL utama wajib:
+The primary invitation URL must be:
 
 ```text
 /{invitationId}/{invitationSlug}
 ```
 
-Contoh:
+Example:
 
 ```text
 https://ngundang.com/INV-8F3K2A/bagas-rani
 ```
 
-Subdomain:
+Subdomain example:
 
 ```text
 https://bagasrani.ngundang.com/INV-8F3K2A/bagas-rani
 ```
 
-Custom domain:
+Custom domain example:
 
 ```text
 https://bagasrani.com/INV-8F3K2A/bagas-rani
 ```
 
-Guest personal URL:
+Personal guest invitation URL:
 
 ```text
 /{invitationId}/{invitationSlug}/u/{secureToken}
 ```
 
-Contoh:
+Example:
 
 ```text
 https://ngundang.com/INV-8F3K2A/bagas-rani/u/X9K82...
@@ -311,15 +313,15 @@ https://ngundang.com/INV-8F3K2A/bagas-rani/u/X9K82...
 
 # 8. INVITATION SLUG
 
-Slug harus:
+The invitation slug must be:
 
-* readable
+* human-readable
 * SEO-friendly
-* berasal dari nama invitation/couple
-* unique sesuai kebutuhan routing
-* dapat diubah
+* derived from the couple/invitation name
+* unique as required by routing
+* editable by the client
 
-Contoh:
+Examples:
 
 ```text
 bagas-rani
@@ -327,29 +329,29 @@ bagas-rani-wedding
 bagas-rani-baralek
 ```
 
-Jika slug berubah:
+When the slug changes:
 
 ```text
 INV-8F3K2A
 ```
 
-tetap sama.
+must remain unchanged.
 
-Old slug harus melakukan canonical redirect menuju slug terbaru.
+Old slugs must perform a canonical redirect to the current slug.
 
-Contoh:
+Example:
 
 ```text
 /INV-8F3K2A/bagas-rani
 ```
 
-redirect:
+redirects to:
 
 ```text
 /INV-8F3K2A/bagas-rani-wedding
 ```
 
-Jangan membuat `invitationId` berubah ketika slug berubah.
+Changing the slug must never change the invitation's public ID.
 
 ---
 
@@ -373,46 +375,46 @@ InvitationResolver
 Wedding
 ```
 
-Laravel harus memvalidasi:
+Laravel must validate:
 
-1. host/domain
-2. invitation public_id
+1. request host/domain
+2. invitation public ID
 3. invitation slug
 4. domain ownership/mapping
 5. wedding status
 6. published status
 
-Jangan hanya lookup berdasarkan `public_id`.
+Do not resolve invitations using `public_id` alone.
 
-Contoh:
+Example:
 
 ```text
 bagasrani.ngundang.com/INV-B/andi-sari
 ```
 
-Jika domain `bagasrani.ngundang.com` milik Wedding A, request tersebut **tidak boleh** menampilkan Wedding B hanya karena `INV-B` valid.
+If `bagasrani.ngundang.com` belongs to Wedding A, the application **must not** render Wedding B simply because `INV-B` exists.
 
-Domain dan invitation harus konsisten.
+The domain and invitation must be consistent.
 
 ---
 
 # 10. CLOUDFLARE WILDCARD DNS
 
-Main domain contoh:
+Main domain example:
 
 ```text
 ngundang.com
 ```
 
-Gunakan wildcard DNS:
+Use wildcard DNS:
 
 ```text
 *.ngundang.com
 ```
 
-yang diarahkan ke platform/server.
+pointing to the platform/server.
 
-Dengan wildcard DNS:
+With wildcard DNS, these subdomains:
 
 ```text
 bagasrani.ngundang.com
@@ -420,29 +422,27 @@ andi-sari.ngundang.com
 doni-putri.ngundang.com
 ```
 
-tidak perlu membuat DNS record Cloudflare baru satu per satu.
+do not require a new Cloudflare DNS record for every invitation.
 
-Saat client membuat wedding:
-
-Laravel cukup membuat domain mapping di database:
+When a new wedding is created, Laravel only needs to create a domain mapping in the database:
 
 ```text
 bagasrani.ngundang.com
 ```
 
-Tidak perlu memanggil Cloudflare API untuk setiap subdomain jika wildcard DNS sudah aktif.
+Do not call the Cloudflare API for every subdomain when wildcard DNS is already configured.
 
 ---
 
 # 11. DOMAIN TABLE
 
-Buat table seperti:
+Create a table such as:
 
 ```text
 wedding_domains
 ```
 
-Minimal:
+Minimum fields:
 
 ```text
 id
@@ -456,57 +456,57 @@ ssl_status
 timestamps
 ```
 
-Type:
+Types:
 
 ```text
 subdomain
 custom
 ```
 
-Custom domain harus memiliki ownership/DNS verification.
+Custom domains must support ownership/DNS verification.
 
-Jangan mengasumsikan aplikasi memiliki kontrol DNS custom domain milik user.
+Do not assume the application controls the DNS of a custom domain owned by the client.
 
 ---
 
 # 12. CLOUDFLARE SERVICE
 
-Buat abstraction:
+Create an abstraction such as:
 
 ```text
 CloudflareService
 ```
 
-Jika dibutuhkan untuk:
+It may handle:
 
 * DNS
 * domain verification
-* custom domain
-* cache purge
+* custom domains
+* cache purging
 * zone management
 
-API credential:
+Cloudflare credentials must:
 
-* hanya server-side
-* jangan expose ke browser
-* gunakan least privilege
-* jangan log secret
+* remain server-side
+* never be exposed to the browser
+* use least-privilege permissions
+* never be written to logs
 
-Cloudflare API bukan dependency wajib untuk setiap invitation.
+Cloudflare API integration is not mandatory for every invitation.
 
 ---
 
 # 13. TRAEFIK ARCHITECTURE
 
-Gunakan **satu shared Traefik** untuk shared deployment.
+Use **one shared Traefik instance** for shared deployments.
 
-Jangan membuat:
+Do not create:
 
 ```text
 1 wedding = 1 Traefik
 ```
 
-Jangan membuat:
+Do not create:
 
 ```text
 1 client = 1 Traefik
@@ -526,9 +526,9 @@ Laravel Application
 MySQL
 ```
 
-Traefik hanya menangani routing ke Laravel.
+Traefik is responsible for routing traffic to the Laravel application.
 
-Laravel menangani:
+Laravel is responsible for:
 
 ```text
 DomainResolver
@@ -554,27 +554,27 @@ Default:
 shared
 ```
 
-Konsep penting:
+Important concepts:
 
 ```text
 Container = Deployment Unit
-Tenant/Client/Wedding = Data Boundary
+Tenant / Client / Wedding = Data Boundary
 Deployment = Runtime Environment
 ```
 
-Membuat client baru pada shared deployment **tidak boleh** membuat:
+Creating a new client on shared infrastructure must **not** create:
 
-* Laravel container baru
-* MySQL container baru
-* Traefik container baru
+* a new Laravel container
+* a new MySQL container
+* a new Traefik container
 
-Dedicated deployment hanya digunakan jika memang diperlukan.
+Dedicated deployments may provision isolated Laravel/MySQL/storage/runtime infrastructure when required.
 
 ---
 
 # 15. DEDICATED DEPLOYMENT
 
-Dedicated deployment dapat memiliki:
+A dedicated deployment may have:
 
 ```text
 Laravel
@@ -584,9 +584,9 @@ Runtime
 Domain
 ```
 
-terpisah.
+separately provisioned.
 
-Gunakan deployment state machine:
+Use the following deployment state machine:
 
 ```text
 pending
@@ -598,30 +598,30 @@ suspended
 terminated
 ```
 
-Provisioning harus:
+Provisioning must be:
 
 * idempotent
 * retryable
 * auditable
 * secure
 
-Jangan menjalankan arbitrary Docker/shell command langsung dari browser.
+Never execute arbitrary Docker or shell commands directly from a browser request.
 
-Gunakan:
+Use:
 
 ```text
 DeploymentService
 DeploymentProvisioner
-Queue/Job
+Queue / Job
 ```
 
-Jangan expose Docker socket ke Laravel kecuali benar-benar diperlukan dan sudah diamankan.
+Do not expose the Docker socket to Laravel unless absolutely necessary and properly secured.
 
 ---
 
 # 16. TEMPLATE ENGINE
 
-Template minimal:
+Provide at least these templates:
 
 ```text
 Minang Elegance
@@ -632,26 +632,23 @@ Traditional Nusantara
 Minimalist
 ```
 
-Gunakan registry/resolver:
+Use a registry/resolver architecture:
 
 ```text
 TemplateService
 TemplateRenderer
 ```
 
-Jangan:
+Do not scatter logic such as:
 
 ```php
 if ($template === 'minang') ...
 elseif ($template === 'modern') ...
-elseif ...
 ```
 
-di banyak tempat.
+throughout controllers and views.
 
-Template harus terpisah dari wedding data.
-
-Switch template:
+Template switching:
 
 ```text
 Template A
@@ -659,32 +656,34 @@ Template A
 Template B
 ```
 
-tidak boleh menghapus wedding data.
+must never destroy wedding data.
+
+Template presentation must remain separated from core wedding data.
 
 ---
 
 # 17. MINANG ELEGANCE TEMPLATE
 
-Buat template:
+Create a template named:
 
 ```text
 Minang Elegance
 ```
 
-dengan visual identity:
+with a visual identity inspired by:
 
-* Minangkabau
+* Minangkabau culture
 * Suku Minang
 * Rumah Gadang
 * gonjong
-* ukiran Minang
-* pola geometris tradisional
-* songket-inspired texture
-* ornamental border
-* divider
-* silhouette Rumah Gadang
+* traditional Minang carvings
+* geometric traditional patterns
+* songket-inspired textures
+* ornamental borders
+* elegant dividers
+* Rumah Gadang silhouettes
 
-Palette:
+Primary palette:
 
 ```text
 Deep Maroon / Red
@@ -693,7 +692,7 @@ Muted Gold
 Dark Brown
 ```
 
-Gaya:
+The style should feel:
 
 * premium
 * elegant
@@ -701,20 +700,20 @@ Gaya:
 * traditional
 * refined
 
-Jangan membuatnya terlalu ramai.
+Do not make it visually overloaded.
 
-Ornament hanya digunakan sebagai:
+Traditional ornaments should be used strategically for:
 
 * framing
-* divider
-* accent
-* silhouette
-* opening transition
-* subtle background texture
+* dividers
+* accents
+* silhouettes
+* opening transitions
+* subtle background textures
 
-Bukan di setiap bagian halaman.
+Do not place cultural ornaments in every section.
 
-Gunakan terminology yang configurable:
+Terminology must be configurable, for example:
 
 ```text
 The Wedding of
@@ -722,15 +721,15 @@ Baralek Gadang
 Walimatul 'Ursy
 ```
 
-sesuai konfigurasi template/client.
+depending on the selected configuration.
 
-Hormati konteks budaya Minangkabau dan hindari penggunaan ornamen tradisional secara berlebihan atau tidak relevan.
+Use Minangkabau cultural elements respectfully and avoid excessive or inappropriate decorative usage.
 
 ---
 
 # 18. SECTIONS
 
-Minimal:
+Provide at least:
 
 ```text
 Opening
@@ -751,14 +750,13 @@ Timeline
 Closing
 ```
 
-Section harus dapat:
+Every section must support:
 
-* enable
-* disable
+* enable/disable
 * reorder
-* customize title
-* customize content
-* customize settings
+* title customization
+* content customization
+* section-specific settings
 
 Table:
 
@@ -775,17 +773,17 @@ settings
 timestamps
 ```
 
-`settings` dapat menggunakan JSON untuk configuration yang memang fleksibel.
+Use JSON `settings` for flexible presentation/configuration data where appropriate.
 
-Relational data tetap relational.
+Keep core relational data relational.
 
 ---
 
 # 19. ANIMATION ENGINE
 
-Buat reusable animation system.
+Create a reusable animation system.
 
-Preset:
+Presets:
 
 ```text
 fade_up
@@ -816,7 +814,7 @@ intensity
 stagger
 ```
 
-Global presets:
+Global animation presets:
 
 ```text
 Elegant
@@ -827,15 +825,15 @@ Minimal
 None
 ```
 
-Template dapat menentukan default animation personality.
+Templates may define a default animation personality.
 
-Client dapat override jika diizinkan.
+Clients may override it when permitted.
 
 ---
 
 # 20. MINANG ANIMATION PERSONALITY
 
-Default:
+Default animation mapping:
 
 ```text
 Opening        → ornament_reveal
@@ -847,47 +845,46 @@ Sections       → ornament_reveal
 Closing        → slow_fade
 ```
 
-Animation harus:
+Animations must be:
 
 * CSS-first
-* transform/opacity
-* IntersectionObserver bila perlu
+* transform/opacity based
 * lightweight
 * mobile-friendly
-* tidak menghambat first paint
+* non-blocking to first paint
 
-Wajib support:
+Support:
 
 ```text
 prefers-reduced-motion
 ```
 
-Jangan menggunakan:
+Do not use:
 
-* bounce berlebihan
-* spin
-* infinite floating
+* excessive bouncing
+* spinning
+* infinite floating elements
 * excessive parallax
-* animasi setiap elemen
-* heavy JS animation
+* animations on every element
+* heavy JavaScript animation
 
 ---
 
-# 21. HARD UI/UX RULE — ANTI AI SLOP
+# 21. HARD UI/UX REQUIREMENT — ANTI AI SLOP
 
-Ini adalah **HARD REQUIREMENT**.
+This is a **HARD REQUIREMENT**.
 
-Jangan membuat UI yang terlihat seperti hasil generic AI-generated SaaS template.
+Do not create a UI that looks like a generic AI-generated SaaS template.
 
-Aplikasi harus terlihat seperti produk yang dirancang oleh **Senior Product Designer**.
+The application must look like a product designed by a **senior product designer**.
 
-Prinsip utama:
+Core philosophy:
 
 > Less but Better.
 
 > Every visual element must have a reason to exist.
 
-Prioritas visual:
+Visual priorities:
 
 ```text
 Typography
@@ -905,46 +902,45 @@ Subtle Ornament
 
 # 22. FORBIDDEN GENERIC AI-SLOP DESIGN
 
-Hindari:
+Avoid:
 
 * excessive glassmorphism
-* gradient background berlebihan
+* excessive gradients
 * colorful blobs
 * neon glow
 * giant gradient text
-* terlalu banyak rounded cards
-* terlalu banyak shadow
-* rounded-full untuk hampir semua elemen
-* rounded-3xl di mana-mana
-* badge/pill berlebihan
-* icon berlebihan
-* emoji sebagai dekorasi utama
-* decorative SVG random
+* excessive rounded cards
+* excessive shadows
+* `rounded-full` everywhere
+* `rounded-3xl` everywhere
+* excessive badges/pills
+* excessive icons
+* emojis as primary decoration
+* random decorative SVGs
+* meaningless illustrations
 * nested cards
-* card di dalam card
-* card di dalam card lagi
-* setiap section dibungkus Card
-* setiap statistik menjadi colorful card
-* dashboard dengan 10+ colorful metric cards
-* random illustrations
-* meaningless gradients
-* excessive floating elements
+* cards inside cards
+* every section wrapped in a Card
+* every metric represented as a colorful card
+* dashboards containing many colorful metric cards
+* random floating elements
+* decorative elements without purpose
 * excessive animation
-* UI yang terlihat seperti template AI SaaS generik
+* generic AI-generated SaaS visual patterns
 
 ---
 
 # 23. SHADCN/UI RULE
 
-shadcn/ui boleh digunakan sebagai **technical foundation**.
+shadcn/ui may be used as a **technical component foundation**.
 
-Namun:
+However:
 
-> shadcn/ui bukan visual identity Ngundang.
+> shadcn/ui is not the visual identity of Ngundang.
 
-Jangan menggunakan default shadcn styling secara mentah lalu menganggap UI selesai.
+Do not simply use default shadcn styling and consider the UI finished.
 
-Gunakan komponen seperti:
+Allowed components include:
 
 ```text
 Button
@@ -968,83 +964,81 @@ Command
 Pagination
 ```
 
-tetapi visual system harus dikustomisasi.
+Customize their visual language to match Ngundang.
 
-**Component-first tidak berarti card-first.**
+**Component-first does not mean card-first.**
 
 ---
 
 # 24. ADMIN UI DESIGN
 
-Admin harus terasa seperti:
+The admin interface should feel like a:
 
 ```text
 Professional Product Interface
 ```
 
-bukan:
+not a:
 
 ```text
 Generic SaaS Dashboard Template
 ```
 
-Gunakan:
+Prioritize:
 
-* whitespace yang baik
-* typography kuat
-* hierarchy jelas
+* whitespace
+* strong typography
+* clear hierarchy
 * clean navigation
-* clean table
+* clean tables
 * subtle dividers
 * restrained borders
-* meaningful status
+* meaningful status indicators
 * consistent spacing
 * consistent grid
-* predictable interaction
 
-Stats harus data-oriented.
+Statistics should be data-oriented.
 
-Jangan membuat semua statistik menjadi card warna-warni.
+Do not turn every statistic into a colorful card.
 
 ---
 
-# 25. ADMIN TABLE
+# 25. ADMIN TABLE DESIGN
 
-Table harus:
+Tables should be:
 
 * clean
 * readable
-* compact tetapi tidak sempit
-* subtle divider
-* clear hierarchy
-* pagination
-* filtering
-* search
-* meaningful status
+* compact but comfortable
+* based on subtle dividers
+* clearly hierarchical
+* searchable
+* filterable
+* paginated
 
-Badge hanya digunakan jika memang membantu membaca status.
+Use badges only when they genuinely improve status readability.
 
-Jangan membuat setiap data menjadi badge/pill.
+Do not turn every data point into a badge or pill.
 
 ---
 
-# 26. ADMIN FORM
+# 26. ADMIN FORM DESIGN
 
-Form:
+Forms should follow:
 
 ```text
 Label
 Input
-Helper text
+Helper Text
 Validation
-Error message
+Error Message
 ```
 
-Jangan membungkus setiap input ke dalam Card.
+Do not wrap every input in its own Card.
 
-Gunakan grouping berdasarkan konteks.
+Group fields by context.
 
-Contoh:
+Example:
 
 ```text
 Wedding Information
@@ -1055,12 +1049,13 @@ Venue
 Address
 ```
 
-bukan:
+rather than:
 
 ```text
 Card
   Card
     Input
+
 Card
   Card
     Input
@@ -1070,7 +1065,7 @@ Card
 
 # 27. BUTTON HIERARCHY
 
-Gunakan:
+Use clear:
 
 ```text
 Primary
@@ -1079,42 +1074,42 @@ Tertiary
 Destructive
 ```
 
-Tidak semua button harus:
+Not every button should be:
 
 * filled
-* pill
-* rounded-full
+* pill-shaped
+* `rounded-full`
 * colorful
 
-Gunakan visual hierarchy yang jelas.
+Buttons should communicate clear visual hierarchy.
 
 ---
 
-# 28. ICONS
+# 28. ICON SYSTEM
 
-Gunakan icon secara minimal.
+Use icons sparingly.
 
 Rules:
 
-* satu icon library yang konsisten
-* icon harus meaningful
-* jangan menambahkan icon hanya agar UI terlihat ramai
-* jangan mengganti semua text dengan icon
-* emoji bukan primary UI decoration
+* use one consistent icon library
+* icons must have meaningful purpose
+* do not add icons simply to make the UI look richer
+* do not replace useful text with icons
+* emojis must not be the primary UI decoration
 
 ---
 
 # 29. COLOR SYSTEM
 
-Admin:
+Admin interface:
 
 * neutral base
-* satu primary accent
-* semantic colors seperlunya
+* one primary accent
+* semantic colors only where necessary
 
-Wedding template:
+Wedding template colors should be intentional.
 
-Minang:
+Minang palette:
 
 ```text
 Deep Maroon
@@ -1123,15 +1118,15 @@ Muted Gold
 Dark Brown
 ```
 
-Jangan menggunakan banyak warna hanya untuk membuat UI terlihat “premium”.
+Do not introduce many colors simply to make the design appear “premium”.
 
 ---
 
 # 30. TYPOGRAPHY
 
-Typography harus menjadi salah satu focal point.
+Typography must be one of the primary visual focal points.
 
-Gunakan maksimal:
+Use at most:
 
 ```text
 1 primary font
@@ -1139,9 +1134,9 @@ Gunakan maksimal:
 1 complementary/display font
 ```
 
-untuk wedding template.
+for a wedding template.
 
-Hierarchy wajib jelas:
+Create a clear hierarchy:
 
 ```text
 Display
@@ -1152,7 +1147,7 @@ Body
 Caption
 ```
 
-Perhatikan:
+Pay attention to:
 
 * font size
 * line height
@@ -1160,29 +1155,29 @@ Perhatikan:
 * vertical rhythm
 * readability
 
-Jika desain tidak terlihat premium tanpa dekorasi, perbaiki typography terlebih dahulu.
+If the design does not feel premium without decorative elements, improve the typography first.
 
 ---
 
 # 31. WHITESPACE
 
-Whitespace harus intentional.
+Whitespace must be intentional.
 
-Jangan:
+Avoid:
 
-* terlalu padat
-* terlalu kosong tanpa alasan
-* random spacing
+* overly dense layouts
+* excessive empty space without purpose
+* inconsistent spacing
 
-Gunakan spacing system konsisten.
+Use a consistent spacing system.
 
 ---
 
 # 32. PUBLIC INVITATION DESIGN
 
-Public invitation bukan dashboard.
+The public invitation is not a dashboard.
 
-Jangan membuat halaman wedding seperti:
+Do not structure the page as:
 
 ```text
 Card
@@ -1192,13 +1187,13 @@ Card
 Card
 ```
 
-Public invitation harus terasa seperti:
+It should feel like:
 
 ```text
 Editorial Wedding Website
 ```
 
-Gunakan:
+Use:
 
 * strong composition
 * typography
@@ -1212,31 +1207,31 @@ Gunakan:
 
 # 33. HERO DESIGN
 
-Hero harus memiliki:
+The hero should have:
 
 * strong composition
 * couple photography
-* typography hierarchy
+* clear typography hierarchy
 * wedding identity
 * subtle visual treatment
 
-Jangan menggunakan:
+Avoid:
 
 * random blobs
-* glow berlebihan
-* gradient berlebihan
+* excessive glow
+* excessive gradients
 * decorative noise
 * excessive animation
 
-Photography menjadi salah satu focal point utama.
+Photography should be one of the primary focal points.
 
-Gunakan editorial crop yang baik.
+Use thoughtful editorial crops.
 
 ---
 
 # 34. MINANG PUBLIC DESIGN
 
-Minang Elegance harus terasa:
+Minang Elegance should feel:
 
 ```text
 Minangkabau
@@ -1247,25 +1242,25 @@ Cultural
 Restrained
 ```
 
-Jangan:
+Do not create:
 
 ```text
-Traditional overload
+Traditional Overload
 ```
 
-Ornament digunakan secara strategis.
+Traditional ornament should be strategically placed.
 
-Rumah Gadang tidak perlu muncul di setiap section.
+Rumah Gadang does not need to appear in every section.
 
 ---
 
 # 35. RESPONSIVE DESIGN
 
-Mobile-first.
+Use a true mobile-first approach.
 
-Jangan hanya mengecilkan desktop.
+Do not simply shrink desktop layouts.
 
-Design untuk:
+Design intentionally for:
 
 ```text
 Mobile
@@ -1274,24 +1269,24 @@ Desktop
 Large Desktop
 ```
 
-Prioritas utama adalah pengalaman mobile karena mayoritas undangan akan dibuka dari smartphone.
+Mobile experience should receive the highest priority because most wedding invitations will be opened on smartphones.
 
 ---
 
 # 36. ACCESSIBILITY
 
-Wajib:
+Implement:
 
 * semantic HTML
 * keyboard navigation
-* visible focus state
-* sufficient contrast
+* visible focus states
+* sufficient color contrast
 * accessible labels
-* ARIA bila diperlukan
+* ARIA where appropriate
 * readable typography
 * proper form validation
-* reduced motion
-* screen-reader friendly interaction
+* reduced motion support
+* screen-reader-friendly interactions
 
 ---
 
@@ -1299,11 +1294,11 @@ Wajib:
 
 Support:
 
-* hero image
-* couple image
-* family image
+* hero images
+* couple images
+* family images
 * gallery
-* prewedding
+* prewedding images
 * video
 
 Features:
@@ -1315,7 +1310,7 @@ Features:
 * alt text
 * preview
 
-Storage metadata:
+Media metadata:
 
 ```text
 wedding_id
@@ -1332,24 +1327,24 @@ metadata
 timestamps
 ```
 
-Gunakan Laravel Storage abstraction.
+Use Laravel Storage abstraction.
 
-Production sebaiknya support:
+Production should support:
 
 * S3-compatible object storage
 * CDN
 * image optimization
 
-Upload harus memvalidasi:
+Validate:
 
-* MIME
+* MIME type
 * file size
 * dimensions
 * extension
 
-Jangan trust extension saja.
+Do not trust file extensions alone.
 
-Image processing dapat dilakukan melalui queue.
+Use queues for image processing where appropriate.
 
 ---
 
@@ -1366,15 +1361,15 @@ Support:
 * volume
 * start position
 
-Karena browser dapat memblokir autoplay:
+Because browsers may block autoplay:
 
-Jika autoplay gagal, tampilkan control yang elegan:
+If autoplay fails, show an elegant control such as:
 
 ```text
 Putar Musik
 ```
 
-Playlist support:
+Playlist features:
 
 * add
 * delete
@@ -1391,15 +1386,15 @@ playlists
 playlist_items
 ```
 
-Jangan otomatis mengambil copyrighted music dari internet.
+Do not automatically fetch copyrighted music from the internet.
 
-Client bertanggung jawab atas hak/lisensi musik yang digunakan.
+The client is responsible for the rights/licenses of uploaded music.
 
 ---
 
 # 39. GUEST MANAGEMENT
 
-Guest:
+Guest fields:
 
 ```text
 id
@@ -1415,7 +1410,7 @@ status
 timestamps
 ```
 
-Categories:
+Categories may include:
 
 ```text
 Keluarga
@@ -1426,12 +1421,12 @@ Teman Pengantin Pria
 Teman Pengantin Wanita
 ```
 
-Client dapat:
+Client must be able to:
 
 * create
 * edit
 * delete
-* move category
+* move guest between categories
 * search
 * filter
 * import CSV
@@ -1450,7 +1445,7 @@ category
 max_pax
 ```
 
-Setelah import tampilkan:
+After import, show:
 
 ```text
 Imported
@@ -1458,9 +1453,9 @@ Failed
 Duplicate
 ```
 
-Gunakan batch processing untuk file besar.
+Use batch processing for large imports.
 
-Jangan membuat request HTTP sangat lama untuk import besar.
+Do not allow large imports to block a normal HTTP request for an unreasonable amount of time.
 
 ---
 
@@ -1475,7 +1470,7 @@ Support:
 * copy personal URL
 * regenerate token
 
-QR harus mengarah ke personal invitation URL.
+The QR code should point to the secure personal invitation URL.
 
 ---
 
@@ -1487,7 +1482,7 @@ Personal URL:
 /{invitationId}/{invitationSlug}/u/{secureToken}
 ```
 
-Token harus:
+Token must be:
 
 * cryptographically secure
 * high entropy
@@ -1496,7 +1491,7 @@ Token harus:
 * revocable
 * regeneratable
 
-Jangan menggunakan:
+Never use:
 
 ```text
 guest_id
@@ -1505,39 +1500,39 @@ category_id
 phone
 ```
 
-sebagai token.
+as the token.
 
-Jangan menyimpan identity guest di frontend sebagai source of truth.
+Do not store guest identity in frontend state as the source of truth.
 
 ---
 
 # 43. TOKEN SECURITY TEST
 
-Jika URL:
+If the URL is:
 
 ```text
 TOKEN_BUDI?name=Andi
 ```
 
-maka sistem tetap harus menampilkan:
+the application must still resolve and display:
 
 ```text
 Budi
 ```
 
-Query parameter tidak boleh mengubah identity.
+Query parameters must not be able to change guest identity.
 
-Contoh:
+Likewise:
 
 ```text
 ?guest_id=123
 ```
 
-juga tidak boleh mengubah guest yang resolved dari secure token.
+must not change the guest resolved from the secure token.
 
-Token harus diverifikasi terhadap wedding/invitation yang benar.
+Token rotation must invalidate the previous token.
 
-Token rotation harus membuat token lama invalid.
+The token must be validated against the correct wedding/invitation context, not merely looked up globally.
 
 ---
 
@@ -1560,9 +1555,9 @@ maybe
 pending
 ```
 
-Guest hanya boleh mengubah RSVP dirinya sendiri berdasarkan secure token.
+A guest may only modify their own RSVP through the secure invitation token.
 
-Jangan menggunakan guest ID dari request sebagai authorization.
+Never authorize RSVP updates using a guest ID supplied by the client.
 
 ---
 
@@ -1578,7 +1573,7 @@ pax
 status
 ```
 
-Status:
+Statuses:
 
 ```text
 pending
@@ -1593,7 +1588,7 @@ Default:
 Moderation ON
 ```
 
-Admin dapat:
+Admin can:
 
 * search
 * filter
@@ -1602,26 +1597,24 @@ Admin dapat:
 * hide
 * delete
 * restore
-* bulk moderation
+* bulk moderate
 
-Security:
+Security requirements:
 
 * validation
 * rate limiting
 * optional CAPTCHA
-* duplicate detection
+* duplicate detection where appropriate
 * no arbitrary HTML
 * XSS-safe output
 
-Jika moderation ON:
-
-hanya approved message yang boleh public.
+When moderation is enabled, only approved messages may appear publicly.
 
 ---
 
 # 46. QR CHECK-IN
 
-Route:
+Routes:
 
 ```text
 /check-in
@@ -1639,7 +1632,7 @@ Resolve wedding
 ↓
 Resolve guest
 ↓
-Show name
+Show guest name
 ↓
 Show category
 ↓
@@ -1650,22 +1643,21 @@ Input actual pax
 Confirm
 ```
 
-Jika sudah check-in:
+If the guest is already checked in:
 
-tampilkan existing check-in.
-
-Update harus membutuhkan confirmation.
+* show the existing check-in
+* require confirmation before updating it
 
 Search fallback:
 
 * name
 * phone
 
-Jika multiple matches:
+If multiple matches exist:
 
-jangan memilih otomatis.
+Do not automatically select one.
 
-Tampilkan pilihan exact guest.
+Show the exact guest choices.
 
 ---
 
@@ -1684,21 +1676,19 @@ notes
 timestamps
 ```
 
-Gunakan transaction untuk check-in.
+Use transactions.
 
-Cegah double check-in race condition.
+Protect against duplicate/race-condition check-ins.
 
-Semua check-in harus dapat diaudit.
+Every check-in should be auditable.
 
 ---
 
 # 48. GENERIC GUEST VISIBILITY ENGINE
 
-Jangan membuat visibility engine khusus gift saja.
+Do not build visibility rules only for gifts.
 
-Harus generic.
-
-Bisa digunakan untuk:
+Create a generic visibility engine that can control:
 
 * sections
 * events
@@ -1707,7 +1697,7 @@ Bisa digunakan untuk:
 * maps
 * dress code
 * private reception
-* family event
+* family events
 * special notes
 * custom content
 
@@ -1721,25 +1711,25 @@ Category Rule
 Wedding Default
 ```
 
-Guest context harus berasal dari secure token.
+Guest context must come from the secure token.
 
-Visibility harus diproses server-side.
+Visibility must be resolved server-side.
 
-Jangan:
+Never:
 
 ```text
 send private data to browser
 ↓
-hide with CSS/JS
+hide it using CSS/JavaScript
 ```
 
-Data private tidak boleh dikirim ke browser sama sekali.
+Private data must never be sent to the browser in the first place.
 
 ---
 
 # 49. GIFT SYSTEM
 
-Types:
+Supported types:
 
 ```text
 bank_transfer
@@ -1749,7 +1739,7 @@ cash
 custom
 ```
 
-Bank:
+Bank fields:
 
 ```text
 bank_name
@@ -1761,7 +1751,7 @@ is_active
 sort_order
 ```
 
-QRIS:
+QRIS fields:
 
 ```text
 image
@@ -1771,7 +1761,7 @@ is_active
 sort_order
 ```
 
-Contoh visibility:
+Example visibility:
 
 ```text
 Keluarga
@@ -1789,32 +1779,32 @@ VIP
 → all
 ```
 
-Individual override harus memiliki priority tertinggi.
+Individual guest override has the highest priority.
 
 ---
 
 # 50. DASHBOARD
 
-Dashboard menampilkan:
+Dashboard should show:
 
 * wedding/invitation
-* template
+* selected template
 * publish status
 * total guests
-* RSVP
-* checked-in
+* RSVP statistics
+* checked-in statistics
 * pending messages
 * approved messages
 
-Jangan membuat dashboard menjadi grid berisi banyak colorful cards.
+Do not turn the dashboard into a grid of colorful cards.
 
-Gunakan hierarchy yang lebih editorial/product-oriented.
+Use a professional product-oriented information hierarchy.
 
 ---
 
 # 51. EDITOR NAVIGATION
 
-Sidebar:
+Sidebar/navigation:
 
 ```text
 General
@@ -1838,32 +1828,32 @@ SEO
 Domains
 ```
 
-Gunakan struktur yang mudah dipahami.
+The information architecture should remain easy for non-technical clients to understand.
 
 ---
 
 # 52. PREVIEW SYSTEM
 
-Template selector harus memiliki:
+Template selection should provide:
 
 * preview
 * desktop preview
 * tablet preview
 * mobile preview
 
-Idealnya terdapat:
+Prefer a:
 
 ```text
 Live Preview
 ```
 
-tanpa membuat editor menjadi terlalu kompleks.
+experience where practical without making the editor unnecessarily complex.
 
 ---
 
 # 53. DRAFT / PUBLISHED / ARCHIVED
 
-Wedding status:
+Wedding statuses:
 
 ```text
 draft
@@ -1879,9 +1869,9 @@ Support:
 * unpublish
 * archive
 
-Idealnya support version/snapshot sehingga perubahan besar dapat dipulihkan.
+Ideally support version/snapshot functionality so significant changes can be restored.
 
-Public route hanya menampilkan published content kecuali preview memiliki authorization yang benar.
+Public routes must only expose published content unless an authorized preview mechanism is used.
 
 ---
 
@@ -1899,7 +1889,7 @@ social preview
 WhatsApp share preview
 ```
 
-Canonical harus mengikuti:
+Canonical URL must reflect:
 
 ```text
 domain
@@ -1907,37 +1897,37 @@ invitationId
 current slug
 ```
 
-Old slug harus canonical redirect.
+Old slugs must redirect canonically to the current slug.
 
 ---
 
 # 55. SECURITY
 
-Implementasikan:
+Implement:
 
-* CSRF
+* CSRF protection
 * XSS protection
 * SQL injection protection
 * Policies
 * Gates
 * tenant isolation
-* secure token
+* secure guest tokens
 * rate limiting
 * secure password hashing
 * file validation
 * MIME validation
-* upload size limits
-* secure headers bila feasible
-* authorization pada mutation
-* HTTPS production
+* upload limits
+* secure headers where feasible
+* authorization for mutations
+* HTTPS in production
 
-Jangan pernah log:
+Never log:
 
-* password
-* full invitation token
+* passwords
+* full invitation tokens
 * secrets
 * API credentials
-* sensitive financial data
+* sensitive financial information
 
 Health endpoint:
 
@@ -1945,14 +1935,14 @@ Health endpoint:
 /health
 ```
 
-tidak boleh membocorkan:
+must not expose:
 
 * secrets
 * credentials
 * internal topology
-* database details yang sensitif
+* sensitive database information
 
-Rate limit minimal untuk:
+Apply rate limiting to at least:
 
 * login
 * RSVP
@@ -1961,13 +1951,13 @@ Rate limit minimal untuk:
 * check-in
 * guest search
 * domain verification
-* deployment
+* deployment endpoints
 
 ---
 
 # 56. AUDIT LOG
 
-Audit events:
+Audit events should include:
 
 ```text
 login
@@ -1982,7 +1972,7 @@ template changes
 visibility changes
 gift changes
 media upload
-media delete
+media deletion
 publish
 domain changes
 deployment actions
@@ -2001,15 +1991,15 @@ user_agent
 timestamp
 ```
 
-Metadata tidak boleh menyimpan secret.
+Never store secrets in audit metadata.
 
 ---
 
 # 57. CODE ARCHITECTURE
 
-Gunakan service layer.
+Use a service-oriented architecture.
 
-Contoh:
+Suggested services:
 
 ```text
 TenantResolver
@@ -2044,29 +2034,29 @@ DeploymentProvisioner
 AuditLogService
 ```
 
-Gunakan:
+Use:
 
 * Form Requests
 * Policies
-* Resources/DTO jika membantu
-* Model scopes
-* Relationships
-* Events
-* Listeners
-* Jobs
-* Notifications
+* DTOs/value objects where useful
+* model scopes
+* relationships
+* events
+* listeners
+* jobs
+* notifications
 
-Hindari giant controllers.
+Avoid giant controllers.
 
-Hindari giant Blade files.
+Avoid giant Blade files.
 
-Hindari business logic di Blade.
+Do not put business logic inside Blade templates.
 
 ---
 
 # 58. DATABASE INDEXING
 
-Index minimal:
+At minimum, consider indexes for:
 
 ```text
 client_id
@@ -2080,78 +2070,78 @@ status
 created_at
 ```
 
-Tambahkan composite index dan unique constraint sesuai query pattern.
+Add composite indexes and unique constraints according to actual query patterns.
 
-Contoh:
+Example:
 
 ```text
 unique(public_id)
 unique(domain)
 ```
 
-Gunakan foreign keys yang sesuai.
+Use appropriate foreign keys.
 
 ---
 
 # 59. PERFORMANCE
 
-Prioritas:
+Prioritize:
 
 * fast first paint
 * mobile performance
 * optimized images
 * lazy loading
-* minimal JS
-* efficient queries
+* minimal JavaScript
+* efficient database queries
 * eager loading
 * pagination
 * caching
 * lightweight animation
 * non-blocking audio
 
-Hindari N+1.
+Avoid N+1 queries.
 
-Gunakan:
+Use:
 
 * eager loading
-* scopes
+* query scopes
 * pagination
-* query optimization
+* optimized queries
 
-Cache:
+Safe candidates for caching:
 
 * template registry
 * template assets
 * domain mapping
-* published invitation config bila aman
+* published invitation configuration
 
-Jangan cache personalized guest content tanpa guest-aware cache key.
+Never cache personalized guest content without a guest-aware cache key.
 
 ---
 
-# 60. QUEUE
+# 60. QUEUES
 
-Gunakan queue untuk pekerjaan berat:
+Use queues for heavy work such as:
 
 ```text
 image processing
 thumbnail generation
 QR batch generation
 notifications
-CSV import
+CSV imports
 media optimization
 deployment
 ```
 
-Redis boleh digunakan.
+Redis is supported but optional.
 
-Tetapi aplikasi harus memiliki fallback yang masuk akal untuk deployment sederhana/shared hosting, misalnya database queue.
+The application should have a reasonable fallback for simple/shared-hosting environments, such as database queues.
 
 ---
 
 # 61. SCALING
 
-Architecture harus dapat berkembang:
+Architecture should support future scaling:
 
 ```text
 Load Balancer
@@ -2166,22 +2156,22 @@ Object Storage
 CDN
 ```
 
-Bottleneck yang harus diperhatikan:
+Pay particular attention to:
 
 * image processing
 * media bandwidth
-* audio/video
-* database
+* audio/video traffic
+* database load
 * object storage
 * CDN traffic
 
-Gunakan object storage + CDN ketika scale meningkat.
+Use object storage + CDN as traffic and media volume increase.
 
 ---
 
 # 62. BACKUP
 
-Backup:
+Back up:
 
 ```text
 MySQL
@@ -2192,36 +2182,36 @@ Deployment Configuration
 Secrets
 ```
 
-Secrets harus dikelola secara aman.
+Secrets must be managed securely.
 
-Dokumentasikan:
+Document:
 
 * backup schedule
 * restore procedure
-* retention
-* disaster recovery
+* retention policy
+* disaster recovery procedure
 
 ---
 
 # 63. MONITORING
 
-Support monitoring untuk:
+Monitor:
 
 * application logs
-* errors
+* application errors
 * health
 * database
 * storage
 * queues
 * deployment status
 
-Sediakan health endpoint yang aman.
+Provide a secure health endpoint.
 
 ---
 
 # 64. TESTING
 
-Wajib membuat test untuk:
+Create automated tests for:
 
 ## Authentication
 
@@ -2230,12 +2220,14 @@ Wajib membuat test untuk:
 
 ## Tenant Isolation
 
-Wedding A tidak boleh mengakses Wedding B.
+Wedding A must never access Wedding B.
 
 ## Invitation
 
-* valid public_id
-* invalid public_id
+Test:
+
+* valid public ID
+* invalid public ID
 * valid slug
 * invalid slug
 * old slug redirect
@@ -2245,47 +2237,53 @@ Wedding A tidak boleh mengakses Wedding B.
 
 ## Guest Token
 
+Test:
+
 * valid token
 * invalid token
-* expired/revoked token
+* revoked token
 * token manipulation
 * token rotation
 * wrong wedding token
 
-Test eksplisit:
+Explicit test:
 
 ```text
 TOKEN_BUDI?name=Andi
 ```
 
-tetap menghasilkan Budi.
+must still resolve to Budi.
 
 ## RSVP
 
-Guest hanya dapat mengubah RSVP miliknya.
+Guest can only update their own RSVP.
 
 ## Guest Book
 
+Test:
+
 * moderation
-* XSS
+* XSS protection
 * rate limiting
 * invalid input
 
 ## Check-in
 
-* valid scan
+Test:
+
+* valid QR scan
 * invalid token
 * double check-in
-* race condition
+* race conditions
 * guest search
-* multiple search matches
+* multiple matching guests
 
 ## Visibility
 
-Test:
+Verify:
 
 ```text
-Individual Override
+Individual Guest Override
 >
 Category Rule
 >
@@ -2294,16 +2292,20 @@ Wedding Default
 
 ## Gift
 
-Test visibility per guest/category.
+Test visibility by guest/category.
 
 ## Templates
 
+Test:
+
 * template switching
-* settings
+* template settings
 * sections
 * animations
 
 ## Media
+
+Test:
 
 * tenant isolation
 * MIME validation
@@ -2312,27 +2314,29 @@ Test visibility per guest/category.
 
 ## Playlist
 
+Test:
+
 * ordering
 * active playlist
-* delete
+* deletion
 
 ## Domain
 
-Test:
+Explicitly test:
 
 ```text
 Domain A + Invitation B
 ```
 
-harus ditolak.
+must be rejected.
 
-Contoh:
+Example:
 
 ```text
 bagasrani.ngundang.com/INV-B/andi-sari
 ```
 
-tidak boleh merender invitation B jika domain tersebut milik invitation A.
+must not render Invitation B if the domain belongs to Invitation A.
 
 ## Deployment
 
@@ -2345,13 +2349,25 @@ pending
 → healthy
 ```
 
-dan failure/retry/suspend/terminate.
+as well as:
+
+```text
+failed
+→ retry
+```
+
+and:
+
+```text
+suspended
+terminated
+```
 
 ---
 
 # 65. FACTORIES & SEEDERS
 
-Buat:
+Create seeders/factories for:
 
 ```text
 Super Admin
@@ -2390,25 +2406,25 @@ Template:
 Minang Elegance
 ```
 
-Gunakan demo public ID yang valid secara format.
+Use a valid-looking demo public ID.
 
 ---
 
 # 66. ADMIN EXPERIENCE
 
-Admin harus dapat:
+A client should be able to:
 
 1. Login
-2. Create client
-3. Create wedding
-4. Generate public_id
-5. Generate slug
-6. Configure template
+2. Create a client
+3. Create a wedding
+4. Generate a public ID
+5. Generate a slug
+6. Configure the template
 7. Configure sections
 8. Upload media
 9. Configure music
 10. Import guests
-11. Generate QR
+11. Generate QR codes
 12. Configure RSVP
 13. Configure Guest Book
 14. Configure Gift
@@ -2418,15 +2434,15 @@ Admin harus dapat:
 18. Preview
 19. Publish
 
-Flow harus terasa sederhana.
+The workflow should feel simple and intuitive.
 
-Jangan membuat user harus memahami arsitektur teknis.
+Users should not need to understand the underlying technical architecture.
 
 ---
 
 # 67. SHARED HOSTING SUPPORT
 
-Core application harus dapat berjalan pada:
+The core application must be capable of running on:
 
 ```text
 PHP
@@ -2434,7 +2450,7 @@ MySQL
 Laravel
 ```
 
-tanpa:
+without requiring:
 
 ```text
 Docker
@@ -2443,17 +2459,17 @@ Redis
 Kubernetes
 ```
 
-sebagai dependency wajib.
+as mandatory dependencies.
 
-Dokumentasikan deployment shared hosting.
+Document shared-hosting deployment clearly.
 
 ---
 
 # 68. DOCKER DEPLOYMENT
 
-Sediakan Docker configuration untuk deployment production.
+Provide Docker configuration for production deployment.
 
-Contoh architecture:
+Example:
 
 ```text
 Cloudflare
@@ -2464,10 +2480,10 @@ Laravel
     ↓
 MySQL
     ↓
-Redis/Object Storage optional
+Redis / Object Storage optional
 ```
 
-Jangan membuat container per wedding pada shared deployment.
+Do not create one container per wedding in a shared deployment.
 
 ---
 
@@ -2479,13 +2495,13 @@ Support:
 bagasrani.ngundang.com
 ```
 
-dan:
+and:
 
 ```text
 bagasrani.com
 ```
 
-Custom domain harus melalui:
+Custom domains must support:
 
 ```text
 verification
@@ -2494,7 +2510,7 @@ mapping
 SSL/TLS
 ```
 
-Jangan mengklaim domain berhasil sebelum benar-benar terverifikasi.
+Never claim a custom domain is active until it has actually been verified and configured successfully.
 
 ---
 
@@ -2512,7 +2528,7 @@ Guest route:
 /{invitationId}/{invitationSlug}/u/{secureToken}
 ```
 
-Resolver harus bekerja seperti:
+Resolver flow:
 
 ```text
 Host
@@ -2532,7 +2548,7 @@ Published check
 Render invitation
 ```
 
-Guest:
+Guest flow:
 
 ```text
 Host
@@ -2556,19 +2572,19 @@ Render personalized invitation
 
 # 71. PERSONALIZED CONTENT SECURITY
 
-Jangan pernah mengirim data private ke browser kemudian menyembunyikannya dengan:
+Never send private content to the browser and hide it using:
 
 ```css
-display:none
+display: none;
 ```
 
-atau:
+or:
 
 ```javascript
 if (...)
 ```
 
-Server harus menentukan data apa yang boleh dikirim.
+The server must determine what content is allowed to be sent.
 
 Guest context:
 
@@ -2580,119 +2596,127 @@ Category
 Individual Overrides
 ```
 
-kemudian menghasilkan:
+must produce:
 
 ```text
 Visible Content
 ```
 
+before rendering.
+
 ---
 
 # 72. UI COMPONENT ARCHITECTURE
 
-Buat reusable Blade components.
+Create reusable Blade components.
 
-Namun jangan over-componentization.
+However, avoid unnecessary over-componentization.
 
-Gunakan component ketika:
+Create a component when it:
 
-* digunakan kembali
-* memiliki behavior sendiri
-* memiliki semantic responsibility
-* membutuhkan consistency
+* is reused
+* has its own behavior
+* has semantic responsibility
+* provides meaningful consistency
 
-Jangan membuat component hanya untuk:
+Do not create components merely for trivial one-off wrappers such as:
 
-```text
+```html
 <div>
 ```
 
-yang dipakai satu kali tanpa alasan.
+unless there is a clear architectural reason.
 
 ---
 
 # 73. DESIGN SYSTEM
 
-Buat design tokens untuk:
+Create design tokens for:
 
 * typography
 * spacing
 * radius
-* border
-* shadow
+* borders
+* shadows
 * colors
 * transitions
 * breakpoints
 
-Radius harus restrained.
+Use restrained border radii.
 
-Shadow harus subtle.
+Use subtle shadows.
 
-Border/tonal contrast lebih diutamakan daripada shadow besar.
+Prefer borders, tonal contrast, whitespace, and hierarchy over large shadows.
 
 ---
 
 # 74. VISUAL QUALITY TEST
 
-Sebelum dianggap selesai, lakukan evaluasi:
+Before considering the UI complete, perform the following reviews.
 
 ### Test 1
 
-Jika UI terlihat seperti:
+If the interface looks like:
 
 ```text
 AI-generated SaaS dashboard
 ```
 
-→ redesign.
+→ redesign it.
 
 ### Test 2
 
-Jika terlalu banyak:
+If there are too many:
 
 * cards
-* radius
+* rounded corners
 * shadows
 * icons
 * colors
 * gradients
 * animations
 
-→ simplify.
+→ simplify it.
 
 ### Test 3
 
-Jika typography hierarchy tidak kuat tanpa decoration:
+If the typography hierarchy is weak without decorative elements:
 
 → improve typography.
 
 ### Test 4
 
-Jika ornament lebih menarik perhatian daripada wedding content:
+If ornament attracts more attention than the wedding content:
 
 → reduce ornament.
 
 ### Test 5
 
-Jika setiap element bergerak:
+If every element moves:
 
 → remove unnecessary animation.
 
 ### Test 6
 
-Jika mobile terlihat seperti desktop yang diperkecil:
+If mobile feels like a shrunken desktop:
 
-→ redesign mobile layout.
+→ redesign the mobile layout.
 
-Target akhir:
+Target visual result:
 
-> Premium, calm, refined, editorial, professional.
+```text
+Premium
+Calm
+Refined
+Editorial
+Professional
+```
 
 ---
 
 # 75. README
 
-Buat README lengkap yang menjelaskan:
+Create comprehensive documentation covering:
 
 ```text
 Architecture
@@ -2734,31 +2758,31 @@ Testing
 Troubleshooting
 ```
 
-README Cloudflare harus menjelaskan secara eksplisit:
+The Cloudflare README must explicitly explain:
 
 ```text
 *.ngundang.com
 ```
 
-sehingga tidak perlu membuat DNS record baru untuk setiap invitation subdomain.
+and why individual DNS records are not required for every invitation subdomain.
 
-README shared hosting harus menjelaskan bahwa:
+The shared-hosting README must explain that:
 
 ```text
-Docker/Traefik/Redis
+Docker / Traefik / Redis
 ```
 
-bukan dependency wajib.
+are not mandatory dependencies.
 
-README dedicated deployment harus menjelaskan controlled provisioning.
+The dedicated deployment documentation must explain controlled provisioning.
 
 ---
 
 # 76. ENVIRONMENT CONFIGURATION
 
-Gunakan `.env.example`.
+Provide a complete `.env.example`.
 
-Minimal konfigurasi:
+At minimum:
 
 ```text
 APP_NAME
@@ -2785,15 +2809,15 @@ CLOUDFLARE_ZONE_ID
 MAIL_*
 ```
 
-Jangan commit secret.
+Never commit secrets.
 
 ---
 
-# 77. DEVELOPMENT PRINCIPLE
+# 77. DEVELOPMENT PRINCIPLES
 
-Jangan membangun fitur secara isolated tanpa memikirkan integrasi.
+Do not build features in isolation without considering the complete system.
 
-Setiap feature harus memperhatikan:
+Every feature must consider:
 
 ```text
 Security
@@ -2806,23 +2830,21 @@ Testing
 Maintainability
 ```
 
-Contoh:
-
-Guest CRUD bukan hanya:
+For example, Guest CRUD is not simply:
 
 ```text
 CRUD database
 ```
 
-tetapi harus mencakup:
+It must also consider:
 
 ```text
 Tenant isolation
 Authorization
 Validation
-Audit
+Audit logging
 Token lifecycle
-QR
+QR generation
 Visibility
 RSVP
 Check-in
@@ -2832,7 +2854,7 @@ Check-in
 
 # 78. IMPLEMENTATION ORDER
 
-Bangun secara bertahap:
+Build progressively.
 
 ## Phase 1 — Foundation
 
@@ -2847,7 +2869,7 @@ Bangun secara bertahap:
 ## Phase 2 — Invitation Core
 
 * wedding
-* public_id
+* public ID
 * slug
 * invitation resolver
 * domain resolver
@@ -2866,7 +2888,7 @@ Bangun secara bertahap:
 ## Phase 4 — Media
 
 * storage
-* upload
+* uploads
 * optimization
 * gallery
 * video
@@ -2878,8 +2900,8 @@ Bangun secara bertahap:
 * categories
 * guest CRUD
 * CSV import
-* secure token
-* QR
+* secure tokens
+* QR codes
 
 ## Phase 6 — RSVP / Guest Book
 
@@ -2892,7 +2914,7 @@ Bangun secara bertahap:
 
 * generic visibility engine
 * gift methods
-* guest/category override
+* guest/category overrides
 
 ## Phase 8 — Check-in
 
@@ -2903,9 +2925,9 @@ Bangun secara bertahap:
 
 ## Phase 9 — Domains
 
-* subdomain
+* subdomains
 * wildcard DNS architecture
-* custom domain
+* custom domains
 * Cloudflare integration
 
 ## Phase 10 — Deployment
@@ -2921,7 +2943,7 @@ Bangun secara bertahap:
 * security audit
 * performance
 * caching
-* queue
+* queues
 * testing
 * monitoring
 * backup
@@ -2931,9 +2953,9 @@ Bangun secara bertahap:
 
 # 79. DEFINITION OF DONE
 
-Fitur tidak dianggap selesai hanya karena endpoint atau UI sudah dibuat.
+A feature is not considered complete merely because its endpoint or UI exists.
 
-Setiap feature harus memenuhi:
+Every feature should satisfy, where applicable:
 
 ```text
 ✓ Database
@@ -2944,32 +2966,32 @@ Setiap feature harus memenuhi:
 ✓ Service Layer
 ✓ UI
 ✓ Error Handling
-✓ Audit where applicable
-✓ Tests
-✓ Documentation where applicable
+✓ Audit Logging
+✓ Automated Tests
+✓ Documentation
 ```
 
 ---
 
 # 80. FINAL PRODUCT STANDARD
 
-Hasil akhir Ngundang harus terasa seperti:
+The final Ngundang product should feel like:
 
-> produk wedding invitation premium yang serius dan production-ready.
+> A serious, premium, production-ready wedding invitation product.
 
-Bukan:
+It must not feel like:
 
-> template Laravel demo.
+> A Laravel demo template.
 
-Bukan:
+It must not feel like:
 
-> generic SaaS dashboard.
+> A generic SaaS dashboard.
 
-Bukan:
+It must not feel like:
 
-> AI-generated UI penuh card, gradient, shadow, badge, icon, dan animasi.
+> An AI-generated interface overloaded with cards, gradients, shadows, badges, icons, and animations.
 
-Public invitation harus:
+The public invitation should be:
 
 ```text
 Elegant
@@ -2981,7 +3003,7 @@ Culturally respectful
 Premium
 ```
 
-Admin harus:
+The admin should be:
 
 ```text
 Clean
@@ -2992,7 +3014,7 @@ Accessible
 Scalable
 ```
 
-Architecture harus:
+The architecture should be:
 
 ```text
 Reusable
@@ -3006,30 +3028,30 @@ Scalable
 
 ---
 
-# FINAL INSTRUCTION
+# FINAL IMPLEMENTATION INSTRUCTION
 
-Mulai implementasi berdasarkan spesifikasi di atas.
+Start implementation based on this specification.
 
-Jangan mengurangi requirement penting.
+Do not remove important requirements.
 
-Jika terdapat beberapa cara implementasi, pilih pendekatan yang:
+When multiple implementation approaches are possible, choose the approach that is:
 
-1. paling maintainable
-2. paling secure
-3. paling sederhana
-4. paling scalable
-5. paling mudah dites
-6. paling mudah dideploy
-7. paling reusable
+1. most maintainable
+2. most secure
+3. simplest
+4. scalable
+5. easy to test
+6. easy to deploy
+7. reusable
 
-Jangan menambahkan kompleksitas hanya demi terlihat sophisticated.
+Do not add complexity merely to make the architecture look sophisticated.
 
 **Build the simplest architecture that can reliably support the full product.**
 
-Untuk UI:
+For UI/UX:
 
 > **Less but Better.**
 
 > **Every visual element must have a reason to exist.**
 
-Jika suatu desain terlihat seperti AI-generated SaaS template, **jangan pertahankan desain tersebut — redesign menjadi lebih clean, minimal, editorial, dan profesional.**
+If any design looks like a generic AI-generated SaaS template, **do not keep it — redesign it to be cleaner, more minimal, more editorial, and more professional.**
