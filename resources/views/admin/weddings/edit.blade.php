@@ -104,10 +104,18 @@
         <div class="bg-white border border-stone-200 p-5 space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-stone-100">
                 <h2 class="text-sm font-medium text-stone-700">Template</h2>
-                <a href="{{ route('admin.weddings.preview', $wedding) }}" target="_blank"
-                    class="text-xs text-stone-400 hover:text-stone-600 transition-colors">
-                    Preview undangan ↗
-                </a>
+                <div class="flex items-center gap-3">
+                    @can('buildDocument', $wedding)
+                    <a href="{{ route('admin.weddings.builder.edit', $wedding) }}"
+                        class="text-xs text-stone-800 border border-stone-300 px-2.5 py-1 hover:border-stone-500 transition-colors">
+                        Buka Page Builder
+                    </a>
+                    @endcan
+                    <a href="{{ route('admin.weddings.preview', $wedding) }}" target="_blank"
+                        class="text-xs text-stone-400 hover:text-stone-600 transition-colors">
+                        Preview undangan ↗
+                    </a>
+                </div>
             </div>
             @php
             $templatePalettes = [

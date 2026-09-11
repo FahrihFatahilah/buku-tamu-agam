@@ -60,4 +60,15 @@ class WeddingPolicy
     {
         return $user->isSuperAdmin() || ($user->isClientAdmin() && $user->client_id === $wedding->client_id);
     }
+
+    /**
+     * Visual page builder access.
+     *
+     * Super-admin only for now. Loosening this to client admins later is a
+     * one-line change here — every builder route already routes through it.
+     */
+    public function buildDocument(User $user, Wedding $wedding): bool
+    {
+        return $user->isSuperAdmin();
+    }
 }

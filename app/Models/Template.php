@@ -12,7 +12,7 @@ class Template extends Model
     protected $fillable = [
         'key', 'name', 'description', 'thumbnail', 'category',
         'is_active', 'default_settings', 'default_sections',
-        'animation_personality', 'sort_order',
+        'animation_personality', 'builder_document', 'sort_order',
     ];
 
     protected $casts = [
@@ -20,6 +20,7 @@ class Template extends Model
         'default_settings' => 'array',
         'default_sections' => 'array',
         'animation_personality' => 'array',
+        'builder_document' => 'array',
     ];
 
     public function weddings()

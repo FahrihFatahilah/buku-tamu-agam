@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\GiftController;
 use App\Http\Controllers\Admin\GuestBookController as AdminGuestBookController;
 use App\Http\Controllers\Admin\GuestController;
+use App\Http\Controllers\Admin\InvitationBuilderController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\PlaylistController;
 use App\Http\Controllers\Admin\QrController;
@@ -185,6 +186,21 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'verified'])->group(
         Route::post('guestbook/{entry}/moderate', [AdminGuestBookController::class, 'moderate'])->name('guestbook.moderate');
         Route::post('guestbook/bulk-moderate', [AdminGuestBookController::class, 'bulkModerate'])->name('guestbook.bulk-moderate');
         Route::delete('guestbook/{entry}', [AdminGuestBookController::class, 'destroy'])->name('guestbook.destroy');
+
+        // ─── Visual Page Builder ────────────────────────────────────────────
+        // Super-admin gated via WeddingPolicy::buildDocument.
+        Route::prefix('builder')->name('builder.')->group(function () {
+            Route::get('/', [InvitationBuilderController::class, 'edit'])->name('edit');
+            Route::get('preview', [InvitationBuilderController::class, 'preview'])->name('preview');
+            // POST stages the editor's unsaved document for the canvas.
+            Route::post('preview', [InvitationBuilderController::class, 'stagePreview'])->name('preview.stage');
+            Route::get('document', [InvitationBuilderController::class, 'show'])->name('document.show');
+            Route::put('document', [InvitationBuilderController::class, 'update'])->name('document.update');
+            Route::delete('document', [InvitationBuilderController::class, 'destroy'])->name('document.destroy');
+            Route::post('publish', [InvitationBuilderController::class, 'publish'])->name('publish');
+            Route::post('enable', [InvitationBuilderController::class, 'enable'])->name('enable');
+            Route::post('seed', [InvitationBuilderController::class, 'seed'])->name('seed');
+        });
     });
 });
 

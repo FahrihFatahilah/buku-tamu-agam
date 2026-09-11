@@ -1,0 +1,139 @@
+/*
+ * Animation runtime for invitation documents.
+ *
+ * Entrance uses a transition + an `.is-in` class added by IntersectionObserver
+ * (see resources/js/app.js) — cheaper than keyframes and it lets the element
+ * settle at its natural values.
+ *
+ * Continuous animations are pure CSS keyframes.
+ * Scroll animations are driven by the existing parallax loop.
+ *
+ * Every rule is inert when prefers-reduced-motion is set; the document layout
+ * removes animation entirely in that case.
+ */
+
+/* ── Entrance ──────────────────────────────────────────────────────────── */
+
+[data-anim-entrance] {
+    transition-property: opacity, transform;
+    transition-duration: var(--n-anim-duration, 700ms);
+    transition-delay: var(--n-anim-delay, 0ms);
+    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+[data-anim-entrance].is-in {
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+/* Distance scales with --n-anim-dist so intensity presets have an effect. */
+[data-anim-entrance="fade"]        { opacity: 0; }
+[data-anim-entrance="fade-up"]     { opacity: 0; transform: translateY(var(--n-anim-dist, 32px)); }
+[data-anim-entrance="fade-down"]   { opacity: 0; transform: translateY(calc(var(--n-anim-dist, 32px) * -1)); }
+[data-anim-entrance="fade-left"]   { opacity: 0; transform: translateX(var(--n-anim-dist, 32px)); }
+[data-anim-entrance="fade-right"]  { opacity: 0; transform: translateX(calc(var(--n-anim-dist, 32px) * -1)); }
+[data-anim-entrance="zoom"]        { opacity: 0; transform: scale(0.86); }
+[data-anim-entrance="slide"]       { transform: translateY(calc(var(--n-anim-dist, 32px) * 2)); }
+[data-anim-entrance="bounce"]      { transform: translateY(calc(var(--n-anim-dist, 32px) * -1.2)); }
+[data-anim-entrance="rotate"]      { opacity: 0; transform: rotate(-8deg) scale(0.96); }
+[data-anim-entrance="flip"]        { opacity: 0; transform: perspective(800px) rotateY(75deg); }
+
+/* ── Continuous ────────────────────────────────────────────────────────── */
+
+@keyframes n-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+}
+
+@keyframes n-sway {
+    0%, 100% { transform: rotate(-4deg); }
+    50%      { transform: rotate(4deg); }
+}
+
+@keyframes n-swing {
+    0%, 100% { transform: rotate(-10deg); }
+    50%      { transform: rotate(10deg); }
+}
+
+@keyframes n-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.06); }
+}
+
+@keyframes n-shake {
+    0%, 100% { transform: translateX(0); }
+    25%      { transform: translateX(-4px); }
+    75%      { transform: translateX(4px); }
+}
+
+@keyframes n-shimmer {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+}
+
+@keyframes n-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes n-breathing {
+    0%, 100% { transform: scale(1); opacity: 0.92; }
+    50%      { transform: scale(1.03); opacity: 1; }
+}
+
+[data-anim-continuous] { will-change: transform; }
+
+[data-anim-continuous="float"]     { animation: n-float var(--n-anim-duration, 4000ms) ease-in-out infinite; }
+[data-anim-continuous="sway"]      { animation: n-sway var(--n-anim-duration, 4000ms) ease-in-out infinite; }
+[data-anim-continuous="swing"]     { animation: n-swing var(--n-anim-duration, 3500ms) ease-in-out infinite; }
+[data-anim-continuous="pulse"]     { animation: n-pulse var(--n-anim-duration, 2500ms) ease-in-out infinite; }
+[data-anim-continuous="shake"]     { animation: n-shake var(--n-anim-duration, 3000ms) ease-in-out infinite; }
+[data-anim-continuous="shimmer"]   { animation: n-shimmer var(--n-anim-duration, 2800ms) ease-in-out infinite; }
+[data-anim-continuous="spin"]      { animation: n-spin var(--n-anim-duration, 12000ms) linear infinite; }
+[data-anim-continuous="breathing"] { animation: n-breathing var(--n-anim-duration, 5000ms) ease-in-out infinite; }
+
+/* ── Scroll ─────────────────────────────────────────────────────────────
+   Position is written by the parallax loop in app.js; these rules only set
+   up the compositing hints and the pre-scroll state for the fade variants. */
+
+[data-anim-scroll] { will-change: transform, opacity; }
+
+[data-anim-scroll="fade-scroll"]  { opacity: 0; }
+[data-anim-scroll="move-scroll"]  { }
+[data-anim-scroll="scale-scroll"] { }
+[data-anim-scroll="rotate-scroll"]{ }
+[data-anim-scroll="parallax"]     { }
+
+/* ── Effects ───────────────────────────────────────────────────────────── */
+
+.n-cursor-glow {
+    position: fixed;
+    border-radius: 9999px;
+    pointer-events: none;
+    z-index: 5;
+    transform: translate(-50%, -50%);
+    transition: opacity 300ms ease;
+    opacity: 0;
+}
+
+@media (hover: none) {
+    .n-cursor-glow { display: none; }
+}
+
+/* Motion-sensitive visitors get a static page. */
+@media (prefers-reduced-motion: reduce) {
+    [data-anim-entrance],
+    [data-anim-entrance].is-in {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    [data-anim-continuous],
+    [data-anim-scroll] {
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
+}

@@ -18,7 +18,7 @@ class Wedding extends Model
         'description', 'quote', 'date', 'venue', 'address',
         'latitude', 'longitude', 'maps_url', 'status', 'published_at',
         'seo_title', 'seo_description', 'og_image', 'favicon',
-        'appearance', 'animation_config', 'settings',
+        'appearance', 'animation_config', 'settings', 'builder_document',
     ];
 
     protected $casts = [
@@ -27,6 +27,7 @@ class Wedding extends Model
         'appearance' => 'array',
         'animation_config' => 'array',
         'settings' => 'array',
+        'builder_document' => 'array',
         'latitude' => 'decimal:7',
         'longitude' => 'decimal:7',
     ];
@@ -116,6 +117,15 @@ class Wedding extends Model
         return $this->status === 'draft';
     }
 
+    /**
+     * A wedding renders through the document renderer only once it has a
+     * document; otherwise the coded template path is used unchanged.
+     */
+    public function hasBuilderDocument(): bool
+    {
+        return ! empty($this->builder_document['nodes']);
+    }
+
     public function coupleName(): string
     {
         return "{$this->bride_name} & {$this->groom_name}";
@@ -133,6 +143,7 @@ class Wedding extends Model
     public function shortUrl(): string
     {
         $id = $this->short_id ?? $this->public_id;
+
         return url("/{$id}/{$this->slug}");
     }
 
@@ -174,7 +185,7 @@ class Wedding extends Model
     public static function generatePublicId(): string
     {
         do {
-            $id = 'INV-' . strtoupper(Str::random(6));
+            $id = 'INV-'.strtoupper(Str::random(6));
         } while (static::where('public_id', $id)->exists());
 
         return $id;

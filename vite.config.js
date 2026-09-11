@@ -7,8 +7,11 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
+                'resources/css/animations.css',
                 'resources/css/templates/minang-elegance.css',
+                'resources/css/builder.css',
                 'resources/js/app.js',
+                'resources/js/builder.js',
             ],
             refresh: true,
         }),

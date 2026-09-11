@@ -1,0 +1,57 @@
+/*
+ * Builder chrome only. Never loaded by the public invitation.
+ *
+ * Kept deliberately small: the canvas itself is rendered by the invitation's
+ * own stylesheet inside an iframe, so the editor does not need to duplicate it.
+ */
+
+@import 'tailwindcss';
+
+[x-cloak] { display: none !important; }
+
+/* Dialogs that share the left/right panel look get this utility. */
+.b-panel {
+    background: #1c1917;
+    color: #e7e5e4;
+    border-color: rgba(255, 255, 255, .08);
+}
+
+.b-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.b-scroll::-webkit-scrollbar-track { background: rgba(255, 255, 255, .03); }
+.b-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, .14); border-radius: 6px; }
+.b-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, .22); }
+
+/* Range inputs in the inspector. */
+.b-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, .15);
+    outline: none;
+}
+.b-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 9999px;
+    background: #fafaf9;
+    cursor: pointer;
+}
+.b-range::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 0;
+    border-radius: 9999px;
+    background: #fafaf9;
+    cursor: pointer;
+}
+
+/* The canvas frame keeps invitation styling isolated from builder styles. */
+#builder-canvas {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}
