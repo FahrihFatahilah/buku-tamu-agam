@@ -32,7 +32,7 @@
                     @csrf @method('PUT')
                     <input type="hidden" name="sort_order" value="{{ $section->sort_order }}">
                     <input type="hidden" name="title" value="{{ $section->title }}">
-                    <input type="hidden" name="settings" value="{{ json_encode($section->settings ?? []) }}">
+                    <input type="hidden" name="is_enabled" value="0">
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="is_enabled" value="1" {{ $section->is_enabled ? 'checked' : '' }}
                             class="sr-only peer" onchange="this.form.submit()">

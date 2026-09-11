@@ -82,7 +82,7 @@ class SectionController extends Controller
 
         $section->update([
             'title'      => $validated['title'] ?? $section->title,
-            'is_enabled' => $request->has('is_enabled') ? (bool)$request->input('is_enabled') : $section->is_enabled,
+            'is_enabled' => $request->has('is_enabled') ? $request->boolean('is_enabled') : $section->is_enabled,
             'sort_order' => $validated['sort_order'] ?? $section->sort_order,
             'settings'   => $newSettings,
         ]);
