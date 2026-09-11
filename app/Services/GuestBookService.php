@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\GuestBookEntry;
 use App\Models\Guest;
+use App\Models\GuestBookEntry;
 use App\Models\Wedding;
 
 class GuestBookService
@@ -15,14 +15,14 @@ class GuestBookService
         $moderation = $wedding->settings['guestbook_moderation'] ?? true;
 
         $entry = GuestBookEntry::create([
-            'wedding_id'        => $wedding->id,
-            'guest_id'          => $guest?->id,
-            'name'              => $data['name'],
-            'message'           => $data['message'],
+            'wedding_id' => $wedding->id,
+            'guest_id' => $guest?->id,
+            'name' => $guest?->name ?? $data['name'],
+            'message' => $data['message'],
             'attendance_status' => $data['attendance_status'] ?? null,
-            'pax'               => $data['pax'] ?? null,
-            'status'            => $moderation ? 'pending' : 'approved',
-            'ip_address'        => $ip,
+            'pax' => $data['pax'] ?? null,
+            'status' => $moderation ? 'pending' : 'approved',
+            'ip_address' => $ip,
         ]);
 
         $this->audit->log('guestbook.submitted', 'guest_book_entry', $entry->id, [

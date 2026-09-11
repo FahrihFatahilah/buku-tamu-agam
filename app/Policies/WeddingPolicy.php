@@ -39,9 +39,15 @@ class WeddingPolicy
 
     public function manageGuests(User $user, Wedding $wedding): bool
     {
+        return $this->update($user, $wedding);
+    }
+
+    public function viewGuests(User $user, Wedding $wedding): bool
+    {
         if ($user->isCheckinOperator()) {
             return $user->client_id === $wedding->client_id;
         }
+
         return $this->update($user, $wedding);
     }
 

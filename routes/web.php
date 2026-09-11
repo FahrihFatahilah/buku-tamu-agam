@@ -205,19 +205,22 @@ Route::get('/{publicId}/{slug}', [InvitationController::class, 'show'])
     ->name('invitation.show')
     ->where('publicId', 'INV-[A-Z0-9]{6}');
 
-Route::get('/{publicId}/{slug}/u/{token}', [InvitationController::class, 'showPersonalized'])
-    ->name('invitation.personalized')
-    ->where('publicId', 'INV-[A-Z0-9]{6}');
-
 // Short URL: /xxxxxx/nama (6 lowercase alphanumeric)
 Route::get('/{shortId}/{slug}', [InvitationController::class, 'showShort'])
     ->name('invitation.short')
     ->where('shortId', '[a-z0-9]{6}');
 
-Route::get('/{shortId}/{slug}/u/{token}', [InvitationController::class, 'showShortPersonalized'])
-    ->name('invitation.short.personalized')
-    ->where('shortId', '[a-z0-9]{6}')
-    ->where('token', '[a-zA-Z0-9]{12,64}');
+// Personalized routes — rate limited to prevent token enumeration
+Route::middleware('throttle:30,1')->group(function () {
+    Route::get('/{publicId}/{slug}/u/{token}', [InvitationController::class, 'showPersonalized'])
+        ->name('invitation.personalized')
+        ->where('publicId', 'INV-[A-Z0-9]{6}');
+
+    Route::get('/{shortId}/{slug}/u/{token}', [InvitationController::class, 'showShortPersonalized'])
+        ->name('invitation.short.personalized')
+        ->where('shortId', '[a-z0-9]{6}')
+        ->where('token', '[a-zA-Z0-9]{12,64}');
+});
 
 // RSVP & Guest Book (public, rate-limited)
 Route::middleware('throttle:30,1')->group(function () {

@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ImportGuestsCsv;
 use App\Models\Guest;
 use App\Models\Wedding;
-use App\Services\AuditLogService;
 use App\Services\GuestService;
 use App\Services\GuestTokenService;
 use Illuminate\Http\Request;
-use League\Csv\Reader;
 
 class GuestController extends Controller
 {
@@ -22,12 +21,12 @@ class GuestController extends Controller
 
     public function index(Wedding $wedding, Request $request)
     {
-        $this->authorize('manageGuests', $wedding);
+        $this->authorize('viewGuests', $wedding);
 
         $guests = Guest::where('wedding_id', $wedding->id)
             ->with(['category', 'rsvp', 'checkin'])
-            ->when($request->search, fn($q) => $q->where('name', 'like', "%{$request->search}%"))
-            ->when($request->category_id, fn($q) => $q->where('category_id', $request->category_id))
+            ->when($request->search, fn ($q) => $q->where('name', 'like', "%{$request->search}%"))
+            ->when($request->category_id, fn ($q) => $q->where('category_id', $request->category_id))
             ->latest()
             ->paginate(50);
 
@@ -51,7 +50,7 @@ class GuestController extends Controller
         ]);
 
         // Ensure category belongs to this wedding
-        if (!empty($validated['category_id'])) {
+        if (! empty($validated['category_id'])) {
             $wedding->guestCategories()->findOrFail($validated['category_id']);
         }
 
@@ -116,8 +115,8 @@ class GuestController extends Controller
         }
 
         $headers = array_values(array_filter(
-            array_map(fn($h) => strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h))), array_shift($rows)),
-            fn($h) => $h !== ''
+            array_map(fn ($h) => strtolower(trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $h))), array_shift($rows)),
+            fn ($h) => $h !== ''
         ));
 
         if (empty($headers)) {
@@ -133,11 +132,12 @@ class GuestController extends Controller
             $data[] = array_combine($headers, $row);
         }
 
-        $data = array_filter($data, fn($row) => !empty($row['name']));
+        $data = array_filter($data, fn ($row) => ! empty($row['name']));
 
         // Large files go to queue; small files process sync
         if (count($data) > self::ASYNC_IMPORT_THRESHOLD) {
-            \App\Jobs\ImportGuestsCsv::dispatch($wedding, array_values($data), $request->user()->id);
+            ImportGuestsCsv::dispatch($wedding, array_values($data), $request->user()->id);
+
             return back()->with('success', 'Import sedang diproses di background. Refresh halaman beberapa saat lagi.');
         }
 

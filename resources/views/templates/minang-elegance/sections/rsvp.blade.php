@@ -84,9 +84,7 @@
     var editBtn  = document.getElementById('rsvp-edit');
 
     @php
-        $rsvpUrl = $guest->short_token
-            ? route('rsvp.store.short', [$wedding->short_id ?? $wedding->public_id, $wedding->slug, $guest->short_token])
-            : route('rsvp.store', [$wedding->public_id, $wedding->slug, $guest->invitation_token]);
+        $rsvpUrl = route('rsvp.store.short', [$wedding->short_id ?? $wedding->public_id, $wedding->slug, $guest->short_token ?? $guest->invitation_token]);
         $qrUrl = route('rsvp.qr', [
             'anyId' => $wedding->short_id ?? $wedding->public_id,
             'slug'  => $wedding->slug,

@@ -4,7 +4,7 @@
         <h2 class="font-display text-2xl text-[#4a2c0a] text-center mb-10 reveal">RSVP</h2>
         @if(session('success'))<div class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-sm text-center">{{ session('success') }}</div>@endif
         @php $rsvp=$guest->rsvp; @endphp
-        <form method="POST" action="{{ route('rsvp.store',[$wedding->public_id,$wedding->slug,$guest->invitation_token]) }}" class="space-y-5 reveal">
+        <form method="POST" action="{{ route('rsvp.store.short',[$wedding->short_id??$wedding->public_id,$wedding->slug,$guest->short_token??$guest->invitation_token]) }}" class="space-y-5 reveal">
             @csrf
             <div>
                 <label class="block text-xs text-[#4a2c0a]/40 tracking-wider mb-3 uppercase">Kehadiran</label>

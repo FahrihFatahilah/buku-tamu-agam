@@ -46,8 +46,9 @@ class Guest extends Model
     public function personalUrl(): string
     {
         $wedding = $this->wedding;
-        $id      = $wedding->short_id ?? $wedding->public_id;
-        $token   = $this->short_token ?? $this->invitation_token;
+        $id = $wedding->short_id ?? $wedding->public_id;
+        $token = $this->short_token ?? $this->invitation_token;
+
         return url("/{$id}/{$wedding->slug}/u/{$token}");
     }
 
@@ -71,24 +72,19 @@ class Guest extends Model
     public static function generateShortToken(): string
     {
         $chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $bytes = random_bytes(9); // 9 bytes → 12 base62 chars
         $result = '';
-        $n = strlen($bytes);
-        for ($i = 0; $i < $n; $i++) {
-            $result .= $chars[ord($bytes[$i]) % 62];
-        }
-        // Pad to 12 if needed
-        while (strlen($result) < 12) {
+        for ($i = 0; $i < 12; $i++) {
             $result .= $chars[random_int(0, 61)];
         }
-        return substr($result, 0, 12);
+
+        return $result;
     }
 
     protected static function booted(): void
     {
         static::creating(function (Guest $guest) {
             if (empty($guest->invitation_token)) {
-                $guest->invitation_token  = static::generateToken();
+                $guest->invitation_token = static::generateToken();
                 $guest->token_generated_at = now();
             }
             if (empty($guest->short_token)) {

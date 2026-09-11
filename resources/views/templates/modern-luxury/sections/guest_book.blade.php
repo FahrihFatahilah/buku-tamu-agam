@@ -2,7 +2,7 @@
     $gbSection = $sections->firstWhere('section_key','guest_book');
     $entries = \App\Models\GuestBookEntry::where('wedding_id',$wedding->id)->approved()->latest()->limit(20)->get();
     $invId = $wedding->short_id ?? $wedding->public_id;
-    $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook").($guest?'?t='.$guest->invitation_token:'');
+    $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook").($guest?'?t='.$guest->short_token:'');
 @endphp
 <section id="guest_book" class="py-20 px-6 bg-white" x-data="guestBook('{{ $gbUrl }}','{{ csrf_token() }}')">
     <div class="max-w-xl mx-auto">
@@ -31,5 +31,5 @@
     </div>
 </section>
 <script>
-function guestBook(url,token){return{url,token,form:{name:'{{ $guest?->name ?? '' }}',message:''},loading:false,sent:false,error:null,errors:{},async submit(){this.loading=true;this.error=null;this.errors={};try{const res=await fetch(this.url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':this.token,'Accept':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify(this.form)});const data=await res.json();if(res.status===422){this.errors=data.errors??{};}else if(data.success){this.sent=true;}else{this.error=data.message??'Terjadi kesalahan.';}}catch(e){this.error='Gagal mengirim.';}finally{this.loading=false;}}};}
+function guestBook(url,token){return{url,token,form:{name:{{ json_encode($guest?->name ?? '') }},message:''},loading:false,sent:false,error:null,errors:{},async submit(){this.loading=true;this.error=null;this.errors={};try{const res=await fetch(this.url,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':this.token,'Accept':'application/json','X-Requested-With':'XMLHttpRequest'},body:JSON.stringify(this.form)});const data=await res.json();if(res.status===422){this.errors=data.errors??{};}else if(data.success){this.sent=true;}else{this.error=data.message??'Terjadi kesalahan.';}}catch(e){this.error='Gagal mengirim.';}finally{this.loading=false;}}};}
 </script>

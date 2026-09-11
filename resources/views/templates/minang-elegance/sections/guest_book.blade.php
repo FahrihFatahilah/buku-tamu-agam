@@ -4,7 +4,7 @@
         ->approved()->latest()->limit(20)->get();
     // Use short_id if available, else public_id
     $invId = $wedding->short_id ?? $wedding->public_id;
-    $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook") . ($guest ? '?t=' . $guest->invitation_token : '');
+    $gbUrl = url("/{$invId}/{$wedding->slug}/guestbook") . ($guest ? '?t=' . $guest->short_token : '');
 @endphp
 
 <section id="guest_book" class="section-bg relative py-20 px-6"
@@ -75,7 +75,7 @@
 function guestBook(url, token) {
     return {
         url, token,
-        form: { name: '{{ $guest?->name ?? '' }}', message: '' },
+        form: { name: {{ json_encode($guest?->name ?? '') }}, message: '' },
         loading: false,
         sent: false,
         error: null,
