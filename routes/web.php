@@ -230,6 +230,8 @@ Route::middleware('throttle:30,1')->group(function () {
         ->where('token', '[a-zA-Z0-9]{12,64}');
 
     // Guest Book (both URL formats use same route via publicId OR shortId)
+    Route::get('/{id}/{slug}/guestbook', [GuestBookController::class, 'index'])
+        ->name('guestbook.index');
     Route::post('/{id}/{slug}/guestbook', [GuestBookController::class, 'store'])
         ->name('guestbook.store');
 });

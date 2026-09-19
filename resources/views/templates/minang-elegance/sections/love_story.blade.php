@@ -14,7 +14,7 @@
                     'description' => 'Berawal dari pertemuan sederhana yang mempertemukan dua hati. Awalnya kami hanya saling mengenal dan bertukar cerita, tanpa pernah menyangka bahwa perkenalan ini akan menjadi awal dari perjalanan panjang bersama.'
                 ],
                 [
-                    'year' => '2025 February 2',
+                    'year' => '2025 February',
                     'title' => 'Memilih untuk Bersama',
                     'description' => 'Pada hari ini, kami memutuskan untuk saling menyatakan perasaan dan memulai hubungan. Kami belajar untuk menerima satu sama lain, dengan segala kelebihan dan kekurangan, serta tumbuh bersama dalam setiap prosesnya.'
                 ],
@@ -24,7 +24,7 @@
                     'description' => 'Setelah melewati banyak cerita, tawa, dan berbagai proses bersama, kami semakin yakin dengan pilihan ini. Kami pun sepakat untuk melanjutkan hubungan ke jenjang yang lebih serius dan mulai menata langkah untuk masa depan bersama.'
                 ],
                 [
-                    'year' => '2026 August 2',
+                    'year' => '2026 August',
                     'title' => 'Pertemuan Dua Keluarga',
                     'description' => 'Menjadi salah satu momen yang begitu berarti bagi kami. Pada hari ini, dua keluarga dipertemukan untuk saling mengenal dan bersama-sama memberikan doa serta restu untuk langkah kami selanjutnya.'
                 ],

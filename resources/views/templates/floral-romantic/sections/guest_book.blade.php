@@ -2,7 +2,6 @@
 <section id="guest_book" class="py-20 px-6 bg-[#f9f0f0]" x-data="guestBook('{{ $gbUrl }}','{{ csrf_token() }}')">
     <div class="max-w-xl mx-auto">
         <p class="text-[#b5606a]/60 text-xs tracking-[0.4em] uppercase mb-3 text-center reveal">Ucapan & Doa</p>
-        <h2 class="font-display text-2xl text-[#2a1a1a] italic text-center mb-10 reveal">Buku Tamu</h2>
         <div x-show="sent" x-transition class="mb-6 px-4 py-3 bg-green-50 border border-green-200 text-green-700 text-sm text-center">Ucapan berhasil dikirim!</div>
         <div x-show="error" x-transition class="mb-6 px-4 py-3 bg-red-50 border border-red-200 text-red-600 text-sm text-center"><span x-text="error"></span></div>
         <form @submit.prevent="submit" class="space-y-4 mb-12 reveal" x-show="!sent">

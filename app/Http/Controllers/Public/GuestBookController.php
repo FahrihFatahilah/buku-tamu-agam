@@ -47,4 +47,63 @@ class GuestBookController extends Controller
 
         return back()->with('success', 'Pesan berhasil dikirim.');
     }
+
+    /**
+     * Infinite scroll — GET /{id}/{slug}/guestbook?page=2&per_page=10&skip=3
+     */
+    public function index(Request $request, string $id, string $slug)
+    {
+        $wedding = preg_match('/^INV-[A-Z0-9]{6}$/', $id)
+            ? Wedding::where('public_id', $id)->where('status', 'published')->firstOrFail()
+            : Wedding::where('short_id', $id)->where('status', 'published')->firstOrFail();
+
+        $perPage = min((int) $request->query('per_page', 10), 20);
+        $page    = max((int) $request->query('page', 2), 2);
+        $skip    = (int) $request->query('skip', 3);
+
+        // Offset = skip (3 awal sudah di-render server) + halaman berikutnya
+        $offset = $skip + (($page - 2) * $perPage);
+
+        $entries = \App\Models\GuestBookEntry::where('wedding_id', $wedding->id)
+            ->approved()
+            ->latest()
+            ->skip($offset)
+            ->take($perPage)
+            ->get()
+            ->map(fn ($e) => [
+                'id'      => $e->id,
+                'name'    => $e->name,
+                'message' => $e->message,
+                'time'    => $e->created_at->diffForHumans(),
+            ]);
+
+        return response()->json(['entries' => $entries]);
+    }
+        // Resolve wedding by public_id (INV-...) or short_id (6 lowercase)
+        $wedding = preg_match('/^INV-[A-Z0-9]{6}$/', $id)
+            ? Wedding::where('public_id', $id)->where('status', 'published')->firstOrFail()
+            : Wedding::where('short_id', $id)->where('status', 'published')->firstOrFail();
+
+        $validated = $request->validate([
+            'name'              => 'required|string|max:100',
+            'message'           => 'required|string|max:1000',
+            'attendance_status' => 'nullable|in:attending,not_attending,maybe',
+            'pax'               => 'nullable|integer|min:1|max:20',
+        ]);
+
+        $guest = null;
+        $token = $request->query('t');
+        if ($token) {
+            $guest = $this->tokenService->resolveGuest($token, $wedding);
+        }
+
+        $this->guestBookService->submit($wedding, $validated, $guest, $request->ip());
+
+        // AJAX request — return JSON so page doesn't reload
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Pesan berhasil dikirim.']);
+        }
+
+        return back()->with('success', 'Pesan berhasil dikirim.');
+    }
 }

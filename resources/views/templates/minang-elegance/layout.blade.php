@@ -330,14 +330,20 @@
         requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.add('is-closed'); }); });
     }
     if ('IntersectionObserver' in window) {
-        var obs = new IntersectionObserver(function (e) {
-            if (e[0].isIntersecting) { run(); obs.disconnect(); }
+        var obs = new IntersectionObserver(function (entries) {
+            var e = entries[0];
+            // Hanya trigger saat scroll ke BAWAH (masuk dari bawah viewport)
+            if (e.isIntersecting && e.boundingClientRect.top > 0) {
+                run(); obs.disconnect();
+            }
         }, { threshold: 0 });
         obs.observe(trigger);
     }
     window.addEventListener('scroll', function check() {
         var rect = trigger.getBoundingClientRect();
-        if (rect.top <= (window.innerHeight || document.documentElement.clientHeight)) {
+        var wh = window.innerHeight || document.documentElement.clientHeight;
+        // Hanya trigger saat elemen masuk dari bawah (scroll ke bawah)
+        if (rect.top > 0 && rect.top <= wh) {
             run(); window.removeEventListener('scroll', check);
         }
     }, { passive: true });
