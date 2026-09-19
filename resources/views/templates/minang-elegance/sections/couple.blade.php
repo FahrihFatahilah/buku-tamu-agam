@@ -2,14 +2,14 @@
     $coupleSection = $sections->firstWhere('section_key', 'couple');
 @endphp
 
-<section id="couple" class="section-bg relative py-4 px-6">
+<section id="couple" class="section-bg relative py-16 px-6">
 
     @include('templates._section-bg', ['section' => $coupleSection, 'defaultBg' => '#F5F0E8'])
 
     <div class="section-content max-w-2xl mx-auto text-center">
 
-        {{-- Ornament divider --}}
-      <div class="flex items-center justify-center gap-3 mb-12 reveal">
+        {{-- Divider atas --}}
+        <div class="flex items-center justify-center gap-3 mt-2 mb-10 reveal">
             <span class="ornament-line w-12 h-px bg-[#B8960C]/40 block"></span>
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-[#B8960C]/60 animate-scale-in">
                 <path d="M12 2L9.5 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5l6-4.5h-7.5z"/>
@@ -60,7 +60,8 @@
             </div>
         </div>
 
-        <div class="flex items-center justify-center gap-3 mb-12 reveal">
+        {{-- Divider bawah --}}
+        <div class="flex items-center justify-center gap-3 mt-10 mb-2 reveal">
             <span class="ornament-line w-12 h-px bg-[#B8960C]/40 block"></span>
             <svg viewBox="0 0 24 24" class="w-4 h-4 fill-[#B8960C]/60 animate-scale-in">
                 <path d="M12 2L9.5 9H2l6 4.5L5.5 21 12 16.5 18.5 21 16 13.5l6-4.5h-7.5z"/>
