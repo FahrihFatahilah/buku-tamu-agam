@@ -74,9 +74,9 @@
     <rect x="0" y="893" width="800" height="1" fill="#B8960C" opacity="0.2"/>
 
     {{-- Ornamen Rumah Gadang — satu, di bawah, penuh --}}
-    <image href="{{ asset('images/rumah-gadang.svg') }}"
+    <!-- <image href="{{ asset('images/rumah-gadang.svg') }}"
         x="0" y="500" width="800" height="400" opacity="0.88"
-        preserveAspectRatio="xMidYMax meet"/>
+        preserveAspectRatio="xMidYMax meet"/> -->
 
     {{-- Ornamen diamond kiri --}}
     <g transform="translate(200, 450)" opacity="0.14">

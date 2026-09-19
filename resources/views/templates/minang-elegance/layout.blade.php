@@ -302,10 +302,22 @@
     document.body.style.overflow = 'hidden';
     btn.addEventListener('click', function () {
         stage.classList.add('is-open');
+        // Fade-in foto hero setelah tirai mulai membuka (delay 200ms agar overlap smooth)
+        setTimeout(function () {
+            var heroImg = document.getElementById('hero-bg-img');
+            if (heroImg) heroImg.style.opacity = '0.45';
+        }, 200);
         setTimeout(function () { stage.remove(); document.body.style.overflow = ''; }, 1100);
     });
     btn.addEventListener('mouseenter', function () { btn.style.background = 'rgba(184,150,12,0.1)'; });
     btn.addEventListener('mouseleave', function () { btn.style.background = 'transparent'; });
+})();
+(function () {
+    // Jika tidak ada curtain, langsung tampilkan foto hero
+    if (!document.getElementById('curtain-stage')) {
+        var heroImg = document.getElementById('hero-bg-img');
+        if (heroImg) heroImg.style.opacity = '0.45';
+    }
 })();
 (function () {
     var trigger = document.getElementById('closing-trigger');

@@ -13,7 +13,9 @@
     <div class="absolute inset-0 z-0 overflow-hidden">
         <img src="{{ $heroMedia->url() }}"
             alt="{{ $heroMedia->alt_text ?? $wedding->coupleName() }}"
-            class="hero-bg-img parallax-bg w-full h-full object-cover opacity-45"
+            id="hero-bg-img"
+            class="hero-bg-img parallax-bg w-full h-full object-cover opacity-0"
+            style="transition: opacity 1.2s ease;"
             data-parallax-speed="0.2">
         <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
     </div>
