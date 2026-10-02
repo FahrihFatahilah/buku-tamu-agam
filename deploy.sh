@@ -46,5 +46,7 @@ echo "⚡ Caching..."
 docker exec $CONTAINER php artisan config:cache
 docker exec $CONTAINER php artisan route:cache
 docker exec $CONTAINER php artisan view:cache
+docker exec $CONTAINER php artisan storage:link
+
 
 echo "✅ Deploy selesai! https://dammminvitation.ffatahilah.my.id"

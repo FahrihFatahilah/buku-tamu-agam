@@ -25,7 +25,7 @@
             <div>
                 @php $bridePhoto = $media->where('collection', 'bride')->skip(1)->first() ?? $media->where('collection', 'couple')->skip(1)->first(); @endphp
                 @if($bridePhoto)
-                <div class="w-40 h-40 mx-auto mb-5 overflow-hidden border-2 border-[#B8960C]/30 reveal-scale">
+                <div class="w-40 h-40 mx-auto mb-5 overflow-hidden border-2 border-[#B8960C]/30 reveal-scale tilt-card">
                     <img src="{{ $bridePhoto->url() }}" alt="{{ $wedding->bride_name }}" class="w-full h-full object-cover">
                 </div>
                 @endif
@@ -43,7 +43,7 @@
              <div>
                 @php $groomPhoto = $media->where('collection', 'groom')->first() ?? $media->where('collection', 'couple')->first(); @endphp
                 @if($groomPhoto)
-                <div class="w-40 h-40 mx-auto mb-5 overflow-hidden border-2 border-[#B8960C]/30 reveal-scale">
+                <div class="w-40 h-40 mx-auto mb-5 overflow-hidden border-2 border-[#B8960C]/30 reveal-scale tilt-card">
                     <img src="{{ $groomPhoto->url() }}" alt="{{ $wedding->groom_name }}" class="w-full h-full object-cover">
                 </div>
                 @endif

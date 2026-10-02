@@ -295,14 +295,15 @@
 </div>
 
 <script>
+/* ── Curtain open ─────────────────────────────────────────────────────────── */
 (function () {
     var stage = document.getElementById('curtain-stage');
     var btn = document.getElementById('btn-open');
     if (!stage || !btn) return;
     document.body.style.overflow = 'hidden';
     btn.addEventListener('click', function () {
+        spawnParticles(btn);
         stage.classList.add('is-open');
-        // Fade-in foto hero setelah tirai mulai membuka (delay 200ms agar overlap smooth)
         setTimeout(function () {
             var heroImg = document.getElementById('hero-bg-img');
             if (heroImg) heroImg.style.opacity = '0.45';
@@ -313,41 +314,212 @@
     btn.addEventListener('mouseleave', function () { btn.style.background = 'transparent'; });
 })();
 (function () {
-    // Jika tidak ada curtain, langsung tampilkan foto hero
     if (!document.getElementById('curtain-stage')) {
         var heroImg = document.getElementById('hero-bg-img');
         if (heroImg) heroImg.style.opacity = '0.45';
     }
 })();
+
+/* ── Closing curtain ──────────────────────────────────────────────────────── */
 (function () {
     var trigger = document.getElementById('closing-trigger');
     var stage = document.getElementById('closing-stage');
     if (!trigger || !stage) return;
-    var done = false;
-    function run() {
-        if (done) return; done = true;
+
+    function close() {
         stage.classList.add('is-visible');
-        requestAnimationFrame(function () { requestAnimationFrame(function () { stage.classList.add('is-closed'); }); });
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () { stage.classList.add('is-closed'); });
+        });
     }
+
+    function open() {
+        stage.classList.remove('is-closed');
+        // Tunggu transisi selesai baru sembunyikan
+        setTimeout(function () { stage.classList.remove('is-visible'); }, 1000);
+    }
+
     if ('IntersectionObserver' in window) {
         var obs = new IntersectionObserver(function (entries) {
             var e = entries[0];
-            // Hanya trigger saat scroll ke BAWAH (masuk dari bawah viewport)
             if (e.isIntersecting && e.boundingClientRect.top > 0) {
-                run(); obs.disconnect();
+                // Masuk dari bawah → tutup
+                close();
+            } else if (!e.isIntersecting && e.boundingClientRect.top > 0) {
+                // Keluar ke atas → buka lagi
+                open();
             }
         }, { threshold: 0 });
         obs.observe(trigger);
     }
-    window.addEventListener('scroll', function check() {
-        var rect = trigger.getBoundingClientRect();
-        var wh = window.innerHeight || document.documentElement.clientHeight;
-        // Hanya trigger saat elemen masuk dari bawah (scroll ke bawah)
-        if (rect.top > 0 && rect.top <= wh) {
-            run(); window.removeEventListener('scroll', check);
-        }
-    }, { passive: true });
 })();
+
+/* ── Gold particle burst ──────────────────────────────────────────────────── */
+function spawnParticles(origin) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var rect = origin.getBoundingClientRect();
+    var cx = rect.left + rect.width / 2;
+    var cy = rect.top + rect.height / 2;
+    var colors = ['#B8960C','#e8c84a','#f5d76e','#c9a84c'];
+    for (var i = 0; i < 18; i++) {
+        var p = document.createElement('div');
+        p.className = 'gold-particle';
+        var size = 4 + Math.random() * 6;
+        var angle = (Math.PI * 2 * i) / 18 + (Math.random() - 0.5) * 0.5;
+        var dist = 60 + Math.random() * 80;
+        p.style.cssText = [
+            'width:' + size + 'px', 'height:' + size + 'px',
+            'left:' + (cx - size/2) + 'px', 'top:' + (cy - size/2) + 'px',
+            'background:' + colors[i % colors.length],
+            '--dx:' + (Math.cos(angle) * dist) + 'px',
+            '--dy:' + (Math.sin(angle) * dist) + 'px',
+            'animation-duration:' + (0.6 + Math.random() * 0.4) + 's',
+        ].join(';');
+        document.body.appendChild(p);
+        p.addEventListener('animationend', function () { this.remove(); });
+    }
+}
+
+/* ── Parallax engine — scroll-based, mobile-first (rAF) ──────────────────────── */
+(function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var ticking = false;
+    var gyroX = 0, gyroY = 0;
+
+    /* ─ Scroll parallax ─ */
+    function updateScroll() {
+        var sy = window.scrollY;
+        var vh = window.innerHeight;
+
+        /* Hero bg — bergerak 25% dari scroll */
+        document.querySelectorAll('.parallax-bg').forEach(function (el) {
+            var speed = parseFloat(el.dataset.parallaxSpeed || 0.25);
+            el.style.transform = 'translate3d(0,' + (sy * speed) + 'px,0) scale(1.12)';
+        });
+
+        /* Elemen drift ke atas saat scroll turun */
+        document.querySelectorAll('.parallax-up').forEach(function (el) {
+            var rect = el.getBoundingClientRect();
+            var progress = (vh - rect.top) / (vh + rect.height);
+            var speed = parseFloat(el.dataset.parallaxSpeed || 0.12);
+            el.style.transform = 'translate3d(0,' + (-progress * speed * 120) + 'px,0)';
+        });
+
+        /* Elemen drift ke bawah */
+        document.querySelectorAll('.parallax-down').forEach(function (el) {
+            var rect = el.getBoundingClientRect();
+            var progress = (vh - rect.top) / (vh + rect.height);
+            var speed = parseFloat(el.dataset.parallaxSpeed || 0.08);
+            el.style.transform = 'translate3d(0,' + (progress * speed * 100) + 'px,0)';
+        });
+
+        /* Ornamen corner — subtle depth */
+        document.querySelectorAll('.parallax-slow').forEach(function (el) {
+            var rect = el.getBoundingClientRect();
+            var offset = ((rect.top + rect.height / 2) - vh / 2) * 0.05;
+            el.style.transform = 'translate3d(0,' + offset + 'px,0)';
+        });
+
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function () {
+        if (!ticking) { requestAnimationFrame(updateScroll); ticking = true; }
+    }, { passive: true });
+
+    updateScroll();
+
+    /* ─ Gyroscope parallax (mobile) ─
+       Hanya aktif jika device punya gyro dan user grant permission (iOS 13+) */
+    function applyGyro() {
+        document.querySelectorAll('.parallax-bg').forEach(function (el) {
+            var cur = el.style.transform || '';
+            /* tambahkan offset X dari gyro di atas offset Y dari scroll */
+            el.style.transform = cur.replace(/translateX\([^)]+\)/, '') +
+                ' translateX(' + (gyroX * 6) + 'px)';
+        });
+        document.querySelectorAll('.parallax-slow').forEach(function (el) {
+            el.style.transform = 'translate3d(' + (gyroX * 4) + 'px,' +
+                (el.style.transform.match(/translateY\(([^)]+)\)/) || ['','0px'])[1] + ',0)';
+        });
+    }
+
+    function onDeviceOrientation(e) {
+        /* gamma = tilt kiri-kanan (-90..90), beta = tilt depan-belakang */
+        gyroX = Math.max(-1, Math.min(1, (e.gamma || 0) / 30));
+        gyroY = Math.max(-1, Math.min(1, ((e.beta  || 0) - 30) / 30));
+        requestAnimationFrame(applyGyro);
+    }
+
+    if (typeof DeviceOrientationEvent !== 'undefined') {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            /* iOS 13+ — minta permission saat user pertama kali tap */
+            document.addEventListener('click', function askGyro() {
+                DeviceOrientationEvent.requestPermission().then(function (state) {
+                    if (state === 'granted') window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
+                }).catch(function () {});
+                document.removeEventListener('click', askGyro);
+            }, { once: true });
+        } else {
+            /* Android & desktop — langsung listen */
+            window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
+        }
+    }
+})();
+
+/* ── Scroll reveal (IntersectionObserver) ────────────────────────────────── */
+(function () {
+    if (!('IntersectionObserver' in window)) {
+        document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-blur,.stagger-children,.ornament-line,.reveal-line').forEach(function (el) {
+            el.classList.add('visible');
+        });
+        return;
+    }
+    var obs = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+        });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-blur,.stagger-children,.ornament-line,.reveal-line').forEach(function (el) {
+        obs.observe(el);
+    });
+})();
+
+/* ── Touch ripple on couple photos (mobile-friendly, ganti tilt) ─────────────── */
+(function () {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.querySelectorAll('.tilt-card').forEach(function (card) {
+        card.addEventListener('touchstart', function (e) {
+            var ripple = document.createElement('div');
+            var rect = card.getBoundingClientRect();
+            var t = e.touches[0];
+            var size = Math.max(rect.width, rect.height) * 1.4;
+            ripple.style.cssText = [
+                'position:absolute',
+                'border-radius:50%',
+                'background:rgba(184,150,12,0.25)',
+                'pointer-events:none',
+                'width:' + size + 'px',
+                'height:' + size + 'px',
+                'left:' + (t.clientX - rect.left - size/2) + 'px',
+                'top:' + (t.clientY - rect.top - size/2) + 'px',
+                'transform:scale(0)',
+                'transition:transform 0.5s ease,opacity 0.5s ease',
+                'z-index:10',
+            ].join(';');
+            card.style.position = 'relative';
+            card.style.overflow = 'hidden';
+            card.appendChild(ripple);
+            requestAnimationFrame(function () {
+                ripple.style.transform = 'scale(1)';
+                ripple.style.opacity = '0';
+            });
+            setTimeout(function () { ripple.remove(); }, 600);
+        }, { passive: true });
+    });
+})();
+
 function musicPlayer(playlist) {
     return {
         playlist, playing: false, currentIndex: 0,

@@ -12,13 +12,17 @@
                 @csrf
                 <div>
                     <label class="block text-sm text-[#2C1810]/70 mb-2">Kehadiran</label>
-                    <div class="space-y-2">
-                        @foreach(['attending' => 'Hadir', 'not_attending' => 'Tidak Hadir', 'maybe' => 'Mungkin Hadir'] as $value => $label)
-                        <label class="flex items-center gap-3 cursor-pointer">
+                    <div class="flex gap-2">
+                        @foreach(['attending' => 'Hadir', 'not_attending' => 'Tidak Hadir', 'maybe' => 'Mungkin'] as $value => $label)
+                        <label class="rsvp-pill flex-1 cursor-pointer">
                             <input type="radio" name="attendance_status" value="{{ $value }}"
                                 {{ $guest->rsvp?->attendance_status === $value ? 'checked' : '' }}
-                                class="border-[#7C3238] text-[#7C3238] focus:ring-[#7C3238]">
-                            <span class="text-sm text-[#2C1810]">{{ $label }}</span>
+                                class="sr-only" onchange="updatePills()">
+                            <span class="block text-center py-2 px-1 text-xs border transition-all duration-200
+                                {{ $guest->rsvp?->attendance_status === $value
+                                    ? 'border-[#7C3238] bg-[#7C3238] text-[#F5F0E8]'
+                                    : 'border-[#2C1810]/20 text-[#2C1810]/60 hover:border-[#7C3238]/40' }}"
+                                data-value="{{ $value }}">{{ $label }}</span>
                         </label>
                         @endforeach
                     </div>
@@ -77,6 +81,19 @@
 
     var ACTION = @json($rsvpUrl);
     var CSRF   = document.querySelector('#rsvp-form [name=_token]').value;
+
+    function updatePills() {
+        document.querySelectorAll('.rsvp-pill input').forEach(function(inp) {
+            var span = inp.nextElementSibling;
+            if (inp.checked) {
+                span.className = span.className.replace(/border-\[#2C1810\]\/20 text-\[#2C1810\]\/60 hover:border-\[#7C3238\]\/40/, '');
+                span.classList.add('border-[#7C3238]','bg-[#7C3238]','text-[#F5F0E8]');
+            } else {
+                span.classList.remove('border-[#7C3238]','bg-[#7C3238]','text-[#F5F0E8]');
+                span.classList.add('border-[#2C1810]/20','text-[#2C1810]/60');
+            }
+        });
+    }
 
     @if($guest->rsvp)
     showSuccess({{ $guest->rsvp->attendance_status === 'attending' ? 'true' : 'false' }});

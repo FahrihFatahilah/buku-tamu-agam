@@ -186,20 +186,78 @@
 .ornament-line.visible { transform: scaleX(1); }
 
 /* ─── Parallax ────────────────────────────────────────────────────────────── */
-/* parallax-bg: hero background moves slower than scroll (zoom-out feel) */
-.parallax-bg {
+.parallax-bg   { will-change: transform; }
+.parallax-up   { will-change: transform; }
+.parallax-down { will-change: transform; }
+.parallax-slow { will-change: transform; }
+
+/* ─── Tilt card ───────────────────────────────────────────────────────────── */
+.tilt-card {
+    transform-style: preserve-3d;
+    transition: transform 0.1s ease-out, box-shadow 0.3s ease;
+    will-change: transform;
+}
+.tilt-card:hover { box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+
+/* ─── Magnetic button ─────────────────────────────────────────────────────── */
+.magnetic-btn {
+    display: inline-flex;
+    align-items: center;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
     will-change: transform;
 }
 
-/* parallax-up: element drifts upward as user scrolls down */
-.parallax-up {
-    will-change: transform;
+/* ─── Gold particle ───────────────────────────────────────────────────────── */
+.gold-particle {
+    position: fixed;
+    pointer-events: none;
+    border-radius: 50%;
+    background: #B8960C;
+    z-index: 99999;
+    animation: particle-burst 0.8s ease-out forwards;
+}
+@keyframes particle-burst {
+    0%   { opacity: 1; transform: translate(0,0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
 }
 
-/* parallax-down: element drifts downward as user scrolls down */
-.parallax-down {
-    will-change: transform;
+/* ─── Countdown flip ──────────────────────────────────────────────────────── */
+.flip-digit {
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
 }
+.flip-digit.flipping {
+    animation: flip-num 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+@keyframes flip-num {
+    0%   { transform: translateY(-8px) scaleY(0.7); opacity: 0; }
+    60%  { transform: translateY(3px)  scaleY(1.05); opacity: 1; }
+    100% { transform: translateY(0)    scaleY(1); opacity: 1; }
+}
+
+/* ─── Ornament float ──────────────────────────────────────────────────────── */
+@keyframes ornament-float {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    33%     { transform: translateY(-8px) rotate(1deg); }
+    66%     { transform: translateY(-4px) rotate(-1deg); }
+}
+.ornament-float { animation: ornament-float 6s ease-in-out infinite; }
+
+/* ─── Section entrance line ───────────────────────────────────────────────── */
+.reveal-line {
+    opacity: 0;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: opacity 0.6s ease, transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal-line.visible { opacity: 1; transform: scaleX(1); }
+
+/* ─── Glimmer on gold text ────────────────────────────────────────────────── */
+@keyframes glimmer {
+    0%,100% { text-shadow: 0 0 0px #B8960C; }
+    50%     { text-shadow: 0 0 12px rgba(184,150,12,0.7), 0 0 24px rgba(184,150,12,0.3); }
+}
+.text-glimmer { animation: glimmer 3s ease-in-out infinite; }
 
 /* ─── Section background system ──────────────────────────────────────────── */
 .section-bg {

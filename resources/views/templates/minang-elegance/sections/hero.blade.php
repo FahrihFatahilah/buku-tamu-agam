@@ -27,10 +27,10 @@
     @endif
 
     {{-- Corner ornaments --}}
-    <div class="absolute top-6 left-6 w-16 h-16 border-t border-l border-[#B8960C]/40 pointer-events-none z-10"></div>
-    <div class="absolute top-6 right-6 w-16 h-16 border-t border-r border-[#B8960C]/40 pointer-events-none z-10"></div>
-    <div class="absolute bottom-6 left-6 w-16 h-16 border-b border-l border-[#B8960C]/40 pointer-events-none z-10"></div>
-    <div class="absolute bottom-6 right-6 w-16 h-16 border-b border-r border-[#B8960C]/40 pointer-events-none z-10"></div>
+    <div class="absolute top-6 left-6 w-16 h-16 border-t border-l border-[#B8960C]/40 pointer-events-none z-10 parallax-slow"></div>
+    <div class="absolute top-6 right-6 w-16 h-16 border-t border-r border-[#B8960C]/40 pointer-events-none z-10 parallax-slow"></div>
+    <div class="absolute bottom-6 left-6 w-16 h-16 border-b border-l border-[#B8960C]/40 pointer-events-none z-10 parallax-slow"></div>
+    <div class="absolute bottom-6 right-6 w-16 h-16 border-b border-r border-[#B8960C]/40 pointer-events-none z-10 parallax-slow"></div>
 
     {{-- Content --}}
     <div class="section-content text-center px-6 max-w-lg mx-auto">
@@ -39,9 +39,9 @@
         </p> -->
 
         <h1 class="font-serif text-[#F5F0E8] leading-tight animate-cinematic delay-300">
-            <span class="block text-2xl sm:text-2xl lg:text-2xl">{{ $wedding->bride_name }}</span>
+            <span class="block text-2xl sm:text-2xl lg:text-2xl text-glimmer">{{ $wedding->bride_name }}</span>
             <span class="block text-[#B8960C] text-2xl my-3 font-light italic animate-fade-up delay-400">&</span>
-            <span class="block text-2xl sm:text-2xl lg:text-2xl">{{ $wedding->groom_name }}</span>
+            <span class="block text-2xl sm:text-2xl lg:text-2xl text-glimmer">{{ $wedding->groom_name }}</span>
         </h1>
 
 

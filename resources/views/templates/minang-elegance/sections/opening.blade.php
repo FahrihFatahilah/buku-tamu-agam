@@ -5,7 +5,7 @@
 
     <div class="text-center px-8 reveal">
         {{-- Ornament top --}}
-        <div class="mb-8 opacity-60">
+        <div class="mb-8 opacity-60 ornament-float">
             <svg viewBox="0 0 120 20" class="w-32 mx-auto fill-[#c9a84c]">
                 <path d="M60 2 L65 10 L70 2 L75 10 L80 2 L85 10 L90 2 L95 10 L100 2 L105 10 L110 2 L115 10 L120 2 L120 18 L0 18 L0 2 L5 10 L10 2 L15 10 L20 2 L25 10 L30 2 L35 10 L40 2 L45 10 L50 2 L55 10 Z"/>
             </svg>
@@ -35,7 +35,7 @@
         </button>
 
         {{-- Ornament bottom --}}
-        <div class="mt-8 opacity-60">
+        <div class="mt-8 opacity-60 ornament-float">
             <svg viewBox="0 0 120 20" class="w-32 mx-auto fill-[#c9a84c]">
                 <path d="M60 18 L65 10 L70 18 L75 10 L80 18 L85 10 L90 18 L95 10 L100 18 L105 10 L110 18 L115 10 L120 18 L120 2 L0 2 L0 18 L5 10 L10 18 L15 10 L20 18 L25 10 L30 18 L35 10 L40 18 L45 10 L50 18 L55 10 Z"/>
             </svg>

@@ -35,13 +35,16 @@
             <div class="absolute left-1/2 top-0 bottom-0 w-px bg-[#c9a84c]/20 -translate-x-1/2"></div>
 
             @foreach($stories as $i => $story)
-            <div class="relative flex items-start gap-6 mb-10 reveal {{ $i % 2 === 0 ? 'flex-row' : 'flex-row-reverse' }}">
-                <div class="flex-1 {{ $i % 2 === 0 ? 'text-right' : 'text-left' }}">
+            <div class="relative flex items-start gap-6 mb-10 {{ $i % 2 === 0 ? 'flex-row' : 'flex-row-reverse' }} reveal">
+                <div class="flex-1 {{ $i % 2 === 0 ? 'text-right' : 'text-left' }} group cursor-default">
                     <p class="text-[#c9a84c] text-xs tracking-widest mb-1">{{ $story['year'] }}</p>
-                    <h3 class="font-serif text-lg text-[#3d1a1a] mb-1">{{ $story['title'] }}</h3>
-                    <p class="text-[#6b4c3b]/70 text-sm leading-relaxed">{{ $story['description'] }}</p>
+                    <h3 class="font-serif text-lg text-[#3d1a1a] mb-1 group-hover:text-[#7C3238] transition-colors duration-300">{{ $story['title'] }}</h3>
+                    <p class="text-[#6b4c3b]/70 text-sm leading-relaxed max-h-12 overflow-hidden group-hover:max-h-40 transition-all duration-500 ease-out">{{ $story['description'] }}</p>
                 </div>
-                <div class="w-3 h-3 rounded-full bg-[#c9a84c] border-2 border-[#f5ede0] shrink-0 mt-1.5 relative z-10"></div>
+                <div class="relative shrink-0 mt-1.5 z-10">
+                    <div class="w-3 h-3 rounded-full bg-[#c9a84c] border-2 border-[#f5ede0]"></div>
+                    <div class="absolute inset-0 rounded-full bg-[#c9a84c]/30 animate-ping" style="animation-duration:2s;animation-delay:{{ $i * 0.4 }}s"></div>
+                </div>
                 <div class="flex-1"></div>
             </div>
             @endforeach

@@ -30,8 +30,8 @@
 
                     @if($method->type === 'bank_transfer')
                     <button
-                        onclick="navigator.clipboard.writeText('{{ $method->account_number }}')"
-                        class="shrink-0 px-3 py-1.5 border border-[#2C1810]/15 text-[#2C1810]/50 text-xs hover:border-[#7C3238]/30 hover:text-[#7C3238] transition-colors">
+                        onclick="copyToClipboard(this, '{{ $method->account_number }}')"
+                        class="shrink-0 px-3 py-1.5 border border-[#2C1810]/15 text-[#2C1810]/50 text-xs hover:border-[#7C3238]/30 hover:text-[#7C3238] transition-all">
                         Salin
                     </button>
                     @endif
@@ -41,3 +41,20 @@
         </div>
     </div>
 </section>
+
+<script>
+function copyToClipboard(btn, text) {
+    navigator.clipboard.writeText(text).then(function() {
+        var orig = btn.textContent;
+        btn.textContent = '✓ Tersalin';
+        btn.style.borderColor = 'rgba(184,150,12,0.5)';
+        btn.style.color = '#B8960C';
+        spawnParticles(btn);
+        setTimeout(function() {
+            btn.textContent = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 2000);
+    });
+}
+</script>
