@@ -14,23 +14,23 @@
         @if($videoUrl)
         <div class="aspect-video reveal">
             @php
-                // Support YouTube and Vimeo
                 $embedUrl = $videoUrl;
                 if (preg_match('/youtube\.com\/watch\?v=([^&]+)/', $videoUrl, $m) ||
                     preg_match('/youtu\.be\/([^?]+)/', $videoUrl, $m)) {
-                    $embedUrl = "https://www.youtube.com/embed/{$m[1]}?rel=0";
+                    $embedUrl = "https://www.youtube.com/embed/{$m[1]}?rel=0&autoplay=1&mute=1&loop=1&playlist={$m[1]}";
                 } elseif (preg_match('/vimeo\.com\/(\d+)/', $videoUrl, $m)) {
-                    $embedUrl = "https://player.vimeo.com/video/{$m[1]}";
+                    $embedUrl = "https://player.vimeo.com/video/{$m[1]}?autoplay=1&muted=1&loop=1";
                 }
             @endphp
             <iframe src="{{ $embedUrl }}" class="w-full h-full"
                 frameborder="0" allowfullscreen loading="lazy"
+                allow="autoplay; encrypted-media"
                 title="Video Pernikahan {{ $wedding->coupleName() }}">
             </iframe>
         </div>
         @elseif($videoMedia)
         <div class="aspect-video reveal">
-            <video controls class="w-full h-full object-cover" preload="none"
+            <video autoplay muted loop playsinline class="w-full h-full object-cover" preload="auto"
                 poster="{{ $media->where('collection', 'hero')->first() ? Storage::url($media->where('collection', 'hero')->first()->file_path) : '' }}">
                 <source src="{{ Storage::url($videoMedia->file_path) }}" type="{{ $videoMedia->mime_type }}">
             </video>

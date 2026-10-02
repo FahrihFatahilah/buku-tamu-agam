@@ -30,41 +30,115 @@
         </div>
 
         {{-- Lightbox --}}
-        <div id="lightbox" class="fixed inset-0 z-[9000] bg-black/95 flex items-center justify-center hidden"
+        <div id="lightbox" class="fixed inset-0 z-[9000] bg-black/95 flex flex-col items-center justify-center hidden"
              onclick="if(event.target===this)closeLightbox()">
-            <button onclick="closeLightbox()" class="absolute top-4 right-4 text-white/60 hover:text-white text-2xl leading-none z-10">&times;</button>
-            <button onclick="lightboxPrev()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-3xl px-3 z-10">&#8249;</button>
-            <button onclick="lightboxNext()" class="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white text-3xl px-3 z-10">&#8250;</button>
-            <img id="lightbox-img" src="" alt="" class="max-h-[90vh] max-w-[90vw] object-contain select-none"
-                 style="transition:opacity 0.25s ease,transform 0.25s ease;">
+
+            {{-- Close --}}
+            <button onclick="closeLightbox()"
+                class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white/60 active:text-white z-20 text-2xl">&times;</button>
+
+            {{-- Counter --}}
+            <div id="lb-counter" class="absolute top-4 left-1/2 -translate-x-1/2 text-white/40 text-xs tracking-widest z-20"></div>
+
+            {{-- Image wrapper (swipeable) --}}
+            <div id="lb-wrap" class="relative w-full flex items-center justify-center" style="height:80vh;touch-action:pan-y;">
+                <img id="lightbox-img" src="" alt=""
+                     class="max-h-full max-w-[92vw] object-contain select-none"
+                     style="transition:opacity 0.22s ease,transform 0.22s ease;">
+            </div>
+
+            {{-- Nav arrows --}}
+            <button onclick="lightboxPrev()"
+                class="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-white/50 active:text-white text-3xl z-20">&#8249;</button>
+            <button onclick="lightboxNext()"
+                class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center text-white/50 active:text-white text-3xl z-20">&#8250;</button>
+
+            {{-- Dot indicators --}}
+            <div id="lb-dots" class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-1.5 z-20"></div>
         </div>
-        @php $galleryUrls = $galleryMedia->map(fn($m) => Storage::url($m->file_path))->values()->toJson(); @endphp
+
         <script>
         var _galleryUrls = @json($galleryMedia->map(fn($m) => Storage::url($m->file_path))->values());
         var _lbIndex = 0;
-        function openLightbox(i) {
-            _lbIndex = i;
-            var lb = document.getElementById('lightbox');
+
+        function _lbShow(i, dir) {
+            _lbIndex = (i + _galleryUrls.length) % _galleryUrls.length;
             var img = document.getElementById('lightbox-img');
-            img.style.opacity = '0'; img.style.transform = 'scale(0.92)';
-            img.src = _galleryUrls[i];
+            var slideOut = dir === 1 ? '-40px' : '40px';
+            var slideIn  = dir === 1 ? '40px'  : '-40px';
+            img.style.opacity = '0';
+            img.style.transform = 'translateX(' + slideOut + ') scale(0.96)';
+            setTimeout(function () {
+                img.src = _galleryUrls[_lbIndex];
+                img.style.transform = 'translateX(' + slideIn + ') scale(0.96)';
+                img.onload = function () {
+                    img.style.opacity = '1';
+                    img.style.transform = 'translateX(0) scale(1)';
+                };
+                /* jika sudah cache, onload tidak fire */
+                if (img.complete) { img.style.opacity='1'; img.style.transform='translateX(0) scale(1)'; }
+            }, 180);
+            /* counter */
+            document.getElementById('lb-counter').textContent = (_lbIndex + 1) + ' / ' + _galleryUrls.length;
+            /* dots */
+            var dots = document.getElementById('lb-dots');
+            Array.from(dots.children).forEach(function(d, idx) {
+                d.style.background = idx === _lbIndex ? 'rgba(184,150,12,0.9)' : 'rgba(255,255,255,0.25)';
+            });
+        }
+
+        function openLightbox(i) {
+            var lb = document.getElementById('lightbox');
             lb.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
-            img.onload = function() { img.style.opacity='1'; img.style.transform='scale(1)'; };
+            /* build dots once */
+            var dots = document.getElementById('lb-dots');
+            if (!dots.children.length) {
+                _galleryUrls.forEach(function(_, idx) {
+                    var d = document.createElement('div');
+                    d.style.cssText = 'width:6px;height:6px;border-radius:50%;cursor:pointer;transition:background 0.2s;';
+                    d.onclick = function(e) { e.stopPropagation(); _lbShow(idx, idx > _lbIndex ? 1 : -1); };
+                    dots.appendChild(d);
+                });
+            }
+            _lbShow(i, 0);
         }
+
         function closeLightbox() {
             document.getElementById('lightbox').classList.add('hidden');
             document.body.style.overflow = '';
         }
-        function lightboxPrev() { openLightbox((_lbIndex - 1 + _galleryUrls.length) % _galleryUrls.length); }
-        function lightboxNext() { openLightbox((_lbIndex + 1) % _galleryUrls.length); }
+        function lightboxPrev() { _lbShow(_lbIndex - 1, -1); }
+        function lightboxNext() { _lbShow(_lbIndex + 1,  1); }
+
+        /* Keyboard */
         document.addEventListener('keydown', function(e) {
             if (document.getElementById('lightbox').classList.contains('hidden')) return;
-            if (e.key === 'ArrowLeft') lightboxPrev();
+            if (e.key === 'ArrowLeft')  lightboxPrev();
             if (e.key === 'ArrowRight') lightboxNext();
-            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'Escape')     closeLightbox();
         });
-        /* hover zoom per item */
+
+        /* Touch swipe */
+        (function () {
+            var wrap = document.getElementById('lb-wrap');
+            var startX = 0, startY = 0, dragging = false;
+            wrap.addEventListener('touchstart', function(e) {
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                dragging = true;
+            }, { passive: true });
+            wrap.addEventListener('touchend', function(e) {
+                if (!dragging) return;
+                dragging = false;
+                var dx = e.changedTouches[0].clientX - startX;
+                var dy = e.changedTouches[0].clientY - startY;
+                if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+                dx < 0 ? lightboxNext() : lightboxPrev();
+            }, { passive: true });
+        })();
+
+        /* Hover zoom grid items */
         document.querySelectorAll('.gallery-item img').forEach(function(img) {
             img.parentElement.addEventListener('mouseenter', function() { img.style.transform = 'scale(1.08)'; });
             img.parentElement.addEventListener('mouseleave', function() { img.style.transform = 'scale(1)'; });

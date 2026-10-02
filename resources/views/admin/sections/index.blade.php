@@ -71,6 +71,18 @@
                             class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400">
                     </div>
 
+                    {{-- Video URL (khusus section video) --}}
+                    @if($section->section_key === 'video')
+                    <div class="bg-stone-50 border border-stone-200 px-3 py-3">
+                        <label class="block text-xs font-medium text-stone-600 mb-1">URL Video</label>
+                        <input type="url" name="settings[url]"
+                            value="{{ $section->settings['url'] ?? '' }}"
+                            placeholder="https://www.youtube.com/watch?v=... atau https://vimeo.com/..."
+                            class="w-full border border-stone-200 px-3 py-2 text-sm focus:outline-none focus:border-stone-400 bg-white">
+                        <p class="text-xs text-stone-400 mt-1">Mendukung YouTube dan Vimeo. Atau upload file video di menu <strong>Media</strong>.</p>
+                    </div>
+                    @endif
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {{-- Background color --}}
                         <div>

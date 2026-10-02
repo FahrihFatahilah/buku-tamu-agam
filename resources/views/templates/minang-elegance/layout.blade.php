@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $wedding->bride_name }} & {{ $wedding->groom_name }} — Undangan Pernikahan</title>
+    <title>{{ $wedding->bride_name }} & {{ $wedding->groom_name }} â€” Undangan Pernikahan</title>
     <meta name="description" content="{{ $wedding->seo_description ?? $wedding->description }}">
     <meta property="og:title" content="{{ $wedding->seo_title ?? $wedding->coupleName() }}">
     <meta property="og:description" content="{{ $wedding->seo_description ?? $wedding->description }}">
@@ -26,7 +26,7 @@
             background: #1a0a0a;
         }
 
-        /* Panel kiri & kanan — masing-masing 52% agar overlap di tengah */
+        /* Panel kiri & kanan â€” masing-masing 52% agar overlap di tengah */
         .curtain-container {
             position: absolute;
             top: 0; bottom: 0;
@@ -295,7 +295,7 @@
 </div>
 
 <script>
-/* ── Curtain open ─────────────────────────────────────────────────────────── */
+/* â”€â”€ Curtain open â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 (function () {
     var stage = document.getElementById('curtain-stage');
     var btn = document.getElementById('btn-open');
@@ -320,7 +320,7 @@
     }
 })();
 
-/* ── Closing curtain ──────────────────────────────────────────────────────── */
+/* â”€â”€ Closing curtain â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 (function () {
     var trigger = document.getElementById('closing-trigger');
     var stage = document.getElementById('closing-stage');
@@ -343,10 +343,10 @@
         var obs = new IntersectionObserver(function (entries) {
             var e = entries[0];
             if (e.isIntersecting && e.boundingClientRect.top > 0) {
-                // Masuk dari bawah → tutup
+                // Masuk dari bawah â†’ tutup
                 close();
             } else if (!e.isIntersecting && e.boundingClientRect.top > 0) {
-                // Keluar ke atas → buka lagi
+                // Keluar ke atas â†’ buka lagi
                 open();
             }
         }, { threshold: 0 });
@@ -354,7 +354,7 @@
     }
 })();
 
-/* ── Gold particle burst ──────────────────────────────────────────────────── */
+/* â”€â”€ Gold particle burst â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function spawnParticles(origin) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var rect = origin.getBoundingClientRect();
@@ -380,19 +380,19 @@ function spawnParticles(origin) {
     }
 }
 
-/* ── Parallax engine — scroll-based, mobile-first (rAF) ──────────────────────── */
+/* â”€â”€ Parallax engine â€” scroll-based, mobile-first (rAF) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 (function () {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     var ticking = false;
     var gyroX = 0, gyroY = 0;
 
-    /* ─ Scroll parallax ─ */
+    /* â”€ Scroll parallax â”€ */
     function updateScroll() {
         var sy = window.scrollY;
         var vh = window.innerHeight;
 
-        /* Hero bg — bergerak 25% dari scroll */
+        /* Hero bg â€” bergerak 25% dari scroll */
         document.querySelectorAll('.parallax-bg').forEach(function (el) {
             var speed = parseFloat(el.dataset.parallaxSpeed || 0.25);
             el.style.transform = 'translate3d(0,' + (sy * speed) + 'px,0) scale(1.12)';
@@ -414,7 +414,7 @@ function spawnParticles(origin) {
             el.style.transform = 'translate3d(0,' + (progress * speed * 100) + 'px,0)';
         });
 
-        /* Ornamen corner — subtle depth */
+        /* Ornamen corner â€” subtle depth */
         document.querySelectorAll('.parallax-slow').forEach(function (el) {
             var rect = el.getBoundingClientRect();
             var offset = ((rect.top + rect.height / 2) - vh / 2) * 0.05;
@@ -430,7 +430,7 @@ function spawnParticles(origin) {
 
     updateScroll();
 
-    /* ─ Gyroscope parallax (mobile) ─
+    /* â”€ Gyroscope parallax (mobile) â”€
        Hanya aktif jika device punya gyro dan user grant permission (iOS 13+) */
     function applyGyro() {
         document.querySelectorAll('.parallax-bg').forEach(function (el) {
@@ -454,7 +454,7 @@ function spawnParticles(origin) {
 
     if (typeof DeviceOrientationEvent !== 'undefined') {
         if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            /* iOS 13+ — minta permission saat user pertama kali tap */
+            /* iOS 13+ â€” minta permission saat user pertama kali tap */
             document.addEventListener('click', function askGyro() {
                 DeviceOrientationEvent.requestPermission().then(function (state) {
                     if (state === 'granted') window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
@@ -462,31 +462,16 @@ function spawnParticles(origin) {
                 document.removeEventListener('click', askGyro);
             }, { once: true });
         } else {
-            /* Android & desktop — langsung listen */
+            /* Android & desktop â€” langsung listen */
             window.addEventListener('deviceorientation', onDeviceOrientation, { passive: true });
         }
     }
 })();
 
-/* ── Scroll reveal (IntersectionObserver) ────────────────────────────────── */
-(function () {
-    if (!('IntersectionObserver' in window)) {
-        document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-blur,.stagger-children,.ornament-line,.reveal-line').forEach(function (el) {
-            el.classList.add('visible');
-        });
-        return;
-    }
-    var obs = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-            if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
-        });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    document.querySelectorAll('.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-blur,.stagger-children,.ornament-line,.reveal-line').forEach(function (el) {
-        obs.observe(el);
-    });
-})();
+/* â”€â”€ Scroll reveal (IntersectionObserver) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+document.addEventListener('DOMContentLoaded', function () { var SEL = '.reveal,.reveal-left,.reveal-right,.reveal-scale,.reveal-blur,.stagger-children,.ornament-line,.reveal-line'; if (!('IntersectionObserver' in window)) { document.querySelectorAll(SEL).forEach(function(el){el.classList.add('visible');}); return; } var obs = new IntersectionObserver(function(entries){ entries.forEach(function(e){ if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} }); },{threshold:0.05,rootMargin:'0px 0px -30px 0px'}); document.querySelectorAll(SEL).forEach(function(el){obs.observe(el);}); });
 
-/* ── Touch ripple on couple photos (mobile-friendly, ganti tilt) ─────────────── */
+/* â”€â”€ Touch ripple on couple photos (mobile-friendly, ganti tilt) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 (function () {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     document.querySelectorAll('.tilt-card').forEach(function (card) {
@@ -540,3 +525,4 @@ function musicPlayer(playlist) {
 
 </body>
 </html>
+
