@@ -16,13 +16,19 @@
             $embedUrl = "https://player.vimeo.com/video/{$m[1]}?autoplay=1&muted=1&loop=1&background=1";
         }
     @endphp
-    <iframe src="{{ $embedUrl }}"
-        class="absolute inset-0 w-full h-full"
-        style="border:0;pointer-events:none;"
-        allow="autoplay; encrypted-media"
-        allowfullscreen
-        title="Video Pernikahan {{ $wedding->coupleName() }}">
-    </iframe>
+    {{-- Scale trick: paksa iframe portrait mengisi penuh layar --}}
+    <div class="absolute inset-0 overflow-hidden">
+        <iframe src="{{ $embedUrl }}"
+            class="absolute"
+            style="top:50%;left:50%;transform:translate(-50%,-50%);
+                   width:100%;height:177.78vw; /* 16/9 portrait */
+                   min-width:56.25vh;min-height:100%;
+                   border:0;pointer-events:none;"
+            allow="autoplay; encrypted-media"
+            allowfullscreen
+            title="Video Pernikahan {{ $wedding->coupleName() }}">
+        </iframe>
+    </div>
 
     @elseif($videoMedia)
     <video autoplay muted loop playsinline
@@ -31,14 +37,5 @@
         <source src="{{ Storage::url($videoMedia->file_path) }}" type="{{ $videoMedia->mime_type }}">
     </video>
     @endif
-
-    {{-- Overlay gelap tipis agar teks terbaca --}}
-    <div class="absolute inset-0 bg-black/30 pointer-events-none"></div>
-
-    {{-- Label tengah --}}
-    <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-6 pointer-events-none reveal">
-        <p class="text-[#c9a84c] text-xs tracking-[0.4em] uppercase mb-3">Momen Spesial</p>
-        <h2 class="font-serif text-3xl text-white">{{ $wedding->coupleName() }}</h2>
-    </div>
 
 </section>
